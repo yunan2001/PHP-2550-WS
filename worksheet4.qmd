@@ -1,0 +1,63 @@
+---
+title: "PHP 2550: Worksheet 4"
+subtitle: "Due: September 27th at 11:59pm"
+format: pdf
+editor: visual
+---
+
+## Reading Recap
+
+1.  Recap Chapters 3-6 of the "The 9 Pitfalls of Data Science" in three points and choose your favorite example. Each point could be summarizing a key takeaway, something that surprised you, or something that you want to remember.
+
+2.  The questions below relate to the article [Personalized Research on Diet in Ulcerative Colitis and Crohn's Disease: A Series of N-of-1 Diet Trials](https://canvas.brown.edu/courses/1092384/files/69227751?wrap=1).
+
+    -   Summarize the paper in 1-2 paragraphs using your own words (a good way to help this is to not look at the paper when writing your response). Use the six questions from last week to help guide your summary
+
+        -   What do the author(s) want to know (motivation)?
+
+        -   What did they do (approach/methods)?
+
+        -   Why was it done that way (context within the field)?
+
+        -   What do the results show (figures and data tables)?
+
+        -   How did the author(s) interpret the results (interpretation/discussion)?
+
+        -   What should be done next (discussion/own reflection)?
+
+    -   Reflecting on the replication crisis and documentation discussion from class, how easy would it be to try to replicate this study? Explain your response.
+
+    -   How was the data presented in the paper? What parts of an exploratory analysis were included?
+
+    -   Take a look at the visual below that did not make into the paper and was replaced with Figure 1 in the paper. How is the data presented in each visual? Why do you think the authors went with Figure 1?\
+        \
+        ![](fig1_orig.png)
+
+3.  The following questions relate to the reading "An Introduction to Modern Missing Data Analyses".
+
+    -   Explain the three missing data mechanisms introduced Missing Completely at Random (MCAR), Missing at Random (MAR), and Missing Not at Random (MNAR) and give an example of each. Describe a setting in which it would be difficult to tell which setting is appropriate for our data.
+
+    -   In this class, we will focus on exploring missing data, thinking through what could have contributed to missing data, and introduce using multiple imputation as a possible tool to use. Write a 3-5 sentence explanation of multiple imputation and then describe settings when multiple imputation might not be appropriate to use.
+
+## Data Exploration and Visualization
+
+The data (schmid_data.csv and schmid_codebook.xslx) in this question comes from a previous PhD qualifying exam. The data is a national data set of demographic, diagnostic, and respiratory parameters of infants with severe bronchopulmonary dysplasia (sBPD) admitted to collaborative NICUs and with known respiratory support parameters at 36 weeks postmenstrual age (PMA). This data was used to develop a regression model to predict the composite outcome of tracheostomy/death to guide the indication criteria and timing of tracheostomy placement. For our purposes, we will focus on exploratory analysis of this data and you do not need to do any modeling.
+
+Conduct an exploratory analysis of this data (3-5 pages). To guide yourself, think of at least three questions you want to answer using your EDA. You should also look at patterns of missing data. As part of your analysis, create a summary table and include at least two visualizations. When creating your visuals, you should think about what you want the reader to learn from your visual, making your visual clear and effective, and the data-to-ink ratio (i.e. how much information your visual contains and whether the visual is more effective than putting the same information in text). Your writing accompanying your analysis can be short and informal.
+
+## Missing Data and Imputation with MICE
+
+Load in the data called `pain` from the `HDSinRdata` package and read the documentation. The data contains information from patient-reported pain assessments at baseline and at a 3-month follow-up.
+
+1.  First, describe the patterns of missing data observed in the data set overall. How would you present this information in an exploratory analysis?
+
+2.  If we were interested in analyzing the change in pain over time, it would be important to think about the missing data due to loss to follow-up. Compare the baseline characteristics between those with and without follow-up information. Comment on your results and discuss whether you think the data is MCAR, MAR, or MNAR.
+
+3.  Now suppose we are interested in mental and physical function at baseline and how that is associated with pain intensity. We will use the `mice` package to perform multiple imputation on this data. First, drop the variable `PAIN_INTENSITY_AVERAGE.FOLLOW_UP` and the body map variables `X101:X238`.
+
+4.  Use the `mice()` function to perform multiple imputation to create five imputed data sets and save the result as `pain_mice`. You should read the documentation on this function to understand how it is implementing this and what arguments you might want to set. What is the structure of the returned object?
+
+5.  For one imputed data set, find the average mental and physical health score for each possible pain intensity level (0-10). To access the first imputed data set you can use the code below.\
+    `mice::complete(pain_mice,1)`
+
+6.  Repeat this for the other four data sets and then use Rubin's rules to plot the results. <https://bookdown.org/mwheymans/bookmi/rubins-rules.html>
