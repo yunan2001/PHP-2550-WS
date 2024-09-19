@@ -33,6 +33,9 @@ editor: visual
         \
         ![](fig1_orig.png)
 
+prob, less CI, dominance  color better diet, extra info: split people into disease groups vs. descriptive stat  / uncertainty / CI include 0
+
+
 3.  The following questions relate to the reading "An Introduction to Modern Missing Data Analyses".
 
     -   Explain the three missing data mechanisms introduced Missing Completely at Random (MCAR), Missing at Random (MAR), and Missing Not at Random (MNAR) and give an example of each. Describe a setting in which it would be difficult to tell which setting is appropriate for our data.
@@ -44,6 +47,12 @@ editor: visual
 The data (schmid_data.csv and schmid_codebook.xslx) in this question comes from a previous PhD qualifying exam. The data is a national data set of demographic, diagnostic, and respiratory parameters of infants with severe bronchopulmonary dysplasia (sBPD) admitted to collaborative NICUs and with known respiratory support parameters at 36 weeks postmenstrual age (PMA). This data was used to develop a regression model to predict the composite outcome of tracheostomy/death to guide the indication criteria and timing of tracheostomy placement. For our purposes, we will focus on exploratory analysis of this data and you do not need to do any modeling.
 
 Conduct an exploratory analysis of this data (3-5 pages). To guide yourself, think of at least three questions you want to answer using your EDA. You should also look at patterns of missing data. As part of your analysis, create a summary table and include at least two visualizations. When creating your visuals, you should think about what you want the reader to learn from your visual, making your visual clear and effective, and the data-to-ink ratio (i.e. how much information your visual contains and whether the visual is more effective than putting the same information in text). Your writing accompanying your analysis can be short and informal.
+
+codebook - structure: longitudinal (36/44) correlation; missing ate over time (a lot 44 wk are missing, healthier babies are more likely to lose data at 44 wk);
+explain missing: due to the center
+            clinical setting: multiple centers: clustering, difference between centers;
+            race: data quality issue (unable to answer);
+missing / center / relationship outcome
 
 ## Missing Data and Imputation with MICE
 
