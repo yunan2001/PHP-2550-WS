@@ -9,6 +9,12 @@ editor: visual
 
 1.  Recap Chapters 3-6 of the "The 9 Pitfalls of Data Science" in three points and choose your favorite example. Each point could be summarizing a key takeaway, something that surprised you, or something that you want to remember.
 
+    -   In pitfall 4, worshiping computer, the example of "Seeing the World Through Pixels" surprises me a lot. This example talks about how differently computers and human "see" an object. When a picture of school bus was shown, the DNN (deep neural network) identified it as an airplane instead of a school bus. This occurs since, unlike humans, computers would not understand the picture but analyzes the pixel patterns. Human always identify the object by understanding the context and meaning, even the picture is blocked or unclear, we rely on our experiences to identify it. I choose this example since it helped me understand something I had been confused about. When trying to log in to some websites, I have encountered tasks asking me to recognize traffic lights, buses, or taxis and they said this task can prevent computer from logging in. I used to believe this should be a easy task for "smart computers", but after reading this example, I understand the reason for that and I realize how important and sophisticated human perception really is. In addition, I would like to remember this tip and avoid overly trust computers.
+    
+    - In pitfall 5, Torturing Data, the example of "Aspartame doesn't cause cancer" does catch my attention. I usually drink diet coke to avoid suger intake and I was concerned about this topic previously when there are people saying that Aspartame could cause cancer. A lot of studies have shown that aspartame does not cause cancer, and this result is confirmed by both the FDA and European Food Safety Authority. However, because of fears inflamed by hoax emails, people continued to test it. Because of over-testing, there a few occasional anomal cases popped up, suggesting possible links between brain tumors and aspartame. This p-hacking case shows that over-testing or over-analyzing is a way to torturing data and this would increase the probability of finding meaningless patterns which are not the result we would like to have. This is also a tip I would like to remind myself.
+    
+    - In pitall 6, fooling yourself, the example of "Wishful Thinking" attracts my attention since I also have experiences of overestimating my math test scores     during high school and this scenario is common in our class. This example talks about how people can overestimate their ability that the 100 high school students predicted a score of 75 for a math test on average while their mean score is actually 60. This discrepancy occurs due to bias of optimism or an underestimation of the math test's difficulty, leading to wrong decision making or conclusion. Our human nature can lead us to be overly optimistic which is a way of fooling ourselves, letting our subjective biases and desires influence our judgement. This is also a tip I would remind myself in the future.
+
 2.  The questions below relate to the article [Personalized Research on Diet in Ulcerative Colitis and Crohn's Disease: A Series of N-of-1 Diet Trials](https://canvas.brown.edu/courses/1092384/files/69227751?wrap=1).
 
     -   Summarize the paper in 1-2 paragraphs using your own words (a good way to help this is to not look at the paper when writing your response). Use the six questions from last week to help guide your summary
@@ -33,8 +39,7 @@ editor: visual
         \
         ![](fig1_orig.png)
 
-prob, less CI, dominance  color better diet, extra info: split people into disease groups vs. descriptive stat  / uncertainty / CI include 0
-
+prob, less CI, dominance color better diet, extra info: split people into disease groups vs. descriptive stat / uncertainty / CI include 0
 
 3.  The following questions relate to the reading "An Introduction to Modern Missing Data Analyses".
 
@@ -48,11 +53,7 @@ The data (schmid_data.csv and schmid_codebook.xslx) in this question comes from 
 
 Conduct an exploratory analysis of this data (3-5 pages). To guide yourself, think of at least three questions you want to answer using your EDA. You should also look at patterns of missing data. As part of your analysis, create a summary table and include at least two visualizations. When creating your visuals, you should think about what you want the reader to learn from your visual, making your visual clear and effective, and the data-to-ink ratio (i.e. how much information your visual contains and whether the visual is more effective than putting the same information in text). Your writing accompanying your analysis can be short and informal.
 
-codebook - structure: longitudinal (36/44) correlation; missing ate over time (a lot 44 wk are missing, healthier babies are more likely to lose data at 44 wk);
-explain missing: due to the center
-            clinical setting: multiple centers: clustering, difference between centers;
-            race: data quality issue (unable to answer);
-missing / center / relationship outcome
+codebook - structure: longitudinal (36/44) correlation; missing ate over time (a lot 44 wk are missing, healthier babies are more likely to lose data at 44 wk); explain missing: due to the center clinical setting: multiple centers: clustering, difference between centers; race: data quality issue (unable to answer); missing / center / relationship outcome
 
 ## Missing Data and Imputation with MICE
 
