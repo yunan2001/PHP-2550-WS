@@ -115,3 +115,8 @@ Load in the data called `pain` from the `HDSinRdata` package and read the docume
 library(HDSinRdata)
 data("pain")
 ```
+
+```{r}
+vis_dat(pain[, 76:90]) +
+theme(axis.text.x = element_text(angle = 90, size = 5))
+```
