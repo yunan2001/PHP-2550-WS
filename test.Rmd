@@ -1,0 +1,108 @@
+---
+title: "test"
+author: "Yunan Chen"
+date: "2024-09-24"
+output: pdf_document
+---
+
+# EDA
+```{r}
+library(tidyr)
+library(gtsummary)
+schmid_data <- read.csv("schmid_data.csv")
+schmid_trach <- schmid_data %>%
+  select(mat_race, Trach) %>%
+  tbl_summary(by=Trach,
+              label = list(mat_race ~ "Race")) %>%
+  modify_header(update = list(stat_1 ~ "**No**",
+                              stat_2 ~ "**Yes**")) %>%
+  modify_spanning_header(update =  all_stat_cols() ~  "**Trachoestomy**") %>%
+  modify_footnote(update = all_stat_cols() ~ "median (IQR) for continuous; n (%) for categorical")
+schmid_trach
+
+schmid_death <- schmid_data %>%
+  select(mat_race, Death) %>%
+  tbl_summary(by=Death,
+              label = list(mat_race ~ "Race")) %>%
+  # modify_header(update = list(stat_1 ~ "**No**",
+  #                             stat_2 ~ "**Yes**")) %>%
+  modify_spanning_header(update =  all_stat_cols() ~  "**Death**") %>%
+  modify_footnote(update = all_stat_cols() ~ "median (IQR) for continuous; n (%) for categorical")
+schmid_death
+
+schimd_tbl <- tbl_merge(list(schmid_trach, schmid_death),
+                        tab_spanner = c("**Trachoestomy**", "**Death**"))
+schimd_tbl
+```
+
+# Multiple Imputation
+```{r}
+library(HDSinRdata)
+library(mice)
+library(dplyr)
+data(pain)
+
+# Missing Patterns
+## Step 1
+## The code below calculates whe percent of data is missing. A simple look at this table warns us about several variables that have more than 25% missing - such as PAIN_INTENSITY_AVERAGE.FOLLOW_UP, PROMIS_PAIN_BEHAVIOR, and BMI. It might be useful to remove these varibales from the dataset first as they might mess up the imputation.
+
+p_missing <- unlist(lapply(pain, function(x) sum(is.na(x))))/nrow(pain)
+sort(p_missing[p_missing > 0], decreasing = TRUE)
+
+# Multiple Imputation
+## Step 3
+pain_mod <- pain[, -c(2:75)] %>%
+  select(-PAIN_INTENSITY_AVERAGE.FOLLOW_UP)
+## Step 4
+pain_mice <- mice(pain_mod, maxit = 5)
+
+# Imputed Results
+## Step 5
+mice_imp1 <- mice::complete(pain_mice,1)
+score1 <- mice_imp1 %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health = mean(GH_MENTAL_SCORE),
+    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+  )
+
+## Step 6
+mice_imp2 <- mice::complete(pain_mice,2)
+score2 <- mice_imp2 %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health = mean(GH_MENTAL_SCORE),
+    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+  )
+
+
+mice_imp3 <- mice::complete(pain_mice,3)
+score3 <- mice_imp3 %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health = mean(GH_MENTAL_SCORE),
+    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+  )
+
+
+mice_imp4 <- mice::complete(pain_mice,4)
+score4 <- mice_imp4 %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health = mean(GH_MENTAL_SCORE),
+    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+  )
+
+mice_imp5 <- mice::complete(pain_mice,5)
+score5 <- mice_imp5 %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health = mean(GH_MENTAL_SCORE),
+    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+  )
+
+
+# PAIN_INTENSITY_AVERAGE
+# PROMIS_PHYSICAL_FUNCTION
+# GH_MENTAL_SCORE
+```
