@@ -61,6 +61,7 @@ library(ggplot2)
 library(visdat)
 schmid_data <- read.csv("schmid_data.csv")
 ```
+
 ```{r}
 vis_dat(schmid_data) +
 theme(axis.text.x = element_text(angle = 90, size = 5))
