@@ -4,6 +4,14 @@ author: "Yunan Chen"
 date: "2024-09-24"
 output: pdf_document
 ---
+# Reading 2
+
+Since the evidence about specific carbohydrate diet (SCD) for inflammatory bowel disease (IBD) is remain limited, this study was conducted in the purpose of examining the impact of two different diets, SCD and modified SCD (MSCD) on IBD symptoms and inflammation
+in childern and adolescents with IBD. 
+
+To achieve this goal, an N-of-1 trail study design was performed. 54 individuals qualified for the inclusion criteria were first started with at least 1-week baseline on their usual diet (US). Then, randomized to begin either SCD or MSCD with a centralized, stratified, block randomization approach using a 1:1 allocation ratio. To avoid confounding the secular trends with the real treatment effect, multiple crossovers was conducted, which means that participants alternated between SCD and MSCD for 4 periods, each 8 weeks long. 
+
+Analysis was done on both individual and aggregated level. Results of individual level was presented in tables showing participants had no clinically meaningful difference between SCD and MSCD. Change in IBD symptoms on SCD versus UD varied by individual. On aggregated level, there was <1% probability of a clinically meaningful difference in IBD symptoms between SCD and MSCD across the pooled, imputed sample. And there was a 62% probability that SCD was better than UD for reducing IBD symptoms, and 45% probability that MSCD was better than UD.
 
 # EDA
 ```{r}
