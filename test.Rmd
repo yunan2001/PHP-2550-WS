@@ -29,9 +29,6 @@ Multiple imputation might not be appropriate to use when MNAR occurs, that is, w
 
 
 
-
-
-
 # EDA
 ```{r}
 library(tidyr)
@@ -67,6 +64,7 @@ schimd_tbl
 library(HDSinRdata)
 library(mice)
 library(dplyr)
+library(ggplot2)
 data(pain)
 
 # Missing Patterns
@@ -78,10 +76,15 @@ sort(p_missing[p_missing > 0], decreasing = TRUE)
 
 # Multiple Imputation
 ## Step 3
-pain_mod <- pain[, -c(2:75)] %>%
+pain_mod <- pain[, -c(1:75)] %>%
   select(-PAIN_INTENSITY_AVERAGE.FOLLOW_UP)
+
+pain_mod$PAT_SEX <- as.factor(pain_mod$PAT_SEX)
+pain_mod$PAT_RACE <- as.factor(pain_mod$PAT_RACE)
+pain_mod$CCI_BIN <- as.factor(pain_mod$CCI_BIN)
+pain_mod$MEDICAID_BIN <- as.factor(pain_mod$MEDICAID_BIN)
 ## Step 4
-pain_mice <- mice(pain_mod, maxit = 5)
+pain_mice <- mice(pain_mod, maxit = 5, seed=(2550))
 
 # Imputed Results
 ## Step 5
@@ -90,7 +93,9 @@ score1 <- mice_imp1 %>%
   group_by(PAIN_INTENSITY_AVERAGE) %>%
   summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
-    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+    se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
+    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION),
+    se_physical_health = sd(PROMIS_PHYSICAL_FUNCTION)/sqrt(n())
   )
 
 ## Step 6
@@ -99,7 +104,9 @@ score2 <- mice_imp2 %>%
   group_by(PAIN_INTENSITY_AVERAGE) %>%
   summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
-    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+    se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
+    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION),
+    se_physical_health = sd(PROMIS_PHYSICAL_FUNCTION)/sqrt(n())
   )
 
 
@@ -108,7 +115,9 @@ score3 <- mice_imp3 %>%
   group_by(PAIN_INTENSITY_AVERAGE) %>%
   summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
-    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+    se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
+    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION),
+    se_physical_health = sd(PROMIS_PHYSICAL_FUNCTION)/sqrt(n())
   )
 
 
@@ -117,7 +126,9 @@ score4 <- mice_imp4 %>%
   group_by(PAIN_INTENSITY_AVERAGE) %>%
   summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
-    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+    se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
+    avg_physical_health = mean(GH_PHYSICAL_SCORE),
+    se_physical_health = sd(GH_PHYSICAL_SCORE)/sqrt(n())
   )
 
 mice_imp5 <- mice::complete(pain_mice,5)
@@ -125,11 +136,49 @@ score5 <- mice_imp5 %>%
   group_by(PAIN_INTENSITY_AVERAGE) %>%
   summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
-    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION)
+    se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
+    avg_physical_health = mean(GH_PHYSICAL_SCORE),
+    se_physical_health = sd(GH_PHYSICAL_SCORE)/sqrt(n())
   )
 
+mice_pool<- rbind(score1, score2, score3, score4, score5)
+mice_pool
+score_pool <- mice_pool %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health_pool = mean(avg_mental_health),
+    
+    se_mental_health_pool = sqrt(mean(se_mental_health^2)
+    +(sum((avg_mental_health-mean(avg_mental_health))^2))/4
+    +(sum((avg_mental_health-mean(avg_mental_health))^2))/20),
+    
+    avg_physical_health_pool = mean(avg_physical_health),
+    se_physical_health_pool = sqrt(mean(se_mental_health^2)
+    + (sum((avg_physical_health-mean(avg_physical_health))^2))/4
+    +(sum((avg_physical_health-mean(avg_physical_health))^2))/20)
+    )
+
+ggplot(score_pool, aes(x = factor(PAIN_INTENSITY_AVERAGE))) +
+  geom_point(aes(y = avg_mental_health_pool, color = "Mental Health")) +
+  geom_line(aes(y = avg_mental_health_pool, color = "Mental Health"), group=1) +
+  geom_errorbar(aes(ymin = avg_mental_health_pool - se_mental_health_pool,
+                  ymax = avg_mental_health_pool + se_mental_health_pool, color = "Mental Health",), alpha = 0.6) +
+  
+  geom_point(aes(y = avg_physical_health_pool, color = "Physical Health")) +
+  geom_line(aes(y = avg_physical_health_pool, color = "Physical Health"), group=1) +
+  geom_errorbar(aes(ymin = avg_physical_health_pool - se_physical_health_pool,
+                  ymax = avg_physical_health_pool + se_physical_health_pool, color = "Physical Health"), alpha = 0.6) +
+  labs(x = "Pain Intensity", y = "Average Score", title = "Average Mental and Physical Health by Pain Intensity with SE", color = "Score Type") +
+  #scale_color_manual(values = c("Mental Health" = "red", "Physical Health" = "blue"))
+  theme_minimal()
 
 # PAIN_INTENSITY_AVERAGE
 # PROMIS_PHYSICAL_FUNCTION
 # GH_MENTAL_SCORE
+
+# sex / bin
+# variable missing together / amount of missing a follow-up
+# goal: how well can we predict the combined outcome at different time points (birth/36: both data /44)
+# prediction better over time (but 44 loosing info discharged) flow chart 
+# three imputation, three population (subsetting birth /discharge >36 / discharge >44) benefit (missing pattern observed): reducing the aount of the missing data, don't want to use 44 data when considering data at 36 wk
 ```
