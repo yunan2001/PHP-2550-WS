@@ -33,7 +33,9 @@ Multiple imputation might not be appropriate to use when MNAR occurs, that is, w
 ```{r}
 library(tidyr)
 library(gtsummary)
+
 schmid_data <- read.csv("schmid_data.csv")
+
 schmid_trach <- schmid_data %>%
   select(mat_race, Trach) %>%
   tbl_summary(by=Trach,
@@ -60,16 +62,60 @@ schimd_tbl
 ```
 
 # Multiple Imputation
+
+1.  I would present the missing data pattern using heat map. Base on the data structure, I plot three separate heat maps focusing on the body region variables, baseline characteristics, and the follow-up variable, respectively. 
+
+    In the heat map of the body region variables, we see that most variables have nearly complete data since there is no visible grey area on the plot, indicating minimal or no missing values. Our baseline characteristics, including both continuous and categorical, exhibits some missingness among certain columns. Categorical variables, such as `PAT_RACE` and `MEDICAID_BIN`, having small portion of missing data, while continuous variables like `BMI` and `GH_PHYSICAL_SCORE` have larger proportion of missingness. To be noticed, the follow-up variable in the third heat map exhibits a significantly large portion of missingness, with over 50% of value missing, which might be a crucial issue. 
 ```{r}
 library(HDSinRdata)
 library(mice)
 library(dplyr)
 library(ggplot2)
+library(kableExtra)
+library(visdat)
+library(gtsummary)
 data(pain)
 
+vis_dat(pain[, 2:75], warn_large_data = FALSE) + 
+  theme(axis.text.x = element_text(angle = 90, size = 5))
+
+vis_dat(pain[, c(76:87, 89:92)]) + 
+  theme(axis.text.x = element_text(angle = 90, size = 5))
+
+vis_dat(pain[, 88]) + 
+  theme(axis.text.x = element_text(angle = 90, size = 5))
+```
+
+2. 
+```{r}
+pain_followup <- pain %>%
+  mutate(follow_up_status = ifelse(is.na(PAIN_INTENSITY_AVERAGE.FOLLOW_UP), 
+                                   "No Follow-up", "Follow-up"))
+
+tbl <- pain_followup %>%
+  select(follow_up_status, colnames(pain)[c(76:87, 89:92)]) %>% 
+  tbl_summary(
+    by = follow_up_status,
+    missing = "no"  
+  ) %>%
+  add_p(
+    test = list(
+      all_categorical() ~ "fisher.test", 
+      all_continuous() ~ "t.test" 
+    ),
+    test.args = list(
+      all_categorical() ~ list(simulate.p.value = TRUE)
+    )
+  )
+
+tbl
+```
+
+
+```{r}
 # Missing Patterns
 ## Step 1
-## The code below calculates whe percent of data is missing. A simple look at this table warns us about several variables that have more than 25% missing - such as PAIN_INTENSITY_AVERAGE.FOLLOW_UP, PROMIS_PAIN_BEHAVIOR, and BMI. It might be useful to remove these varibales from the dataset first as they might mess up the imputation.
+## The code below calculates when percent of data is missing. A simple look at this table warns us about several variables that have more than 25% missing - such as PAIN_INTENSITY_AVERAGE.FOLLOW_UP, PROMIS_PAIN_BEHAVIOR, and BMI. It might be useful to remove these varibales from the dataset first as they might mess up the imputation.
 
 p_missing <- unlist(lapply(pain, function(x) sum(is.na(x))))/nrow(pain)
 sort(p_missing[p_missing > 0], decreasing = TRUE)
@@ -83,9 +129,72 @@ pain_mod$PAT_SEX <- as.factor(pain_mod$PAT_SEX)
 pain_mod$PAT_RACE <- as.factor(pain_mod$PAT_RACE)
 pain_mod$CCI_BIN <- as.factor(pain_mod$CCI_BIN)
 pain_mod$MEDICAID_BIN <- as.factor(pain_mod$MEDICAID_BIN)
+
 ## Step 4
 pain_mice <- mice(pain_mod, maxit = 5, seed=(2550))
 
+## Step 5
+score_list <- list()
+
+for (i in 1:5) {
+  mice_imp <- mice::complete(pain_mice, i)
+  
+  score <- mice_imp %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health = mean(GH_MENTAL_SCORE),
+    se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
+    avg_physical_health = mean(GH_PHYSICAL_SCORE),
+    se_physical_health = sd(GH_PHYSICAL_SCORE)/sqrt(n())
+  )
+  
+  score_list[[i]] <-  score
+}
+
+score1_avg <- score_list[[1]][, c("PAIN_INTENSITY_AVERAGE", "avg_mental_health", 
+                                  "avg_physical_health")]
+knitr::kable(score1_avg,
+             caption = "Average Summary of Pain Intensity Score") %>%
+  kable_styling(latex_options = "HOLD_position")
+
+
+## Step 6
+mice_pool <- do.call(rbind, score_list)
+
+score_pool <- mice_pool %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health_pool = mean(avg_mental_health),
+    
+    se_mental_health_pool = sqrt(mean(se_mental_health^2)
+    +(sum((avg_mental_health-mean(avg_mental_health))^2))/4
+    +(sum((avg_mental_health-mean(avg_mental_health))^2))/20),
+    
+    avg_physical_health_pool = mean(avg_physical_health),
+    
+    se_physical_health_pool = sqrt(mean(se_mental_health^2)
+    + (sum((avg_physical_health-mean(avg_physical_health))^2))/4
+    +(sum((avg_physical_health-mean(avg_physical_health))^2))/20)
+    )
+
+ggplot(score_pool, aes(x = factor(PAIN_INTENSITY_AVERAGE))) +
+  geom_point(aes(y = avg_mental_health_pool, color = "Mental Health")) +
+  geom_line(aes(y = avg_mental_health_pool, color = "Mental Health"), group = 1) +
+  geom_errorbar(aes(ymin = avg_mental_health_pool - se_mental_health_pool,
+                    ymax = avg_mental_health_pool + se_mental_health_pool, 
+                    color = "Mental Health",), alpha = 0.6) +
+  geom_point(aes(y = avg_physical_health_pool, color = "Physical Health")) +
+  geom_line(aes(y = avg_physical_health_pool, color = "Physical Health"), group = 1) +
+  geom_errorbar(aes(ymin = avg_physical_health_pool - se_physical_health_pool,
+                    ymax = avg_physical_health_pool + se_physical_health_pool, 
+                    color = "Physical Health"), alpha = 0.6) +
+  labs(x = "Pain Intensity", y = "Average Score", 
+       title = "Average Mental and Physical Health by Pain Intensity with SE", 
+       color = "Score Type") +
+  theme_minimal()
+```
+
+```{r}
 # Imputed Results
 ## Step 5
 mice_imp1 <- mice::complete(pain_mice,1)
@@ -153,6 +262,7 @@ score_pool <- mice_pool %>%
     +(sum((avg_mental_health-mean(avg_mental_health))^2))/20),
     
     avg_physical_health_pool = mean(avg_physical_health),
+    
     se_physical_health_pool = sqrt(mean(se_mental_health^2)
     + (sum((avg_physical_health-mean(avg_physical_health))^2))/4
     +(sum((avg_physical_health-mean(avg_physical_health))^2))/20)

@@ -2,6 +2,10 @@
 title: "PHP 2550: Worksheet 4"
 subtitle: "Due: September 27th at 11:59pm"
 format: pdf
+execute:
+  echo: false
+  message: false
+  warning: false
 editor: visual
 ---
 
@@ -45,7 +49,19 @@ prob, less CI, dominance color better diet, extra info: split people into diseas
 
     -   Explain the three missing data mechanisms introduced Missing Completely at Random (MCAR), Missing at Random (MAR), and Missing Not at Random (MNAR) and give an example of each. Describe a setting in which it would be difficult to tell which setting is appropriate for our data.
 
+    1.  MCAR: MCAR, missing completely at random, is when the missing is completely random and it does not depend on any variables in the data. This means that the probability of missing data on a variable is unrelated to any observed or unobserved data. An example for MCAR is in a heart disease study, the technician accidently loses some lab samples of some participants. Here, the missingness is not related to any participants' health related or other observed and unobserved variables, making it completely random.
+
+    2.  MAR: MAR, missing at random, is when the missingness is related to observed variables, but not on the missing variable itself. In this situation, the missingness can be explained by other observed variables, but not the missing variable itself. An example of MAR is, in a study of depression, male participants are less likely to complete the survey questions asking about depression severity compared to the female participants, leading to missingness. This missingness is not related to the severity of participants' severity of depression, but is related to their gender which is observed.
+
+    3.  MNAR: MNAR, missing not at random, is when the probability of missing data is related to the incompleted variables itself. An example for MNAR is that people with higher incomes may be more likely to leave the income question blank due to privacy concerns in a survey. Here, the missing of income response is related to participants' income level but not related to other observed variables.
+
+        In a longitudinal depression study, people complete surveys regularly through time and some participants might drop out from the study. This missingness might have various causes which might be difficult to distinguish among these three types. For example, if the participants move to other places where the reason for the moving is not related to any variables in our studies, this missingness is random and it should be MCAR. Or, if the participants are too old to make regular appointment and complete the survey, the missing data is related to their age, but not related to their severity of depression. This case is MAR. Or, if the participants' depression severity becomes much worse and they drop out since they are not willing to share their worse conditions, this missingness is MNAR where it is related to the missing variable itself. In this case, it would be difficult to tell which setting is appropriate for our data because in reality, researchers might not have clear information about the drop our reason and drop out might occur due to mix of reasons mentioned earlier.
+
     -   In this class, we will focus on exploring missing data, thinking through what could have contributed to missing data, and introduce using multiple imputation as a possible tool to use. Write a 3-5 sentence explanation of multiple imputation and then describe settings when multiple imputation might not be appropriate to use.
+
+        Multiple imputation is a modern statistical technique to handle missing data. The basic procedure for multiple imputation includes three steps: the imputation phase, the analysis phase, and the pooling phase. In the imputation phase, we generate a specified number of datasets with different estimates of missing values. Then, we perform analyses separately using the same methods and steps (with no change due to missingness) on each dataset generated during the imputation phase, yielding multiple sets of estimates of each parameter and standard error. Last, in the pooling phase, we combine these multiple sets of results from each dataset's analysis into a single set of results.
+
+        Multiple imputation might not be appropriate to use when MNAR occurs, that is, when the missingness is related to the missing variable itself. This is because multiple imputation assumes the missingness in the data can be explained by observed data. The implementation of multiple imputation on MNAR data would lead to biases. Or, if our data has small sample size, it would be challenged to do reliable imputation using limited observations. Moreover, if the proportion of missingness is extremely high, our imputation might also be unreliable due to lack of information which would introduce uncertainty.
 
 ## Data Exploration and Visualization
 
@@ -62,24 +78,28 @@ library(visdat)
 schmid_data <- read.csv("schmid_data.csv")
 ```
 
-```{r}
+```{r, out.width="100%"}
 vis_dat(schmid_data) +
 theme(axis.text.x = element_text(angle = 90, size = 5))
 ```
 
 ```{r}
 schmid_data <- schmid_data %>%
-  mutate(Outcome = case_when(Trach == 1 & Death == "Yes" ~ "Both",
-                             Trach == 1 & Death == "No" ~ "Trach",
-                             Trach == 0 & Death == "Yes" ~ "Death",
-                             Trach == 0 & Death == "No" ~ "None"))
+  mutate(Outcome = case_when(Trach == 1 & Death == "Yes" ~ "Trach/Death",
+                             Trach == 1 & Death == "No" ~ "Trach/No Death",
+                             Trach == 0 & Death == "Yes" ~ "No Trach/Death",
+                             Trach == 0 & Death == "No" ~ "No Trach/No Death"))
 schmid_count <- schmid_data %>%
   filter(!is.na(center)) %>%
   group_by(center) %>%
   count(Outcome) %>%
   spread(Outcome, n, fill = 0) 
  schmid_count <-  schmid_count %>%
-   gather(`Both`, `Death`,  `None`, `Trach`, `<NA>`, key = "Outcomes", value = "Count") %>%
+   gather(`Trach/Death`,`No Trach/Death`,`No Trach/No Death`,`Trach/No Death`,`<NA>`, 
+          key = "Outcomes", value = "Count") %>%
+   mutate(Outcomes = factor(Outcomes, 
+                            levels = c("Trach/Death", "No Trach/Death", "Trach/No Death",
+                                          "No Trach/No Death", "<NA>"))) %>%
    group_by(center) %>%
    mutate(Proportion = Count/sum(Count))
 
@@ -87,37 +107,356 @@ ggplot(schmid_count, aes(x = Proportion, y = factor(center), fill = Outcomes)) +
   geom_bar(stat = "identity", position = "stack", color = "black") +
   labs(title = "Outcome Proportion by Center", x = "Proportion", y = "Center") +
   theme_minimal() +
-  theme(legend.position = "bottom") 
-  # scale_fill_manual(values = c("Both" = "#5C5992FF", 
-  #                              "Death" = "#B4DAE5FF", 
-  #                              "None" = "#98579B", 
-  #                              "Trach" = "#AE93BEFF", 
-  #                              "<NA>" = "gray"))
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = c("Trach/Death" = "#EF8100",
+                               "No Trach/Death" = "#FFA842",
+                               "Trach/No Death" = "#FFD925",
+                               "No Trach/No Death" = "#FFEB8C",
+                               "<NA>" = "gray"))
 ```
 
+```{r}
+library(tidyr)
+library(gtsummary)
+library(ggpubr)
+
+schmid_trach <- schmid_data %>%
+  select(gender, mat_race, mat_ethn, bw, ga, blength, birth_hc, del_method,
+         prenat_ster, sga, com_prenat_ster,mat_chorio,Trach) %>%
+  mutate(Trach = recode(Trach, `0` = "No", `1` ="Yes")) %>%
+  mutate(
+    # mat_race = case_when(mat_race == 1 ~ "American Indian or Alaskan Native",
+    #                    mat_race == 2 ~ "Asian",
+    #                    mat_race == 3 ~ "Black or African American",
+    #                    mat_race == 4 ~ "Native Hawaiian or Other Pacific Islande",
+    #                    mat_race == 5 ~ "White",
+    #                    mat_race == 6 ~ "Other",
+    #                    TRUE  ~ "Missing")
+    gender = case_when(gender == "Female" ~  "Female",
+                       gender == "Male" ~  "Male",
+                      TRUE ~ "Missing"),
+    mat_ethn = case_when(mat_ethn == 1 ~ "Hispanic or Latino",
+                         mat_ethn == 2 ~ "Not Hispanic or Latino",
+                         TRUE ~ "Missing"),
+    del_method = case_when(del_method==1 ~ 'Vaginal delivery',
+                           del_method==2 ~ 'Cesarean section',
+                           TRUE ~ "Missing"),
+    sga = case_when(sga=="SGA" ~ "SGA",
+                    sga=="Not SGA" ~ "Not SGA",
+                    TRUE ~ "Missing"),
+    prenat_ster = case_when(prenat_ster == "Yes" ~ "Yes",
+                            prenat_ster == "No" ~ "No",
+                            TRUE ~ "Missing"),
+    com_prenat_ster = case_when(com_prenat_ster == "Yes" ~ "Yes",
+                            com_prenat_ster == "No" ~ "No",
+                            TRUE ~ "Missing"),
+    mat_chorio = case_when(mat_chorio == "Yes" ~ "Yes",
+                            mat_chorio == "No" ~ "No",
+                            TRUE ~ "Missing")) %>%
+  mutate(mat_ethn = factor(mat_ethn, levels = c('Hispanic or Latino', 
+                                                'Not Hispanic or Latino', 'Missing')),
+         del_method = factor(del_method, 
+                             levels = c('Vaginal delivery', 
+                                        'Cesarean section', 'Missing')),
+         sga = factor(sga, levels = c('SGA', 'Not SGA', 'Missing')),
+         prenat_ster = factor(prenat_ster, levels = c('Yes', 'No', 'Missing')),
+         com_prenat_ster = factor(com_prenat_ster, levels = c('Yes', 'No', 'Missing')),
+         mat_chorio = factor(mat_chorio, levels = c('Yes', 'No', 'Missing'))) %>%
+  tbl_summary(by=Trach,
+              label = list(gender ~ "Gender",
+                           mat_race ~ "Race",
+                           mat_ethn ~ "Ethnicity",
+                           bw ~ "Birth Weight",
+                           ga ~ " Gestational Age",
+                           blength ~ "Birth Length",
+                           birth_hc ~ "Birth Head Circumference",
+                           del_method ~ "Delivery Method",
+                           prenat_ster ~ "Prenatal Corticosteroids",
+                           sga ~ "Small for gestational age",
+                           com_prenat_ster ~ "Complete Prenatal Steroids",
+                           mat_chorio ~ "Maternal Chorioamnionitis"
+                           ),
+              statistic = all_continuous() ~ "{mean} ({sd})") %>%
+  modify_spanning_header(update =  all_stat_cols() ~  "**Trachoestomy**") %>%
+  modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
+  bold_labels()
+
+
+schmid_death <- schmid_data %>%
+  select(gender, mat_race, mat_ethn, bw, ga, blength, birth_hc, del_method,
+         prenat_ster, sga, com_prenat_ster,mat_chorio,Death) %>%
+  mutate(Death = recode(Death, `0` = "No", `1` ="Yes")) %>%
+  mutate(
+    # mat_race = case_when(mat_race == 1 ~ "American Indian or Alaskan Native",
+    #                    mat_race == 2 ~ "Asian",
+    #                    mat_race == 3 ~ "Black or African American",
+    #                    mat_race == 4 ~ "Native Hawaiian or Other Pacific Islande",
+    #                    mat_race == 5 ~ "White",
+    #                    mat_race == 6 ~ "Other",
+    #                    TRUE  ~ "Missing")
+    gender = case_when(gender == "Female" ~  "Female",
+                       gender == "Male" ~  "Male",
+                      TRUE ~ "Missing"),
+    mat_ethn = case_when(mat_ethn == 1 ~ "Hispanic or Latino",
+                         mat_ethn == 2 ~ "Not Hispanic or Latino",
+                         TRUE ~ "Missing"),
+    del_method = case_when(del_method==1 ~ 'Vaginal delivery',
+                           del_method==2 ~ 'Cesarean section',
+                           TRUE ~ "Missing"),
+    sga = case_when(sga=="SGA" ~ "SGA",
+                    sga=="Not SGA" ~ "Not SGA",
+                    TRUE ~ "Missing"),
+    prenat_ster = case_when(prenat_ster == "Yes" ~ "Yes",
+                            prenat_ster == "No" ~ "No",
+                            TRUE ~ "Missing"),
+    com_prenat_ster = case_when(com_prenat_ster == "Yes" ~ "Yes",
+                            com_prenat_ster == "No" ~ "No",
+                            TRUE ~ "Missing"),
+    mat_chorio = case_when(mat_chorio == "Yes" ~ "Yes",
+                            mat_chorio == "No" ~ "No",
+                            TRUE ~ "Missing")) %>%
+  mutate(mat_ethn = factor(mat_ethn, levels = c('Hispanic or Latino', 
+                                                'Not Hispanic or Latino', 'Missing')),
+         del_method = factor(del_method, levels = c('Vaginal delivery', 'Cesarean section', 
+                                                    'Missing')),
+         sga = factor(sga, levels = c('SGA', 'Not SGA', 'Missing')),
+         prenat_ster = factor(prenat_ster, levels = c('Yes', 'No', 'Missing')),
+         com_prenat_ster = factor(com_prenat_ster, levels = c('Yes', 'No', 'Missing')),
+         mat_chorio = factor(mat_chorio, levels = c('Yes', 'No', 'Missing'))) %>%
+  tbl_summary(by=Death,
+              label = list(gender ~ "Gender",
+                           mat_race ~ "Race",
+                           mat_ethn ~ "Ethnicity",
+                           bw ~ "Birth Weight",
+                           ga ~ " Gestational Age",
+                           blength ~ "Birth Length",
+                           birth_hc ~ "Birth Head Circumference",
+                           del_method ~ "Delivery Method",
+                           prenat_ster ~ "Prenatal Corticosteroids",
+                           sga ~ "Small for gestational age",
+                           com_prenat_ster ~ "Complete Prenatal Steroids",
+                           mat_chorio ~ "Maternal Chorioamnionitis"
+                           ),
+              statistic = all_continuous() ~ "{mean} ({sd})") %>%
+  modify_spanning_header(update =  all_stat_cols() ~  "**Death**") %>%
+  modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical")
+
+schimd_tbl <- tbl_merge(list(schmid_trach, schmid_death),
+                        tab_spanner = c("**Trachoestomy**", "**Death**"))
+
+schimd_tbl %>%
+  as_gt()
+```
+
+```{r}
+schmid_data$ventilation_support_level.36 <-
+  as.factor(schmid_data$ventilation_support_level.36)
+schmid_data$ventilation_support_level_modified.44 <-
+  as.factor(schmid_data$ventilation_support_level_modified.44)
+
+schmid_data$Trach <- as.factor(schmid_data$Trach)
+schmid_data$Death <- as.factor(schmid_data$Death)
+
+schmid_long <- schmid_data %>%
+  rename(ventilation_support_level.44 = 'ventilation_support_level_modified.44') %>%
+  pivot_longer(cols = c('ventilation_support_level.36', 
+                        'ventilation_support_level.44',
+                        'p_delta.36',
+                        'p_delta.44'), 
+               names_to = c(".value", "time"), 
+               names_pattern = "(ventilation_support_level|p_delta).(\\d+)")
+schmid_long$time <- as.factor(schmid_long$time)
+schmid_long$Trach <- as.factor(schmid_long$Trach)
+schmid_long$ventilation_support_level <- as.factor(schmid_long$ventilation_support_level)
+
+schmid_pressure <- schmid_long %>%
+  filter(!is.na(ventilation_support_level) & !is.na(p_delta) & !is.na(Trach)) %>%
+  group_by(time) %>%
+  ggplot(aes(y = p_delta, x = ventilation_support_level, fill =  Trach)) +
+  geom_boxplot() +
+  labs(y = "Peak Inspiratory Pressure (cmH2O) at 36 weeks", x = "support", fill = "Trach") +
+  facet_wrap(~time, nrow = 2)
+
+schmid_pressure
+```
+
+**Lower Birth Weights: Infants who required a tracheostomy (green and red bars) or those who died (orange and red bars) tend to have lower birth weights across all time points.
+Survivors without Tracheostomy: The light blue section (No Trach/No Death) is consistently the largest, indicating that infants who did not require a tracheostomy and survived generally had higher weights at all time points.**
+
+```{r}
+weight_df <- schmid_data %>%
+  pivot_longer(cols = c("bw", "weight_today.36", "weight_today.44"),
+             names_to = "Time",
+             values_to = "Weight")
+
+weight_df <- weight_df %>%
+  mutate(Time = case_when(Time == "bw" ~ "Baseline",
+                          Time == "weight_today.36" ~ "Week 36",
+                          Time == "weight_today.44" ~ "Week 44",
+                          TRUE ~ NA))
+
+weight_df %>%
+  group_by(Time) %>%
+  ggplot(aes(x = Weight, fill = Outcome)) +
+  geom_histogram(bins = 20, position = "stack", color = "black", alpha = 0.7) +
+  labs(title = "Birth Weight Distribution by Tracheostomy/Death Outcome", 
+       x = "Birth Weight (g)", y = "Count") +
+  facet_wrap(~Time, ncol = 3) + 
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = c("#F48126", "skyblue", "red", "greenyellow")) +
+  theme(legend.text = element_text(size = 8), # Adjust the size of legend text
+        legend.title = element_text(size = 10))
+
+```
 ## Missing Data and Imputation with MICE
 
 Load in the data called `pain` from the `HDSinRdata` package and read the documentation. The data contains information from patient-reported pain assessments at baseline and at a 3-month follow-up.
 
 1.  First, describe the patterns of missing data observed in the data set overall. How would you present this information in an exploratory analysis?
 
+    I would present the missing data pattern using heat map. Base on the data structure, I plot three separate heat maps focusing on the body region variables, baseline characteristics, and the follow-up variable, respectively.
+
+    In the heat map of the body region variables, we see that most variables have nearly complete data since there is no visible grey area on the plot, indicating minimal or no missing values. Our baseline characteristics, including both continuous and categorical, exhibits some missingness among certain columns. Categorical variables, such as `PAT_RACE` and `MEDICAID_BIN`, having small portion of missing data, while continuous variables like `BMI` and `GH_PHYSICAL_SCORE` have larger proportion of missingness. To be noticed, the follow-up variable in the third heat map exhibits a significantly large portion of missingness, with over 50% of value missing, which might be a crucial issue.
+
+```{r, out.width="100%"}
+library(HDSinRdata)
+library(mice)
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(visdat)
+library(gtsummary)
+data(pain)
+
+vis_dat(pain[, 2:75], warn_large_data = FALSE) + 
+  theme(axis.text.x = element_text(angle = 90, size = 5)) +
+  theme(legend.position = "bottom")
+
+vis_dat(pain[, c(76:87, 89:92)]) + 
+  theme(axis.text.x = element_text(angle = 90, size = 5)) +
+  theme(legend.position = "bottom") 
+
+vis_dat(pain[, 88]) + 
+  theme(axis.text.x = element_text(angle = 90, size = 5)) +
+  theme(legend.position = "bottom") 
+```
+
 2.  If we were interested in analyzing the change in pain over time, it would be important to think about the missing data due to loss to follow-up. Compare the baseline characteristics between those with and without follow-up information. Comment on your results and discuss whether you think the data is MCAR, MAR, or MNAR.
+
+```{r}
+pain_followup <- pain %>%
+  mutate(follow_up_status = ifelse(is.na(PAIN_INTENSITY_AVERAGE.FOLLOW_UP), 
+                                   "No Follow-up", "Follow-up"))
+
+tbl <- pain_followup %>%
+  select(follow_up_status, colnames(pain)[c(76:87, 89:92)]) %>% 
+  tbl_summary(
+    by = follow_up_status,
+    missing = "no"  
+  ) %>%
+  add_p(
+    test = list(
+      all_categorical() ~ "fisher.test", 
+      all_continuous() ~ "t.test" 
+    ),
+    test.args = list(
+      all_categorical() ~ list(simulate.p.value = TRUE)
+    )
+  )
+
+tbl
+```
 
 3.  Now suppose we are interested in mental and physical function at baseline and how that is associated with pain intensity. We will use the `mice` package to perform multiple imputation on this data. First, drop the variable `PAIN_INTENSITY_AVERAGE.FOLLOW_UP` and the body map variables `X101:X238`.
 
+```{r, echo = TRUE}
+pain_mod <- pain[, -c(1:75)] %>%
+  select(-PAIN_INTENSITY_AVERAGE.FOLLOW_UP)
+
+pain_mod$PAT_SEX <- as.factor(pain_mod$PAT_SEX)
+pain_mod$PAT_RACE <- as.factor(pain_mod$PAT_RACE)
+pain_mod$CCI_BIN <- as.factor(pain_mod$CCI_BIN)
+pain_mod$MEDICAID_BIN <- as.factor(pain_mod$MEDICAID_BIN)
+```
+
 4.  Use the `mice()` function to perform multiple imputation to create five imputed data sets and save the result as `pain_mice`. You should read the documentation on this function to understand how it is implementing this and what arguments you might want to set. What is the structure of the returned object?
+
+```{r, echo = TRUE}
+# pain_mice <- mice(pain_mod, maxit = 5, seed = (2550))
+# saveRDS(pain_mice, file = "mice_result.rds")
+pain_mice <- readRDS("mice_result.rds")
+```
 
 5.  For one imputed data set, find the average mental and physical health score for each possible pain intensity level (0-10). To access the first imputed data set you can use the code below.\
     `mice::complete(pain_mice,1)`
 
+```{r}
+score_list <- list()
+
+for (i in 1:5) {
+  mice_imp <- mice::complete(pain_mice, i)
+  
+  score <- mice_imp %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health = mean(GH_MENTAL_SCORE),
+    se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
+    avg_physical_health = mean(GH_PHYSICAL_SCORE),
+    se_physical_health = sd(GH_PHYSICAL_SCORE)/sqrt(n())
+  )
+  
+  score_list[[i]] <-  score
+}
+
+score1_avg <- score_list[[1]][, c("PAIN_INTENSITY_AVERAGE", "avg_mental_health", 
+                                  "avg_physical_health")]
+knitr::kable(score1_avg,
+             caption = "Average Summary of Pain Intensity Score") %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
 6.  Repeat this for the other four data sets and then use Rubin's rules to plot the results. <https://bookdown.org/mwheymans/bookmi/rubins-rules.html>
 
 ```{r}
-library(HDSinRdata)
-data("pain")
+mice_pool <- do.call(rbind, score_list)
+
+score_pool <- mice_pool %>%
+  group_by(PAIN_INTENSITY_AVERAGE) %>%
+  summarize(
+    avg_mental_health_pool = mean(avg_mental_health),
+    
+    se_mental_health_pool = sqrt(mean(se_mental_health^2)
+    + (sum((avg_mental_health - mean(avg_mental_health))^2))/4
+    + (sum((avg_mental_health - mean(avg_mental_health))^2))/20),
+    
+    avg_physical_health_pool = mean(avg_physical_health),
+    
+    se_physical_health_pool = sqrt(mean(se_mental_health^2)
+    + (sum((avg_physical_health - mean(avg_physical_health))^2))/4
+    + (sum((avg_physical_health - mean(avg_physical_health))^2))/20)
+    )
+
+ggplot(score_pool, aes(x = factor(PAIN_INTENSITY_AVERAGE))) +
+  geom_point(aes(y = avg_mental_health_pool, color = "Mental Health")) +
+  geom_line(aes(y = avg_mental_health_pool, color = "Mental Health"), group = 1) +
+  geom_errorbar(aes(ymin = avg_mental_health_pool - se_mental_health_pool,
+                    ymax = avg_mental_health_pool + se_mental_health_pool, 
+                    color = "Mental Health",), alpha = 0.6) +
+  geom_point(aes(y = avg_physical_health_pool, color = "Physical Health")) +
+  geom_line(aes(y = avg_physical_health_pool, color = "Physical Health"), group = 1) +
+  geom_errorbar(aes(ymin = avg_physical_health_pool - se_physical_health_pool,
+                    ymax = avg_physical_health_pool + se_physical_health_pool, 
+                    color = "Physical Health"), alpha = 0.6) +
+  labs(x = "Pain Intensity", y = "Average Score", 
+       title = "Average Mental and Physical Health by Pain Intensity with SE", 
+       color = "Score Type") +
+  theme_minimal()
 ```
 
-```{r}
-vis_dat(pain[, 76:90]) +
-theme(axis.text.x = element_text(angle = 90, size = 5))
+## Appendix {.appendix}
+
+```{r ref.label = knitr::all_labels()}
+#| echo: true
+#| eval: false
 ```
