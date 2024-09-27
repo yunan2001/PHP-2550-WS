@@ -94,8 +94,8 @@ score1 <- mice_imp1 %>%
   summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
     se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
-    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION),
-    se_physical_health = sd(PROMIS_PHYSICAL_FUNCTION)/sqrt(n())
+    avg_physical_health = mean(GH_PHYSICAL_SCORE),
+    se_physical_health = sd(GH_PHYSICAL_SCORE)/sqrt(n())
   )
 
 ## Step 6
@@ -105,8 +105,8 @@ score2 <- mice_imp2 %>%
   summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
     se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
-    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION),
-    se_physical_health = sd(PROMIS_PHYSICAL_FUNCTION)/sqrt(n())
+    avg_physical_health = mean(GH_PHYSICAL_SCORE),
+    se_physical_health = sd(GH_PHYSICAL_SCORE)/sqrt(n())
   )
 
 
@@ -116,8 +116,8 @@ score3 <- mice_imp3 %>%
   summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
     se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
-    avg_physical_health = mean(PROMIS_PHYSICAL_FUNCTION),
-    se_physical_health = sd(PROMIS_PHYSICAL_FUNCTION)/sqrt(n())
+    avg_physical_health = mean(GH_PHYSICAL_SCORE),
+    se_physical_health = sd(GH_PHYSICAL_SCORE)/sqrt(n())
   )
 
 
