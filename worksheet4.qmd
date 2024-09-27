@@ -294,19 +294,23 @@ weight_df <- weight_df %>%
                           Time == "weight_today.36" ~ "Week 36",
                           Time == "weight_today.44" ~ "Week 44",
                           TRUE ~ NA))
+options(repr.plot.width = 15, repr.plot.height = 15)
 
 weight_df %>%
   group_by(Time) %>%
   ggplot(aes(x = Weight, fill = Outcome)) +
-  geom_histogram(bins = 20, position = "stack", color = "black", alpha = 0.7) +
+  geom_histogram(bins = 20, position = "stack", color = "black", alpha = 0.8, size = 0.1) +
   labs(title = "Birth Weight Distribution by Tracheostomy/Death Outcome", 
        x = "Birth Weight (g)", y = "Count") +
   facet_wrap(~Time, ncol = 3) + 
   theme_minimal() +
   theme(legend.position = "bottom") +
   scale_fill_manual(values = c("#F48126", "skyblue", "red", "greenyellow")) +
-  theme(legend.text = element_text(size = 8), # Adjust the size of legend text
-        legend.title = element_text(size = 10))
+  theme(legend.text = element_text(size = 6), # Adjust the size of legend text
+        legend.title = element_text(size = 8),
+        axis.text = element_text(size = 6),
+        plot.title = element_text(size = 10)
+        )
 
 ```
 ## Missing Data and Imputation with MICE
