@@ -71,58 +71,51 @@ Conduct an exploratory analysis of this data (3-5 pages). To guide yourself, thi
 
 codebook - structure: longitudinal (36/44) correlation; missing ate over time (a lot 44 wk are missing, healthier babies are more likely to lose data at 44 wk); explain missing: due to the center clinical setting: multiple centers: clustering, difference between centers; race: data quality issue (unable to answer); missing / center / relationship outcome
 
+Baseline characteristics (birth, demographics, medications, and clinical measurements) are listed in Table 1. The outcomes we are interested in are binary variables indicating whether the infant received tracheotomy prior to discharge or whether the infant died. According to Table 1, we observe a large proportion of missing values for certain variables, such as complete prenatal steroids, maternal chorioamnionitis, hospital discharge. For example, 42% of the tracheotomy outcome 'Trach' and 39% of the death outcome 'Death' lacked complete prenatal steroid information. This pattern suggests that the exclusion of these variables needs to be considered when conducting multiple imputations.
+
+To further explore the missing patterns in the dataset, we created Figure 1. Missing observations are shown in gray, with more gray shaded areas indicating more missing values. We can see from the figure that missing values increase over time, with more values missing at 44 weeks than at 36 weeks. This may be due to the fact that healthier infants are more likely to be discharged from the hospital and the researchers were unable to collect information on them after discharge.
+
+To explore the association between outcomes and the medical centers where the data were collected, we created a new categorical variable that combined information on both outcomes into four categories: had tracheotomy and died (TD), did not have tracheotomy and died (NTD), had tracheotomy without death (TND), and had no tracheotomy without death (NTND). As we can see in Figure 2, more than half of the infants did not have a tracheotomy and did not die, except in centers 1, 12, and 21. Especially in center 21, all infants had tracheotomy without death. This implies that there may be potential differences in the characteristics and settings of infants admitted to the centers.
+
+The longitudinal structure of the data also allows us to understand the distribution of infant weight over time, and how this may affect our new outcome of 'tracheal intubation/death'. As shown in Figure 3, the distribution of infant weights is approximately normally distributed, with the distribution becoming more spread out over time. Looking at the stacked bars in the figure, we find that the light blue bars (NTND) consistently have the largest proportion, suggesting that the majority of infants did not require tracheotomy and survived during the study period. Notably, comparing the red bars (TD) between the three time points, we found that more newborns required tacheometry at baseline compared to 36 and 44 weeks but did not survive the study period compared.
+
 ```{r}
 library(tidyverse)
 library(ggplot2)
 library(visdat)
+library(gt)
 schmid_data <- read.csv("schmid_data.csv")
 ```
-
 ```{r, out.width="100%"}
-vis_dat(schmid_data) +
+schmid_data_m <- schmid_data
+schmid_data_m$center <- as.factor(schmid_data_m$center)
+schmid_data_m$mat_race <- as.factor(schmid_data_m$mat_race)
+schmid_data_m$mat_ethn <- as.factor(schmid_data_m$mat_ethn)
+schmid_data_m$del_method <- as.factor(schmid_data_m$del_method)
+schmid_data_m$prenat_ster <- as.factor(schmid_data_m$prenat_ster)
+schmid_data_m$com_prenat_ster <- as.factor(schmid_data_m$com_prenat_ster)
+schmid_data_m$mat_chorio <- as.factor(schmid_data_m$mat_chorio)
+schmid_data_m$gender <- as.factor(schmid_data_m$gender)
+schmid_data_m$any_surf <- as.factor(schmid_data_m$any_surf)
+schmid_data_m$ventilation_support_level.36 <- as.factor(schmid_data_m$ventilation_support_level.36)
+schmid_data_m$ventilation_support_level_modified.44 <- as.factor(schmid_data_m$ventilation_support_level_modified.44)
+schmid_data_m$Trach <- as.factor(schmid_data_m$Trach)
+schmid_data_m$Death <- as.factor(schmid_data_m$Death)
+schmid_data_m$sga <- as.factor(schmid_data_m$sga)
+
+vis_dat(schmid_data_m[, -1]) +
 theme(axis.text.x = element_text(angle = 90, size = 5))
 ```
 
-```{r}
-schmid_data <- schmid_data %>%
-  mutate(Outcome = case_when(Trach == 1 & Death == "Yes" ~ "Trach/Death",
-                             Trach == 1 & Death == "No" ~ "Trach/No Death",
-                             Trach == 0 & Death == "Yes" ~ "No Trach/Death",
-                             Trach == 0 & Death == "No" ~ "No Trach/No Death"))
-schmid_count <- schmid_data %>%
-  filter(!is.na(center)) %>%
-  group_by(center) %>%
-  count(Outcome) %>%
-  spread(Outcome, n, fill = 0) 
- schmid_count <-  schmid_count %>%
-   gather(`Trach/Death`,`No Trach/Death`,`No Trach/No Death`,`Trach/No Death`,`<NA>`, 
-          key = "Outcomes", value = "Count") %>%
-   mutate(Outcomes = factor(Outcomes, 
-                            levels = c("Trach/Death", "No Trach/Death", "Trach/No Death",
-                                          "No Trach/No Death", "<NA>"))) %>%
-   group_by(center) %>%
-   mutate(Proportion = Count/sum(Count))
 
-ggplot(schmid_count, aes(x = Proportion, y = factor(center), fill = Outcomes)) + 
-  geom_bar(stat = "identity", position = "stack", color = "black") +
-  labs(title = "Outcome Proportion by Center", x = "Proportion", y = "Center") +
-  theme_minimal() +
-  theme(legend.position = "bottom") +
-  scale_fill_manual(values = c("Trach/Death" = "#EF8100",
-                               "No Trach/Death" = "#FFA842",
-                               "Trach/No Death" = "#FFD925",
-                               "No Trach/No Death" = "#FFEB8C",
-                               "<NA>" = "gray"))
-```
-
-```{r}
+```{r, out.width="80%"}
 library(tidyr)
 library(gtsummary)
 library(ggpubr)
 
 schmid_trach <- schmid_data %>%
-  select(gender, mat_race, mat_ethn, bw, ga, blength, birth_hc, del_method,
-         prenat_ster, sga, com_prenat_ster,mat_chorio,Trach) %>%
+  select(gender, mat_ethn, bw, ga, blength, birth_hc, del_method,
+         prenat_ster, sga, com_prenat_ster,mat_chorio,hosp_dc_ga,Trach) %>%
   mutate(Trach = recode(Trach, `0` = "No", `1` ="Yes")) %>%
   mutate(
     # mat_race = case_when(mat_race == 1 ~ "American Indian or Alaskan Native",
@@ -164,7 +157,7 @@ schmid_trach <- schmid_data %>%
          mat_chorio = factor(mat_chorio, levels = c('Yes', 'No', 'Missing'))) %>%
   tbl_summary(by=Trach,
               label = list(gender ~ "Gender",
-                           mat_race ~ "Race",
+                           #mat_race ~ "Race",
                            mat_ethn ~ "Ethnicity",
                            bw ~ "Birth Weight",
                            ga ~ " Gestational Age",
@@ -174,7 +167,8 @@ schmid_trach <- schmid_data %>%
                            prenat_ster ~ "Prenatal Corticosteroids",
                            sga ~ "Small for gestational age",
                            com_prenat_ster ~ "Complete Prenatal Steroids",
-                           mat_chorio ~ "Maternal Chorioamnionitis"
+                           mat_chorio ~ "Maternal Chorioamnionitis",
+                           hosp_dc_ga ~ "Hospital Discharge Gestational Age"
                            ),
               statistic = all_continuous() ~ "{mean} ({sd})") %>%
   modify_spanning_header(update =  all_stat_cols() ~  "**Trachoestomy**") %>%
@@ -183,8 +177,8 @@ schmid_trach <- schmid_data %>%
 
 
 schmid_death <- schmid_data %>%
-  select(gender, mat_race, mat_ethn, bw, ga, blength, birth_hc, del_method,
-         prenat_ster, sga, com_prenat_ster,mat_chorio,Death) %>%
+  select(gender, mat_ethn, bw, ga, blength, birth_hc, del_method,
+         prenat_ster, sga, com_prenat_ster,mat_chorio,hosp_dc_ga,Death) %>%
   mutate(Death = recode(Death, `0` = "No", `1` ="Yes")) %>%
   mutate(
     # mat_race = case_when(mat_race == 1 ~ "American Indian or Alaskan Native",
@@ -225,7 +219,7 @@ schmid_death <- schmid_data %>%
          mat_chorio = factor(mat_chorio, levels = c('Yes', 'No', 'Missing'))) %>%
   tbl_summary(by=Death,
               label = list(gender ~ "Gender",
-                           mat_race ~ "Race",
+                           #mat_race ~ "Race",
                            mat_ethn ~ "Ethnicity",
                            bw ~ "Birth Weight",
                            ga ~ " Gestational Age",
@@ -235,7 +229,8 @@ schmid_death <- schmid_data %>%
                            prenat_ster ~ "Prenatal Corticosteroids",
                            sga ~ "Small for gestational age",
                            com_prenat_ster ~ "Complete Prenatal Steroids",
-                           mat_chorio ~ "Maternal Chorioamnionitis"
+                           mat_chorio ~ "Maternal Chorioamnionitis",
+                           hosp_dc_ga ~ "Hospital Discharge Gestational Age"
                            ),
               statistic = all_continuous() ~ "{mean} ({sd})") %>%
   modify_spanning_header(update =  all_stat_cols() ~  "**Death**") %>%
@@ -245,8 +240,50 @@ schimd_tbl <- tbl_merge(list(schmid_trach, schmid_death),
                         tab_spanner = c("**Trachoestomy**", "**Death**"))
 
 schimd_tbl %>%
-  as_gt()
+  as_gt() %>%
+  cols_align(align = "center", columns = everything()) %>%
+  tab_options(
+    table.width = pct(120), 
+    table.align = "center"
+  )
 ```
+
+```{r, out.width="100%"}
+schmid_data <- schmid_data %>%
+  mutate(Outcome = case_when(Trach == 1 & Death == "Yes" ~ "Trach/Death",
+                             Trach == 1 & Death == "No" ~ "Trach/No Death",
+                             Trach == 0 & Death == "Yes" ~ "No Trach/Death",
+                             Trach == 0 & Death == "No" ~ "No Trach/No Death"))
+schmid_count <- schmid_data %>%
+  filter(!is.na(center)) %>%
+  group_by(center) %>%
+  count(Outcome) %>%
+  spread(Outcome, n, fill = 0) 
+ schmid_count <-  schmid_count %>%
+   gather(`Trach/Death`,`No Trach/Death`,`No Trach/No Death`,`Trach/No Death`,`<NA>`, 
+          key = "Outcomes", value = "Count") %>%
+   mutate(Outcomes = factor(Outcomes, 
+                            levels = c("Trach/Death", "No Trach/Death", "Trach/No Death",
+                                          "No Trach/No Death", "<NA>"))) %>%
+   group_by(center) %>%
+   mutate(Proportion = Count/sum(Count))
+
+ggplot(schmid_count, aes(x = Proportion, y = factor(center), fill = Outcomes)) + 
+  geom_bar(stat = "identity", position = "stack", color = "black") +
+  labs(title = "Outcome Proportion by Center", x = "Proportion", y = "Center") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = c("Trach/Death" = "#EF8100",
+                               "No Trach/Death" = "#FFA842",
+                               "Trach/No Death" = "#FFD925",
+                               "No Trach/No Death" = "#FFEB8C",
+                               "<NA>" = "gray")) +
+  theme(legend.text = element_text(size = 6),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8)
+        )
+```
+
 
 ```{r}
 schmid_data$ventilation_support_level.36 <-
@@ -268,20 +305,7 @@ schmid_long <- schmid_data %>%
 schmid_long$time <- as.factor(schmid_long$time)
 schmid_long$Trach <- as.factor(schmid_long$Trach)
 schmid_long$ventilation_support_level <- as.factor(schmid_long$ventilation_support_level)
-
-schmid_pressure <- schmid_long %>%
-  filter(!is.na(ventilation_support_level) & !is.na(p_delta) & !is.na(Trach)) %>%
-  group_by(time) %>%
-  ggplot(aes(y = p_delta, x = ventilation_support_level, fill =  Trach)) +
-  geom_boxplot() +
-  labs(y = "Peak Inspiratory Pressure (cmH2O) at 36 weeks", x = "support", fill = "Trach") +
-  facet_wrap(~time, nrow = 2)
-
-schmid_pressure
 ```
-
-**Lower Birth Weights: Infants who required a tracheostomy (green and red bars) or those who died (orange and red bars) tend to have lower birth weights across all time points.
-Survivors without Tracheostomy: The light blue section (No Trach/No Death) is consistently the largest, indicating that infants who did not require a tracheostomy and survived generally had higher weights at all time points.**
 
 ```{r}
 weight_df <- schmid_data %>%
@@ -306,7 +330,7 @@ weight_df %>%
   theme_minimal() +
   theme(legend.position = "bottom") +
   scale_fill_manual(values = c("#F48126", "skyblue", "red", "greenyellow")) +
-  theme(legend.text = element_text(size = 6), # Adjust the size of legend text
+  theme(legend.text = element_text(size = 6), 
         legend.title = element_text(size = 8),
         axis.text = element_text(size = 6),
         plot.title = element_text(size = 10),
@@ -314,6 +338,7 @@ weight_df %>%
         )
 
 ```
+
 ## Missing Data and Imputation with MICE
 
 Load in the data called `pain` from the `HDSinRdata` package and read the documentation. The data contains information from patient-reported pain assessments at baseline and at a 3-month follow-up.
@@ -349,10 +374,15 @@ vis_dat(pain[, 88]) +
 
 2.  If we were interested in analyzing the change in pain over time, it would be important to think about the missing data due to loss to follow-up. Compare the baseline characteristics between those with and without follow-up information. Comment on your results and discuss whether you think the data is MCAR, MAR, or MNAR.
 
+    To compare the baseline characteristics between those with and without follow-up information, we create a table summary of all baseline characteristics by follow-up presence. Here, participants without follow-up had significantly higher pain intensity score (7.00 vs. 6.00 with p \< 0.01) compared to participants with follow-up. Moreover, in several PROMIS measures, patients with and without follow-up exhibits small but statistically significant differences with smaller p-value. For those demographic variables, age, BMI, gender, and race, significant difference between groups present as well. For example, younger people or patients with lower BMI value are more likely not to have the follow-up information. Moreover, observing the MEDICAID_BIN summary, medicaid recipients are more likely to skip the follow-up.
+
+    We think this data is more likely to be MAR where the follow-up variable missingness is relates to observed baseline characterisrics variables. Since many baseline characteristics variables exhibits significant difference between people with and without follow-up information as we mentioned earlier, these characteristics seem associated with the probability of missingness which fits the assumption of MAR.
+
 ```{r}
 pain_followup <- pain %>%
   mutate(follow_up_status = ifelse(is.na(PAIN_INTENSITY_AVERAGE.FOLLOW_UP), 
-                                   "No Follow-up", "Follow-up"))
+                                   "No Follow-up", "Follow-up")) %>%
+  mutate(MEDICAID_BIN = ifelse(is.na(MEDICAID_BIN), "Missing", MEDICAID_BIN))
 
 tbl <- pain_followup %>%
   select(follow_up_status, colnames(pain)[c(76:87, 89:92)]) %>% 
@@ -368,7 +398,8 @@ tbl <- pain_followup %>%
     test.args = list(
       all_categorical() ~ list(simulate.p.value = TRUE)
     )
-  )
+  ) %>%
+  modify_table_body(~ .x %>% dplyr::mutate_at(vars(label), as.character))
 
 tbl
 ```
@@ -387,10 +418,58 @@ pain_mod$MEDICAID_BIN <- as.factor(pain_mod$MEDICAID_BIN)
 
 4.  Use the `mice()` function to perform multiple imputation to create five imputed data sets and save the result as `pain_mice`. You should read the documentation on this function to understand how it is implementing this and what arguments you might want to set. What is the structure of the returned object?
 
+The returned object contains the following parts:
+
+-   **data:** The original dataset with missing data.
+
+-   **imp:** A list of imputed values for variables with missingness.
+
+-   **m:** The number of imputed dataset which is 5 here.
+
+-   **where:** A matrix presents the location of missing values in our original dataset where missing values are coded as TRUE.
+
+-   **blocks:** A list of variable names. Variables in one block would be imputed together.
+
+-   **call:** The command used to run the mice() function, including information of data, number of iterations, random seed, and any set parameters.
+
+-   **nmis:** A numeric vector presents number of missing values for each variable.
+
+-   **method:** The imputation method used.
+
+-   **predictorMatrix:** A numeric matrix specifying which variables are used as predictors in the imputation models.
+
+-   **visitSequence:** The order variables are imputed in mice function.
+
+-   **formulas:** A list of formulas used for imputation of each variable.
+
+-   **post:** Post-processing rules applied to the imputed data.
+
+-   **blots:** Contains information of additional processing for certain variables during imputation.
+
+-   **ignore:** A vector specifying whether specific rows were ignored during imputation. False represents the observation was included in the process while TURE represents it is ignored.
+
+-   **seed:** The random seed set in parameter.
+
+-   **iteration:** Number of interation for the imputation.
+
+-   **lastSeedValue:** This component stores the final state of the random number generator after all imputations.
+
+-   **chainMean:** The mean of the imputed values for each variable at each iteration and for each imputation chain.
+
+-   **chainVar:** The variance of the imputed values for each variable at each iteration and for each imputation chain.
+
+-   **loggedEvents**: A data frame that records unusual events occurred during imputation, like warnings and errors.
+
+-   **version:** The version of mice package used for the imputation.
+
+-   **date:** The date when the imputation performed.
+
 ```{r, echo = TRUE}
 # pain_mice <- mice(pain_mod, maxit = 5, seed = (2550))
 # saveRDS(pain_mice, file = "mice_result.rds")
 pain_mice <- readRDS("mice_result.rds")
+
+str(pain_mice)
 ```
 
 5.  For one imputed data set, find the average mental and physical health score for each possible pain intensity level (0-10). To access the first imputed data set you can use the code below.\
