@@ -242,6 +242,10 @@ schimd_tbl %>%
   ) %>%
   tab_header(
     title = md("Table 1: Summary Statistics by Death and Tracheostomy")
+  ) %>%
+  tab_style(
+    style = cell_text(size = px(10)),  # Adjust the size as needed
+    locations = cells_title(groups = "title")
   )
 ```
 
@@ -264,8 +268,13 @@ schmid_data_m$sga <- as.factor(schmid_data_m$sga)
 
 vis_dat(schmid_data_m[, -1]) +
   theme(axis.text.x = element_text(angle = 90, size = 5)) + 
-  ggtitle("Figure 1: Heat Map across All variables")
-  
+  ggtitle("Figure 1: Heat Map across All variables") +
+  theme(legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 8),
+        axis.text = element_text(size = 6),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8)
+        )
 ```
 
 ```{r, out.width="100%"}
@@ -366,7 +375,7 @@ Load in the data called `pain` from the `HDSinRdata` package and read the docume
 
     **Answer:** I would present the missing data pattern using heat map. Base on the data structure, I plot three separate heat maps focusing on the body region variables, baseline characteristics, and the follow-up variable, respectively.
 
-    In the heat map of the body region variables, we see that most variables have nearly complete data since there is no visible grey area on the plot, indicating minimal or no missing values. Our baseline characteristics, including both continuous and categorical, exhibits some missingness among certain columns. Categorical variables, such as `PAT_RACE` and `MEDICAID_BIN`, having small portion of missing data, while continuous variables like `BMI` and `GH_PHYSICAL_SCORE` have larger proportion of missingness. To be noticed, the follow-up variable in the third heat map exhibits a significantly large portion of missingness, with over 50% of value missing, which might be a crucial issue.
+    In our search for missing patterns, we first noticed that the entire row of 11749 was empty. Our guess is that there was a manual error in the coding of the dataset, and thus we consider excluding this row when discussing the missing patterns. From the heat map of the body region variables, we can see that all individuals have completed data since there is no visible grey area on the plot, indicating no missing values. The baseline characteristics, including both continuous and categorical, exhibits some missingness among certain columns. Categorical variables, such as `PAT_RACE` and `MEDICAID_BIN`, have small portion of missing data, while continuous variables like `BMI` and `GH_PHYSICAL_SCORE` have larger proportion of missingness. To be noticed, the follow-up variable in the third heat map exhibits a significantly large portion of missingness, with over 50% of value missing, which might be a crucial issue.
 
 ```{r, out.width="100%"}
 library(HDSinRdata)
@@ -381,24 +390,42 @@ data(pain)
 vis_dat(pain[, 2:75], warn_large_data = FALSE) + 
   theme(axis.text.x = element_text(angle = 90, size = 5)) +
   theme(legend.position = "bottom") +
-  ggtitle("Figure 4: Heat Map for Body Region Variables")
+  ggtitle("Figure 4: Heat Map for Body Region Variables") +
+  theme(legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 8),
+        axis.text = element_text(size = 6),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8)
+        )
 
 vis_dat(pain[, c(76:87, 89:92)]) + 
   theme(axis.text.x = element_text(angle = 90, size = 5)) +
   theme(legend.position = "bottom") +
-  ggtitle("Figure 5: Heat Map for Baseline Characteristics")
+  ggtitle("Figure 5: Heat Map for Baseline Characteristics") +
+  theme(legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 8),
+        axis.text = element_text(size = 6),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8)
+        )
 
 vis_dat(pain[, 88]) + 
-  theme(axis.text.x = element_text(angle = 90, size = 5)) +
+  theme(axis.text.x = element_text(angle = 0, size = 5)) +
   theme(legend.position = "bottom") +
-  ggtitle("Figure 6: Heat Map for Follow-up Variable")
+  ggtitle("Figure 6: Heat Map for Follow-up Variable") +
+  theme(legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 8),
+        axis.text = element_text(size = 6),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8)
+        )
 ```
 
 2.  If we were interested in analyzing the change in pain over time, it would be important to think about the missing data due to loss to follow-up. Compare the baseline characteristics between those with and without follow-up information. Comment on your results and discuss whether you think the data is MCAR, MAR, or MNAR.
 
     **Answer:** To compare the baseline characteristics between those with and without follow-up information, we create a table summary of all baseline characteristics by follow-up presence. Here, participants without follow-up had significantly higher pain intensity score (7.00 vs. 6.00 with p \< 0.01) compared to participants with follow-up. Moreover, in several PROMIS measures, patients with and without follow-up exhibits small but statistically significant differences with smaller p-value. For those demographic variables, age, BMI, gender, and race, significant difference between groups present as well. For example, younger people or patients with lower BMI value are more likely not to have the follow-up information. Moreover, observing the MEDICAID_BIN summary, medicaid recipients are more likely to skip the follow-up.
 
-    We think this data is more likely to be MAR where the follow-up variable missingness is relates to observed baseline characteristics variables. Since many baseline characteristics variables exhibits significant difference between people with and without follow-up information as we mentioned earlier, these characteristics seem associated with the probability of missingness which fits the assumption of MAR.
+    We think this data is more likely to be MAR where the follow-up variable missingness is relates to observed baseline characteristics variables, but not depend on the unobserved data. Since many baseline characteristics variables exhibits significant difference between people with and without follow-up information as we mentioned earlier, these characteristics seem associated with the probability of missingness which fits the assumption of MAR.
 
 ```{r}
 pain_followup <- pain %>%
@@ -436,7 +463,7 @@ tbl %>%
 3.  Now suppose we are interested in mental and physical function at baseline and how that is associated with pain intensity. We will use the `mice` package to perform multiple imputation on this data. First, drop the variable `PAIN_INTENSITY_AVERAGE.FOLLOW_UP` and the body map variables `X101:X238`.
 
     ```{r, echo = TRUE}
-    pain_mod <- pain[, -c(1:75)] %>%
+    pain_mod <- pain[, -c(1:75)] %>%      # Drop PAIN_INTENSITY_AVERAGE.FOLLOW_U and X101:X238
       select(-PAIN_INTENSITY_AVERAGE.FOLLOW_UP)
 
     pain_mod$PAT_SEX <- as.factor(pain_mod$PAT_SEX)
@@ -448,7 +475,7 @@ tbl %>%
 4.  Use the `mice()` function to perform multiple imputation to create five imputed data sets and save the result as `pain_mice`. You should read the documentation on this function to understand how it is implementing this and what arguments you might want to set. What is the structure of the returned object?
 
     ```{r, echo = TRUE}
-    # pain_mice <- mice(pain_mod, maxit = 5, seed = (2550))
+    # pain_mice <- mice(pain_mod, m = 5, maxit = 5, seed = (2550))
     # saveRDS(pain_mice, file = "mice_result.rds")
     pain_mice <- readRDS("mice_result.rds")
     ```
@@ -560,10 +587,16 @@ tbl %>%
       geom_errorbar(aes(ymin = avg_physical_health_pool - se_physical_health_pool,
                     ymax = avg_physical_health_pool + se_physical_health_pool, 
                     color = "Physical Health"), alpha = 0.6) +
-      labs(x = "Pain Intensity", y = "Average Score", 
-       title = "Figure 7: Average Mental and Physical Health by Pain Intensity with SE", 
+      labs(x = "Pain Intensity Level", y = "Average Score", 
+       title = "Figure 7: Pooled Average Mental and Physical Health Scores by Pain Intensity Levels with SE", 
        color = "Score Type") +
-      theme_minimal()
+      theme_minimal() +
+      theme(legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 8),
+        axis.text = element_text(size = 6),
+        plot.title = element_text(size = 10),
+        axis.title = element_text(size = 8)
+        )
     ```
 
 ## Appendix {.appendix}
