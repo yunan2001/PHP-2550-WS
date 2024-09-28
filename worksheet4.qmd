@@ -37,7 +37,7 @@ editor: visual
 
         -   What should be done next (discussion/own reflection)?
 
-        As the evidence regarding specific carbohydrate diet (SCD) for inflammatory bowel disease (IBD) remains limited, the aim of this study was to investigate the effect of two different diets, SCD and modified SCD (MSCD), on IBD symptoms and inflammation in children and adolescents with IBD. To accomplish this, an N-of-1 trial study design was implemented. First, 54 individuals who met the inclusion criteria began a usual diet (US) for at least one week. Then, they were randomized to begin either SCD or MSCD using a centralized, stratified, block randomization approach with a 1:1 allocation ratio. To avoid confounding secular trends with the actual treatment effects, multiple crossovers were conducted, in which participants alternated between SCD and MSCD for 4 periods, each 8 weeks long.
+        **Answer:** As the evidence regarding specific carbohydrate diet (SCD) for inflammatory bowel disease (IBD) remains limited, the aim of this study was to investigate the effect of two different diets, SCD and modified SCD (MSCD), on IBD symptoms and inflammation in children and adolescents with IBD. To accomplish this, an N-of-1 trial study design was implemented. First, 54 individuals who met the inclusion criteria began a usual diet (US) for at least one week. Then, they were randomized to begin either SCD or MSCD using a centralized, stratified, block randomization approach with a 1:1 allocation ratio. To avoid confounding secular trends with the actual treatment effects, multiple crossovers were conducted, in which participants alternated between SCD and MSCD for 4 periods, each 8 weeks long.
 
         Analyses were conducted at both the individual and aggregate levels. The individual-level figures and results shown in the table indicate that there were no clinically meaningful differences between SCD and MSCD for the participants. Changes in IBD symptoms in SCD versus UD varied by individual. Bayesian generalized linear mixed models with non-informative priors were used to aggregate the results across individuals. Results showed that the probability of a clinically meaningful difference in IBD symptoms between SCD and MSCD was less than 1% in the pooled estimation sample. The probability that SCD was better than UD in reducing IBD symptoms was 62%, and the probability that MSCD was better than UD was 45%. The authors concluded that most individuals showed no differences between the SCD and MSCD diets, and this was also true at the aggregate level.
 
@@ -45,30 +45,41 @@ editor: visual
 
     -   Reflecting on the replication crisis and documentation discussion from class, how easy would it be to try to replicate this study? Explain your response.
 
-    This study would be somewhat difficult to replicate. In this study, the author provides detailed explanation of their study design and method, and they detailed introduce their analysis process. They includes a well-structured explanation of their use of bayesian generalized linear models, and they provide many supplementary materials including detailed information about their used equations and underlying logics of their approach. Although these materials are quite helpful, without providing the data and code script of their analysis, it might require significant efforts to replicate this study.
+        **Answer:** This study would be somewhat difficult to replicate. In this study, the author provides detailed explanation of their study design and method, and they detailed introduce their analysis process. They includes a well-structured explanation of their use of bayesian generalized linear models, and they provide many supplementary materials including detailed information about their used equations and underlying logics of their approach. Although these materials are quite helpful, without providing the data and code script of their analysis, it might require significant efforts to replicate this study.
 
-    Since the original dataset is not provided, people who would like to reproduce this study need to recollect data which would introduce variability to the replication. Differences among sample characteristics, data collection protocols, and settings would influence the reproducibility.
+        Since the original dataset is not provided, people who would like to reproduce this study need to recollect data which would introduce variability to the replication. Differences among sample characteristics, data collection protocols, and settings would influence the reproducibility.
 
-    In addition, without providing the exact code, although they provide detailed explanation of their methods, it is difficult to reproduce the exact analysis. The use of package, software version, and coding logistic would lead to various outcomes.
+        In addition, without providing the exact code, although they provide detailed explanation of their methods, it is difficult to reproduce the exact analysis. The use of package, software version, and coding logistic would lead to various outcomes.
 
     -   How was the data presented in the paper? What parts of an exploratory analysis were included?
+        
+        **Answer:** 
+        Summary tables and figures were used to present the data in this paper. The paper firstly exhibits a comprehensive summary table of all baseline characteristics such as age, gender, disease type, medication, and disease duration, grouped by the completeness of the patients’ participation in the study (full completers, early completers, and withdrawals). The table provide readers insights of comparisons of patients' characteristics across completeness groups using summary statistics and p-values. By including this table, the author presented the key characteristics of the study participants, and allowed the reader to assess the generalisability of the findings and identify potential confounding factors or biases. 
+
+        In addition, the author presents tables of the withdrawal and early completed patients with their reasons for dropping out or early completion, along with their basic demographic and clinical information. This table could help to analyze missing patterns, understanding the logic of dropping our rate and reasons.
+
+        In addition, in terms of findings, the paper presents changes in IBD symptoms and fecal calprotectin levels between different diets through figures, which helps readers understand the underlying treatment effects. They also summarize individual results of symptom scales, changes, and their overall diet adherence presented in the table, exploring how individuals responded differently to the diet intervention. The author also included the posterior estimates as a result of aggregate analysis. 
+
+        The mixture of summary tables and graphs provides a detailed introduction of the data, introducing both patients’ characteristics and outcomes across groups. Additionally, the combination of grouped and individual outcome results helps us to understand both the overall and personalized responses to the dietary interventions. 
+
+
 
     -   Take a look at the visual below that did not make into the paper and was replaced with Figure 1 in the paper. How is the data presented in each visual? Why do you think the authors went with Figure 1?
 
-        Both figures attempt to show treatment effects for three subpopulations and three comparative groups of diets. However, the below graph shows the estimated treatment effects with 95% confidence intervals demonstrating the uncertainty of the estimates, whereas Figure 1 in the paper shows the probability of improvement in IBD symptoms in different colors. In contrast, Figure 1 is more readable because it helps the reader distinguish the difference in outcome between diets more intuitively. For example, instead of looking to see if the 95% confidence interval includes 0, the reader can tell if the first diet is better than the second by looking to see if black is the dominant color in the stacked bars. This improvement of readability might be the reason that the author switched to Figure 1.\
+        **Answer:** Both figures attempt to show treatment effects for three subpopulations and three comparative groups of diets. However, the below graph shows the estimated treatment effects with 95% confidence intervals demonstrating the uncertainty of the estimates, whereas Figure 1 in the paper shows the probability of improvement in IBD symptoms in different colors. In contrast, Figure 1 is more readable because it helps the reader distinguish the difference in outcome between diets more intuitively. For example, instead of looking to see if the 95% confidence interval includes 0, the reader can tell if the first diet is better than the second by looking to see if black is the dominant color in the stacked bars. This improvement of readability might be the reason that the author switched to Figure 1.\
         ![](fig1_orig.png)
 
 3.  The following questions relate to the reading "An Introduction to Modern Missing Data Analyses".
 
     -   Explain the three missing data mechanisms introduced Missing Completely at Random (MCAR), Missing at Random (MAR), and Missing Not at Random (MNAR) and give an example of each. Describe a setting in which it would be difficult to tell which setting is appropriate for our data.
 
-    **Answer:**
+        **Answer:**
 
-    1.  MCAR: MCAR, missing completely at random, is when the missing is completely random and it does not depend on any variables in the data. This means that the probability of missing data on a variable is unrelated to any observed or unobserved data. An example for MCAR is in a heart disease study, the technician accidently loses some lab samples of some participants. Here, the missingness is not related to any participants' health related or other observed and unobserved variables, making it completely random.
+        1.  MCAR: MCAR, missing completely at random, is when the missing is completely random and it does not depend on any variables in the data. This means that the probability of missing data on a variable is unrelated to any observed or unobserved data. An example for MCAR is in a heart disease study, the technician accidently loses some lab samples of some participants. Here, the missingness is not related to any participants' health related or other observed and unobserved variables, making it completely random.
 
-    2.  MAR: MAR, missing at random, is when the missingness is related to observed variables, but not on the missing variable itself. In this situation, the missingness can be explained by other observed variables, but not the missing variable itself. An example of MAR is, in a study of depression, male participants are less likely to complete the survey questions asking about depression severity compared to the female participants, leading to missingness. This missingness is not related to the severity of participants' severity of depression, but is related to their gender which is observed.
+        2.  MAR: MAR, missing at random, is when the missingness is related to observed variables, but not on the missing variable itself. In this situation, the missingness can be explained by other observed variables, but not the missing variable itself. An example of MAR is, in a study of depression, male participants are less likely to complete the survey questions asking about depression severity compared to the female participants, leading to missingness. This missingness is not related to the severity of participants' severity of depression, but is related to their gender which is observed.
 
-    3.  MNAR: MNAR, missing not at random, is when the probability of missing data is related to the incompleted variables itself. An example for MNAR is that people with higher incomes may be more likely to leave the income question blank due to privacy concerns in a survey. Here, the missing of income response is related to participants' income level but not related to other observed variables.
+        3.  MNAR: MNAR, missing not at random, is when the probability of missing data is related to the incompleted variables itself. An example for MNAR is that people with higher incomes may be more likely to leave the income question blank due to privacy concerns in a survey. Here, the missing of income response is related to participants' income level but not related to other observed variables.
 
         In a longitudinal depression study, people complete surveys regularly through time and some participants might drop out from the study. This missingness might have various causes which might be difficult to distinguish among these three types. For example, if the participants move to other places where the reason for the moving is not related to any variables in our studies, this missingness is random and it should be MCAR. Or, if the participants are too old to make regular appointment and complete the survey, the missing data is related to their age, but not related to their severity of depression. This case is MAR. Or, if the participants' depression severity becomes much worse and they drop out since they are not willing to share their worse conditions, this missingness is MNAR where it is related to the missing variable itself. In this case, it would be difficult to tell which setting is appropriate for our data because in reality, researchers might not have clear information about the drop our reason and drop out might occur due to mix of reasons mentioned earlier.
 
@@ -463,7 +474,8 @@ tbl %>%
 3.  Now suppose we are interested in mental and physical function at baseline and how that is associated with pain intensity. We will use the `mice` package to perform multiple imputation on this data. First, drop the variable `PAIN_INTENSITY_AVERAGE.FOLLOW_UP` and the body map variables `X101:X238`.
 
     ```{r, echo = TRUE}
-    pain_mod <- pain[, -c(1:75)] %>%      # Drop PAIN_INTENSITY_AVERAGE.FOLLOW_U and X101:X238
+    # Drop PAIN_INTENSITY_AVERAGE.FOLLOW_U and X101:X238
+    pain_mod <- pain[, -c(1:75)] %>%      
       select(-PAIN_INTENSITY_AVERAGE.FOLLOW_UP)
 
     pain_mod$PAT_SEX <- as.factor(pain_mod$PAT_SEX)
@@ -594,7 +606,7 @@ tbl %>%
       theme(legend.text = element_text(size = 6), 
         legend.title = element_text(size = 8),
         axis.text = element_text(size = 6),
-        plot.title = element_text(size = 10),
+        plot.title = element_text(size = 8),
         axis.title = element_text(size = 8)
         )
     ```
