@@ -12,9 +12,9 @@ editor: visual
 ## Reading Recap
 
 1.  Recap Chapters 3-6 of the "The 9 Pitfalls of Data Science" in three points and choose your favorite example. Each point could be summarizing a key takeaway, something that surprised you, or something that you want to remember.
-    
-    **Answer:** 
-    
+
+    **Answer:**
+
     -   In pitfall 4, worshiping computer, the example of "Seeing the World Through Pixels" surprises me a lot. This example talks about how differently computers and human "see" an object. When a picture of school bus was shown, the DNN (deep neural network) identified it as an airplane instead of a school bus. This occurs since, unlike humans, computers would not understand the picture but analyzes the pixel patterns. Human always identify the object by understanding the context and meaning, even the picture is blocked or unclear, we rely on our experiences to identify it. I choose this example since it helped me understand something I had been confused about. When trying to log in to some websites, I have encountered tasks asking me to recognize traffic lights, buses, or taxis and they said this task can prevent computer from logging in. I used to believe this should be a easy task for "smart computers", but after reading this example, I understand the reason for that and I realize how important and sophisticated human perception really is. In addition, I would like to remember this tip and avoid overly trust computers.
 
     -   In pitfall 5, Torturing Data, the example of "Aspartame doesn't cause cancer" does catch my attention. I usually drink diet coke to avoid suger intake and I was concerned about this topic previously when there are people saying that Aspartame could cause cancer. A lot of studies have shown that aspartame does not cause cancer, and this result is confirmed by both the FDA and European Food Safety Authority. However, because of fears inflamed by hoax emails, people continued to test it. Because of over-testing, there a few occasional anomal cases popped up, suggesting possible links between brain tumors and aspartame. This p-hacking case shows that over-testing or over-analyzing is a way to torturing data and this would increase the probability of finding meaningless patterns which are not the result we would like to have. This is also a tip I would like to remind myself.
@@ -37,30 +37,33 @@ editor: visual
 
         -   What should be done next (discussion/own reflection)?
 
+        As the evidence regarding specific carbohydrate diet (SCD) for inflammatory bowel disease (IBD) remains limited, the aim of this study was to investigate the effect of two different diets, SCD and modified SCD (MSCD), on IBD symptoms and inflammation in children and adolescents with IBD. To accomplish this, an N-of-1 trial study design was implemented. First, 54 individuals who met the inclusion criteria began a usual diet (US) for at least one week. Then, they were randomized to begin either SCD or MSCD using a centralized, stratified, block randomization approach with a 1:1 allocation ratio. To avoid confounding secular trends with the actual treatment effects, multiple crossovers were conducted, in which participants alternated between SCD and MSCD for 4 periods, each 8 weeks long.
+
+        Analyses were conducted at both the individual and aggregate levels. The individual-level figures and results shown in the table indicate that there were no clinically meaningful differences between SCD and MSCD for the participants. Changes in IBD symptoms in SCD versus UD varied by individual. Bayesian generalized linear mixed models with non-informative priors were used to aggregate the results across individuals. Results showed that the probability of a clinically meaningful difference in IBD symptoms between SCD and MSCD was less than 1% in the pooled estimation sample. The probability that SCD was better than UD in reducing IBD symptoms was 62%, and the probability that MSCD was better than UD was 45%. The authors concluded that most individuals showed no differences between the SCD and MSCD diets, and this was also true at the aggregate level.
+
+        Some drawbacks and limitations were discussed in the paper. Although the N-of-1 trials were designed to allow for a robust comparison between SCD and MSCD, they were not optimized for a robust comparison between these two intervention diets and UD due to the lack of randomization and information on the UD. In addition, the authors noted that N-of-1 trials are more suitable for studies where interventions take effect and wear off quickly, which was not the case in this study. Therefore, they suggested applying the N-of-1 trial methodology to interventions that have a quicker cause-effect relationship in future gastrointestinal disease studies.
+
     -   Reflecting on the replication crisis and documentation discussion from class, how easy would it be to try to replicate this study? Explain your response.
-    
-    This study would be somewhat difficult to replicate. In this study, the author provides detailed explanation of their study design and method, and they detailed introduce their analysis process. They includes a well-structured explanation of their use of bayesian generalized linear models, and they provide many supplementary materials including detailed information about their used equations and underlying logics of their approach. Although these materials are quite helpful, without providing the data and code script of their analysis, it might require significant efforts to replicate this study. 
-    
+
+    This study would be somewhat difficult to replicate. In this study, the author provides detailed explanation of their study design and method, and they detailed introduce their analysis process. They includes a well-structured explanation of their use of bayesian generalized linear models, and they provide many supplementary materials including detailed information about their used equations and underlying logics of their approach. Although these materials are quite helpful, without providing the data and code script of their analysis, it might require significant efforts to replicate this study.
+
     Since the original dataset is not provided, people who would like to reproduce this study need to recollect data which would introduce variability to the replication. Differences among sample characteristics, data collection protocols, and settings would influence the reproducibility.
-    
+
     In addition, without providing the exact code, although they provide detailed explanation of their methods, it is difficult to reproduce the exact analysis. The use of package, software version, and coding logistic would lead to various outcomes.
-        
 
     -   How was the data presented in the paper? What parts of an exploratory analysis were included?
-    
 
+    -   Take a look at the visual below that did not make into the paper and was replaced with Figure 1 in the paper. How is the data presented in each visual? Why do you think the authors went with Figure 1?
 
-    -   Take a look at the visual below that did not make into the paper and was replaced with Figure 1 in the paper. How is the data presented in each visual? Why do you think the authors went with Figure 1?\
-        \
+        Both figures attempt to show treatment effects for three subpopulations and three comparative groups of diets. However, the below graph shows the estimated treatment effects with 95% confidence intervals demonstrating the uncertainty of the estimates, whereas Figure 1 in the paper shows the probability of improvement in IBD symptoms in different colors. In contrast, Figure 1 is more readable because it helps the reader distinguish the difference in outcome between diets more intuitively. For example, instead of looking to see if the 95% confidence interval includes 0, the reader can tell if the first diet is better than the second by looking to see if black is the dominant color in the stacked bars. This improvement of readability might be the reason that the author switched to Figure 1.\
         ![](fig1_orig.png)
-
-prob, less CI, dominance color better diet, extra info: split people into disease groups vs. descriptive stat / uncertainty / CI include 0
 
 3.  The following questions relate to the reading "An Introduction to Modern Missing Data Analyses".
 
     -   Explain the three missing data mechanisms introduced Missing Completely at Random (MCAR), Missing at Random (MAR), and Missing Not at Random (MNAR) and give an example of each. Describe a setting in which it would be difficult to tell which setting is appropriate for our data.
 
     **Answer:**
+
     1.  MCAR: MCAR, missing completely at random, is when the missing is completely random and it does not depend on any variables in the data. This means that the probability of missing data on a variable is unrelated to any observed or unobserved data. An example for MCAR is in a heart disease study, the technician accidently loses some lab samples of some participants. Here, the missingness is not related to any participants' health related or other observed and unobserved variables, making it completely random.
 
     2.  MAR: MAR, missing at random, is when the missingness is related to observed variables, but not on the missing variable itself. In this situation, the missingness can be explained by other observed variables, but not the missing variable itself. An example of MAR is, in a study of depression, male participants are less likely to complete the survey questions asking about depression severity compared to the female participants, leading to missingness. This missingness is not related to the severity of participants' severity of depression, but is related to their gender which is observed.
@@ -81,7 +84,9 @@ The data (schmid_data.csv and schmid_codebook.xslx) in this question comes from 
 
 Conduct an exploratory analysis of this data (3-5 pages). To guide yourself, think of at least three questions you want to answer using your EDA. You should also look at patterns of missing data. As part of your analysis, create a summary table and include at least two visualizations. When creating your visuals, you should think about what you want the reader to learn from your visual, making your visual clear and effective, and the data-to-ink ratio (i.e. how much information your visual contains and whether the visual is more effective than putting the same information in text). Your writing accompanying your analysis can be short and informal.
 
-**Answer:** Baseline characteristics (birth, demographics, medications, and clinical measurements) are listed in Table 1. The outcomes we are interested in are binary variables indicating whether the infant received tracheotomy prior to discharge or whether the infant died. According to Table 1, we observe a large proportion of missing values for certain variables, such as complete prenatal steroids, maternal chorioamnionitis, hospital discharge. For example, 42% of the tracheotomy outcome 'Trach' and 39% of the death outcome 'Death' lacked complete prenatal steroid information. This pattern suggests that the exclusion of these variables needs to be considered when conducting multiple imputations.
+**Answer:**
+
+Baseline characteristics (birth, demographics, medications, and clinical measurements) are listed in Table 1. The outcomes we are interested in are binary variables indicating whether the infant received tracheotomy prior to discharge or whether the infant died. According to Table 1, we observe a large proportion of missing values for certain variables, such as complete prenatal steroids, maternal chorioamnionitis, hospital discharge. For example, 42% of the tracheotomy outcome 'Trach' and 39% of the death outcome 'Death' lacked complete prenatal steroid information. This pattern suggests that the exclusion of these variables needs to be considered when conducting multiple imputations.
 
 To further explore the missing patterns in the dataset, we created Figure 1. Missing observations are shown in gray, with more gray shaded areas indicating more missing values. We can see from the figure that missing values increase over time, with more values missing at 44 weeks than at 36 weeks. This may be due to the fact that healthier infants are more likely to be discharged from the hospital and the researchers were unable to collect information on them after discharge.
 
@@ -431,14 +436,14 @@ tbl %>%
 3.  Now suppose we are interested in mental and physical function at baseline and how that is associated with pain intensity. We will use the `mice` package to perform multiple imputation on this data. First, drop the variable `PAIN_INTENSITY_AVERAGE.FOLLOW_UP` and the body map variables `X101:X238`.
 
     ```{r, echo = TRUE}
-pain_mod <- pain[, -c(1:75)] %>%
-  select(-PAIN_INTENSITY_AVERAGE.FOLLOW_UP)
+    pain_mod <- pain[, -c(1:75)] %>%
+      select(-PAIN_INTENSITY_AVERAGE.FOLLOW_UP)
 
-pain_mod$PAT_SEX <- as.factor(pain_mod$PAT_SEX)
-pain_mod$PAT_RACE <- as.factor(pain_mod$PAT_RACE)
-pain_mod$CCI_BIN <- as.factor(pain_mod$CCI_BIN)
-pain_mod$MEDICAID_BIN <- as.factor(pain_mod$MEDICAID_BIN)
-```
+    pain_mod$PAT_SEX <- as.factor(pain_mod$PAT_SEX)
+    pain_mod$PAT_RACE <- as.factor(pain_mod$PAT_RACE)
+    pain_mod$CCI_BIN <- as.factor(pain_mod$CCI_BIN)
+    pain_mod$MEDICAID_BIN <- as.factor(pain_mod$MEDICAID_BIN)
+    ```
 
 4.  Use the `mice()` function to perform multiple imputation to create five imputed data sets and save the result as `pain_mice`. You should read the documentation on this function to understand how it is implementing this and what arguments you might want to set. What is the structure of the returned object?
 
