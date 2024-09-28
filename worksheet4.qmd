@@ -12,7 +12,9 @@ editor: visual
 ## Reading Recap
 
 1.  Recap Chapters 3-6 of the "The 9 Pitfalls of Data Science" in three points and choose your favorite example. Each point could be summarizing a key takeaway, something that surprised you, or something that you want to remember.
-
+    
+    **Answer:** 
+    
     -   In pitfall 4, worshiping computer, the example of "Seeing the World Through Pixels" surprises me a lot. This example talks about how differently computers and human "see" an object. When a picture of school bus was shown, the DNN (deep neural network) identified it as an airplane instead of a school bus. This occurs since, unlike humans, computers would not understand the picture but analyzes the pixel patterns. Human always identify the object by understanding the context and meaning, even the picture is blocked or unclear, we rely on our experiences to identify it. I choose this example since it helped me understand something I had been confused about. When trying to log in to some websites, I have encountered tasks asking me to recognize traffic lights, buses, or taxis and they said this task can prevent computer from logging in. I used to believe this should be a easy task for "smart computers", but after reading this example, I understand the reason for that and I realize how important and sophisticated human perception really is. In addition, I would like to remember this tip and avoid overly trust computers.
 
     -   In pitfall 5, Torturing Data, the example of "Aspartame doesn't cause cancer" does catch my attention. I usually drink diet coke to avoid suger intake and I was concerned about this topic previously when there are people saying that Aspartame could cause cancer. A lot of studies have shown that aspartame does not cause cancer, and this result is confirmed by both the FDA and European Food Safety Authority. However, because of fears inflamed by hoax emails, people continued to test it. Because of over-testing, there a few occasional anomal cases popped up, suggesting possible links between brain tumors and aspartame. This p-hacking case shows that over-testing or over-analyzing is a way to torturing data and this would increase the probability of finding meaningless patterns which are not the result we would like to have. This is also a tip I would like to remind myself.
@@ -36,8 +38,17 @@ editor: visual
         -   What should be done next (discussion/own reflection)?
 
     -   Reflecting on the replication crisis and documentation discussion from class, how easy would it be to try to replicate this study? Explain your response.
+    
+    This study would be somewhat difficult to replicate. In this study, the author provides detailed explanation of their study design and method, and they detailed introduce their analysis process. They includes a well-structured explanation of their use of bayesian generalized linear models, and they provide many supplementary materials including detailed information about their used equations and underlying logics of their approach. Although these materials are quite helpful, without providing the data and code script of their analysis, it might require significant efforts to replicate this study. 
+    
+    Since the original dataset is not provided, people who would like to reproduce this study need to recollect data which would introduce variability to the replication. Differences among sample characteristics, data collection protocols, and settings would influence the reproducibility.
+    
+    In addition, without providing the exact code, although they provide detailed explanation of their methods, it is difficult to reproduce the exact analysis. The use of package, software version, and coding logistic would lead to various outcomes.
+        
 
     -   How was the data presented in the paper? What parts of an exploratory analysis were included?
+    
+
 
     -   Take a look at the visual below that did not make into the paper and was replaced with Figure 1 in the paper. How is the data presented in each visual? Why do you think the authors went with Figure 1?\
         \
@@ -49,6 +60,7 @@ prob, less CI, dominance color better diet, extra info: split people into diseas
 
     -   Explain the three missing data mechanisms introduced Missing Completely at Random (MCAR), Missing at Random (MAR), and Missing Not at Random (MNAR) and give an example of each. Describe a setting in which it would be difficult to tell which setting is appropriate for our data.
 
+    **Answer:**
     1.  MCAR: MCAR, missing completely at random, is when the missing is completely random and it does not depend on any variables in the data. This means that the probability of missing data on a variable is unrelated to any observed or unobserved data. An example for MCAR is in a heart disease study, the technician accidently loses some lab samples of some participants. Here, the missingness is not related to any participants' health related or other observed and unobserved variables, making it completely random.
 
     2.  MAR: MAR, missing at random, is when the missingness is related to observed variables, but not on the missing variable itself. In this situation, the missingness can be explained by other observed variables, but not the missing variable itself. An example of MAR is, in a study of depression, male participants are less likely to complete the survey questions asking about depression severity compared to the female participants, leading to missingness. This missingness is not related to the severity of participants' severity of depression, but is related to their gender which is observed.
@@ -59,7 +71,7 @@ prob, less CI, dominance color better diet, extra info: split people into diseas
 
     -   In this class, we will focus on exploring missing data, thinking through what could have contributed to missing data, and introduce using multiple imputation as a possible tool to use. Write a 3-5 sentence explanation of multiple imputation and then describe settings when multiple imputation might not be appropriate to use.
 
-        Multiple imputation is a modern statistical technique to handle missing data. The basic procedure for multiple imputation includes three steps: the imputation phase, the analysis phase, and the pooling phase. In the imputation phase, we generate a specified number of datasets with different estimates of missing values. Then, we perform analyses separately using the same methods and steps (with no change due to missingness) on each dataset generated during the imputation phase, yielding multiple sets of estimates of each parameter and standard error. Last, in the pooling phase, we combine these multiple sets of results from each dataset's analysis into a single set of results.
+        **Answer:** Multiple imputation is a modern statistical technique to handle missing data. The basic procedure for multiple imputation includes three steps: the imputation phase, the analysis phase, and the pooling phase. In the imputation phase, we generate a specified number of datasets with different estimates of missing values. Then, we perform analyses separately using the same methods and steps (with no change due to missingness) on each dataset generated during the imputation phase, yielding multiple sets of estimates of each parameter and standard error. Last, in the pooling phase, we combine these multiple sets of results from each dataset's analysis into a single set of results.
 
         Multiple imputation might not be appropriate to use when MNAR occurs, that is, when the missingness is related to the missing variable itself. This is because multiple imputation assumes the missingness in the data can be explained by observed data. The implementation of multiple imputation on MNAR data would lead to biases. Or, if our data has small sample size, it would be challenged to do reliable imputation using limited observations. Moreover, if the proportion of missingness is extremely high, our imputation might also be unreliable due to lack of information which would introduce uncertainty.
 
@@ -69,9 +81,7 @@ The data (schmid_data.csv and schmid_codebook.xslx) in this question comes from 
 
 Conduct an exploratory analysis of this data (3-5 pages). To guide yourself, think of at least three questions you want to answer using your EDA. You should also look at patterns of missing data. As part of your analysis, create a summary table and include at least two visualizations. When creating your visuals, you should think about what you want the reader to learn from your visual, making your visual clear and effective, and the data-to-ink ratio (i.e. how much information your visual contains and whether the visual is more effective than putting the same information in text). Your writing accompanying your analysis can be short and informal.
 
-codebook - structure: longitudinal (36/44) correlation; missing ate over time (a lot 44 wk are missing, healthier babies are more likely to lose data at 44 wk); explain missing: due to the center clinical setting: multiple centers: clustering, difference between centers; race: data quality issue (unable to answer); missing / center / relationship outcome
-
-Baseline characteristics (birth, demographics, medications, and clinical measurements) are listed in Table 1. The outcomes we are interested in are binary variables indicating whether the infant received tracheotomy prior to discharge or whether the infant died. According to Table 1, we observe a large proportion of missing values for certain variables, such as complete prenatal steroids, maternal chorioamnionitis, hospital discharge. For example, 42% of the tracheotomy outcome 'Trach' and 39% of the death outcome 'Death' lacked complete prenatal steroid information. This pattern suggests that the exclusion of these variables needs to be considered when conducting multiple imputations.
+**Answer:** Baseline characteristics (birth, demographics, medications, and clinical measurements) are listed in Table 1. The outcomes we are interested in are binary variables indicating whether the infant received tracheotomy prior to discharge or whether the infant died. According to Table 1, we observe a large proportion of missing values for certain variables, such as complete prenatal steroids, maternal chorioamnionitis, hospital discharge. For example, 42% of the tracheotomy outcome 'Trach' and 39% of the death outcome 'Death' lacked complete prenatal steroid information. This pattern suggests that the exclusion of these variables needs to be considered when conducting multiple imputations.
 
 To further explore the missing patterns in the dataset, we created Figure 1. Missing observations are shown in gray, with more gray shaded areas indicating more missing values. We can see from the figure that missing values increase over time, with more values missing at 44 weeks than at 36 weeks. This may be due to the fact that healthier infants are more likely to be discharged from the hospital and the researchers were unable to collect information on them after discharge.
 
@@ -86,27 +96,6 @@ library(visdat)
 library(gt)
 schmid_data <- read.csv("schmid_data.csv")
 ```
-```{r, out.width="100%"}
-schmid_data_m <- schmid_data
-schmid_data_m$center <- as.factor(schmid_data_m$center)
-schmid_data_m$mat_race <- as.factor(schmid_data_m$mat_race)
-schmid_data_m$mat_ethn <- as.factor(schmid_data_m$mat_ethn)
-schmid_data_m$del_method <- as.factor(schmid_data_m$del_method)
-schmid_data_m$prenat_ster <- as.factor(schmid_data_m$prenat_ster)
-schmid_data_m$com_prenat_ster <- as.factor(schmid_data_m$com_prenat_ster)
-schmid_data_m$mat_chorio <- as.factor(schmid_data_m$mat_chorio)
-schmid_data_m$gender <- as.factor(schmid_data_m$gender)
-schmid_data_m$any_surf <- as.factor(schmid_data_m$any_surf)
-schmid_data_m$ventilation_support_level.36 <- as.factor(schmid_data_m$ventilation_support_level.36)
-schmid_data_m$ventilation_support_level_modified.44 <- as.factor(schmid_data_m$ventilation_support_level_modified.44)
-schmid_data_m$Trach <- as.factor(schmid_data_m$Trach)
-schmid_data_m$Death <- as.factor(schmid_data_m$Death)
-schmid_data_m$sga <- as.factor(schmid_data_m$sga)
-
-vis_dat(schmid_data_m[, -1]) +
-theme(axis.text.x = element_text(angle = 90, size = 5))
-```
-
 
 ```{r, out.width="80%"}
 library(tidyr)
@@ -245,7 +234,33 @@ schimd_tbl %>%
   tab_options(
     table.width = pct(120), 
     table.align = "center"
+  ) %>%
+  tab_header(
+    title = md("Table 1: Summary Statistics by Death and Tracheostomy")
   )
+```
+
+```{r, out.width="100%"}
+schmid_data_m <- schmid_data
+schmid_data_m$center <- as.factor(schmid_data_m$center)
+schmid_data_m$mat_race <- as.factor(schmid_data_m$mat_race)
+schmid_data_m$mat_ethn <- as.factor(schmid_data_m$mat_ethn)
+schmid_data_m$del_method <- as.factor(schmid_data_m$del_method)
+schmid_data_m$prenat_ster <- as.factor(schmid_data_m$prenat_ster)
+schmid_data_m$com_prenat_ster <- as.factor(schmid_data_m$com_prenat_ster)
+schmid_data_m$mat_chorio <- as.factor(schmid_data_m$mat_chorio)
+schmid_data_m$gender <- as.factor(schmid_data_m$gender)
+schmid_data_m$any_surf <- as.factor(schmid_data_m$any_surf)
+schmid_data_m$ventilation_support_level.36 <- as.factor(schmid_data_m$ventilation_support_level.36)
+schmid_data_m$ventilation_support_level_modified.44 <- as.factor(schmid_data_m$ventilation_support_level_modified.44)
+schmid_data_m$Trach <- as.factor(schmid_data_m$Trach)
+schmid_data_m$Death <- as.factor(schmid_data_m$Death)
+schmid_data_m$sga <- as.factor(schmid_data_m$sga)
+
+vis_dat(schmid_data_m[, -1]) +
+  theme(axis.text.x = element_text(angle = 90, size = 5)) + 
+  ggtitle("Figure 1: Heat Map across All variables")
+  
 ```
 
 ```{r, out.width="100%"}
@@ -270,7 +285,7 @@ schmid_count <- schmid_data %>%
 
 ggplot(schmid_count, aes(x = Proportion, y = factor(center), fill = Outcomes)) + 
   geom_bar(stat = "identity", position = "stack", color = "black") +
-  labs(title = "Outcome Proportion by Center", x = "Proportion", y = "Center") +
+  labs(title = "Figure 2: Outcome Proportion by Center", x = "Proportion", y = "Center") +
   theme_minimal() +
   theme(legend.position = "bottom") +
   scale_fill_manual(values = c("Trach/Death" = "#EF8100",
@@ -281,9 +296,8 @@ ggplot(schmid_count, aes(x = Proportion, y = factor(center), fill = Outcomes)) +
   theme(legend.text = element_text(size = 6),
         plot.title = element_text(size = 10),
         axis.title = element_text(size = 8)
-        )
+        ) 
 ```
-
 
 ```{r}
 schmid_data$ventilation_support_level.36 <-
@@ -307,7 +321,7 @@ schmid_long$Trach <- as.factor(schmid_long$Trach)
 schmid_long$ventilation_support_level <- as.factor(schmid_long$ventilation_support_level)
 ```
 
-```{r}
+```{r, out.width="100%"}
 weight_df <- schmid_data %>%
   pivot_longer(cols = c("bw", "weight_today.36", "weight_today.44"),
              names_to = "Time",
@@ -324,7 +338,7 @@ weight_df %>%
   group_by(Time) %>%
   ggplot(aes(x = Weight, fill = Outcome)) +
   geom_histogram(bins = 20, position = "stack", color = "black", alpha = 0.7, size = 0.1) +
-  labs(title = "Birth Weight Distribution by Tracheostomy/Death Outcome", 
+  labs(title = "Figure 3: Birth Weight Distribution by Tracheostomy/Death Outcome", 
        x = "Birth Weight (g)", y = "Count") +
   facet_wrap(~Time, ncol = 3) + 
   theme_minimal() +
@@ -345,7 +359,7 @@ Load in the data called `pain` from the `HDSinRdata` package and read the docume
 
 1.  First, describe the patterns of missing data observed in the data set overall. How would you present this information in an exploratory analysis?
 
-    I would present the missing data pattern using heat map. Base on the data structure, I plot three separate heat maps focusing on the body region variables, baseline characteristics, and the follow-up variable, respectively.
+    **Answer:** I would present the missing data pattern using heat map. Base on the data structure, I plot three separate heat maps focusing on the body region variables, baseline characteristics, and the follow-up variable, respectively.
 
     In the heat map of the body region variables, we see that most variables have nearly complete data since there is no visible grey area on the plot, indicating minimal or no missing values. Our baseline characteristics, including both continuous and categorical, exhibits some missingness among certain columns. Categorical variables, such as `PAT_RACE` and `MEDICAID_BIN`, having small portion of missing data, while continuous variables like `BMI` and `GH_PHYSICAL_SCORE` have larger proportion of missingness. To be noticed, the follow-up variable in the third heat map exhibits a significantly large portion of missingness, with over 50% of value missing, which might be a crucial issue.
 
@@ -361,22 +375,25 @@ data(pain)
 
 vis_dat(pain[, 2:75], warn_large_data = FALSE) + 
   theme(axis.text.x = element_text(angle = 90, size = 5)) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  ggtitle("Figure 4: Heat Map for Body Region Variables")
 
 vis_dat(pain[, c(76:87, 89:92)]) + 
   theme(axis.text.x = element_text(angle = 90, size = 5)) +
-  theme(legend.position = "bottom") 
+  theme(legend.position = "bottom") +
+  ggtitle("Figure 5: Heat Map for Baseline Characteristics")
 
 vis_dat(pain[, 88]) + 
   theme(axis.text.x = element_text(angle = 90, size = 5)) +
-  theme(legend.position = "bottom") 
+  theme(legend.position = "bottom") +
+  ggtitle("Figure 6: Heat Map for Follow-up Variable")
 ```
 
 2.  If we were interested in analyzing the change in pain over time, it would be important to think about the missing data due to loss to follow-up. Compare the baseline characteristics between those with and without follow-up information. Comment on your results and discuss whether you think the data is MCAR, MAR, or MNAR.
 
-    To compare the baseline characteristics between those with and without follow-up information, we create a table summary of all baseline characteristics by follow-up presence. Here, participants without follow-up had significantly higher pain intensity score (7.00 vs. 6.00 with p \< 0.01) compared to participants with follow-up. Moreover, in several PROMIS measures, patients with and without follow-up exhibits small but statistically significant differences with smaller p-value. For those demographic variables, age, BMI, gender, and race, significant difference between groups present as well. For example, younger people or patients with lower BMI value are more likely not to have the follow-up information. Moreover, observing the MEDICAID_BIN summary, medicaid recipients are more likely to skip the follow-up.
+    **Answer:** To compare the baseline characteristics between those with and without follow-up information, we create a table summary of all baseline characteristics by follow-up presence. Here, participants without follow-up had significantly higher pain intensity score (7.00 vs. 6.00 with p \< 0.01) compared to participants with follow-up. Moreover, in several PROMIS measures, patients with and without follow-up exhibits small but statistically significant differences with smaller p-value. For those demographic variables, age, BMI, gender, and race, significant difference between groups present as well. For example, younger people or patients with lower BMI value are more likely not to have the follow-up information. Moreover, observing the MEDICAID_BIN summary, medicaid recipients are more likely to skip the follow-up.
 
-    We think this data is more likely to be MAR where the follow-up variable missingness is relates to observed baseline characterisrics variables. Since many baseline characteristics variables exhibits significant difference between people with and without follow-up information as we mentioned earlier, these characteristics seem associated with the probability of missingness which fits the assumption of MAR.
+    We think this data is more likely to be MAR where the follow-up variable missingness is relates to observed baseline characteristics variables. Since many baseline characteristics variables exhibits significant difference between people with and without follow-up information as we mentioned earlier, these characteristics seem associated with the probability of missingness which fits the assumption of MAR.
 
 ```{r}
 pain_followup <- pain %>%
@@ -401,12 +418,19 @@ tbl <- pain_followup %>%
   ) %>%
   modify_table_body(~ .x %>% dplyr::mutate_at(vars(label), as.character))
 
-tbl
+tbl %>%
+  as_gt() %>%
+  tab_options(
+    table.font.size = px(6)
+  ) %>%
+  tab_header(
+    title = md("Table 2: Summary Statistics by Follow-up Presence")
+  )
 ```
 
 3.  Now suppose we are interested in mental and physical function at baseline and how that is associated with pain intensity. We will use the `mice` package to perform multiple imputation on this data. First, drop the variable `PAIN_INTENSITY_AVERAGE.FOLLOW_UP` and the body map variables `X101:X238`.
 
-```{r, echo = TRUE}
+    ```{r, echo = TRUE}
 pain_mod <- pain[, -c(1:75)] %>%
   select(-PAIN_INTENSITY_AVERAGE.FOLLOW_UP)
 
@@ -418,125 +442,124 @@ pain_mod$MEDICAID_BIN <- as.factor(pain_mod$MEDICAID_BIN)
 
 4.  Use the `mice()` function to perform multiple imputation to create five imputed data sets and save the result as `pain_mice`. You should read the documentation on this function to understand how it is implementing this and what arguments you might want to set. What is the structure of the returned object?
 
-The returned object contains the following parts:
+    ```{r, echo = TRUE}
+    # pain_mice <- mice(pain_mod, maxit = 5, seed = (2550))
+    # saveRDS(pain_mice, file = "mice_result.rds")
+    pain_mice <- readRDS("mice_result.rds")
+    ```
 
--   **data:** The original dataset with missing data.
+    **Answer:** The returned object contains the following parts:
 
--   **imp:** A list of imputed values for variables with missingness.
+    -   **data:** The original dataset with missing data.
 
--   **m:** The number of imputed dataset which is 5 here.
+    -   **imp:** A list of imputed values for variables with missingness.
 
--   **where:** A matrix presents the location of missing values in our original dataset where missing values are coded as TRUE.
+    -   **m:** The number of imputed dataset which is 5 here.
 
--   **blocks:** A list of variable names. Variables in one block would be imputed together.
+    -   **where:** A matrix presents the location of missing values in our original dataset where missing values are coded as TRUE.
 
--   **call:** The command used to run the mice() function, including information of data, number of iterations, random seed, and any set parameters.
+    -   **blocks:** A list of variable names. Variables in one block would be imputed together.
 
--   **nmis:** A numeric vector presents number of missing values for each variable.
+    -   **call:** The command used to run the mice() function, including information of data, number of iterations, random seed, and any set parameters.
 
--   **method:** The imputation method used.
+    -   **nmis:** A numeric vector presents number of missing values for each variable.
 
--   **predictorMatrix:** A numeric matrix specifying which variables are used as predictors in the imputation models.
+    -   **method:** The imputation method used.
 
--   **visitSequence:** The order variables are imputed in mice function.
+    -   **predictorMatrix:** A numeric matrix specifying which variables are used as predictors in the imputation models.
 
--   **formulas:** A list of formulas used for imputation of each variable.
+    -   **visitSequence:** The order variables are imputed in mice function.
 
--   **post:** Post-processing rules applied to the imputed data.
+    -   **formulas:** A list of formulas used for imputation of each variable.
 
--   **blots:** Contains information of additional processing for certain variables during imputation.
+    -   **post:** Post-processing rules applied to the imputed data.
 
--   **ignore:** A vector specifying whether specific rows were ignored during imputation. False represents the observation was included in the process while TURE represents it is ignored.
+    -   **blots:** Contains information of additional processing for certain variables during imputation.
 
--   **seed:** The random seed set in parameter.
+    -   **ignore:** A vector specifying whether specific rows were ignored during imputation. False represents the observation was included in the process while TURE represents it is ignored.
 
--   **iteration:** Number of interation for the imputation.
+    -   **seed:** The random seed set in parameter.
 
--   **lastSeedValue:** This component stores the final state of the random number generator after all imputations.
+    -   **iteration:** Number of interation for the imputation.
 
--   **chainMean:** The mean of the imputed values for each variable at each iteration and for each imputation chain.
+    -   **lastSeedValue:** This component stores the final state of the random number generator after all imputations.
 
--   **chainVar:** The variance of the imputed values for each variable at each iteration and for each imputation chain.
+    -   **chainMean:** The mean of the imputed values for each variable at each iteration and for each imputation chain.
 
--   **loggedEvents**: A data frame that records unusual events occurred during imputation, like warnings and errors.
+    -   **chainVar:** The variance of the imputed values for each variable at each iteration and for each imputation chain.
 
--   **version:** The version of mice package used for the imputation.
+    -   **loggedEvents**: A data frame that records unusual events occurred during imputation, like warnings and errors.
 
--   **date:** The date when the imputation performed.
+    -   **version:** The version of mice package used for the imputation.
 
-```{r, echo = TRUE}
-# pain_mice <- mice(pain_mod, maxit = 5, seed = (2550))
-# saveRDS(pain_mice, file = "mice_result.rds")
-pain_mice <- readRDS("mice_result.rds")
-
-str(pain_mice)
-```
+    -   **date:** The date when the imputation performed.
 
 5.  For one imputed data set, find the average mental and physical health score for each possible pain intensity level (0-10). To access the first imputed data set you can use the code below.\
     `mice::complete(pain_mice,1)`
 
-```{r}
-score_list <- list()
+    ```{r}
+    score_list <- list()
 
-for (i in 1:5) {
-  mice_imp <- mice::complete(pain_mice, i)
-  
-  score <- mice_imp %>%
-  group_by(PAIN_INTENSITY_AVERAGE) %>%
-  summarize(
+    for (i in 1:5) {
+      mice_imp <- mice::complete(pain_mice, i)
+      
+      score <- mice_imp %>%
+      group_by(PAIN_INTENSITY_AVERAGE) %>%
+      summarize(
     avg_mental_health = mean(GH_MENTAL_SCORE),
     se_mental_health = sd(GH_MENTAL_SCORE)/sqrt(n()),
     avg_physical_health = mean(GH_PHYSICAL_SCORE),
     se_physical_health = sd(GH_PHYSICAL_SCORE)/sqrt(n())
-  )
-  
-  score_list[[i]] <-  score
-}
+      )
+      
+      score_list[[i]] <-  score
+    }
 
-score1_avg <- score_list[[1]][, c("PAIN_INTENSITY_AVERAGE", "avg_mental_health", 
+    score1_avg <- score_list[[1]][, c("PAIN_INTENSITY_AVERAGE", "avg_mental_health", 
                                   "avg_physical_health")]
-knitr::kable(score1_avg,
+    colnames(score1_avg) <- c("Pain Intensity Level", "Average Mental Health Score", "Average Physical Health Score")
+    knitr::kable(score1_avg,
              caption = "Average Summary of Pain Intensity Score") %>%
-  kable_styling(latex_options = "HOLD_position")
-```
+      kable_styling(latex_options = "HOLD_position")
+    ```
 
 6.  Repeat this for the other four data sets and then use Rubin's rules to plot the results. <https://bookdown.org/mwheymans/bookmi/rubins-rules.html>
 
-```{r}
-mice_pool <- do.call(rbind, score_list)
+    ```{r}
+    mice_pool <- do.call(rbind, score_list)
 
-score_pool <- mice_pool %>%
-  group_by(PAIN_INTENSITY_AVERAGE) %>%
-  summarize(
+    score_pool <- mice_pool %>%
+      group_by(PAIN_INTENSITY_AVERAGE) %>%
+      summarize(
     avg_mental_health_pool = mean(avg_mental_health),
-    
+
     se_mental_health_pool = sqrt(mean(se_mental_health^2)
     + (sum((avg_mental_health - mean(avg_mental_health))^2))/4
     + (sum((avg_mental_health - mean(avg_mental_health))^2))/20),
-    
+
     avg_physical_health_pool = mean(avg_physical_health),
-    
+
     se_physical_health_pool = sqrt(mean(se_mental_health^2)
     + (sum((avg_physical_health - mean(avg_physical_health))^2))/4
     + (sum((avg_physical_health - mean(avg_physical_health))^2))/20)
     )
 
-ggplot(score_pool, aes(x = factor(PAIN_INTENSITY_AVERAGE))) +
-  geom_point(aes(y = avg_mental_health_pool, color = "Mental Health")) +
-  geom_line(aes(y = avg_mental_health_pool, color = "Mental Health"), group = 1) +
-  geom_errorbar(aes(ymin = avg_mental_health_pool - se_mental_health_pool,
+    ggplot(score_pool, aes(x = factor(PAIN_INTENSITY_AVERAGE))) +
+      geom_point(aes(y = avg_mental_health_pool, color = "Mental Health")) +
+      geom_line(aes(y = avg_mental_health_pool, color = "Mental Health"), group = 1) +
+      geom_errorbar(aes(ymin = avg_mental_health_pool - se_mental_health_pool,
                     ymax = avg_mental_health_pool + se_mental_health_pool, 
                     color = "Mental Health",), alpha = 0.6) +
-  geom_point(aes(y = avg_physical_health_pool, color = "Physical Health")) +
-  geom_line(aes(y = avg_physical_health_pool, color = "Physical Health"), group = 1) +
-  geom_errorbar(aes(ymin = avg_physical_health_pool - se_physical_health_pool,
+      geom_point(aes(y = avg_physical_health_pool, color = "Physical Health")) +
+      geom_line(aes(y = avg_physical_health_pool, color = "Physical Health"), group = 1) +
+      geom_errorbar(aes(ymin = avg_physical_health_pool - se_physical_health_pool,
                     ymax = avg_physical_health_pool + se_physical_health_pool, 
                     color = "Physical Health"), alpha = 0.6) +
-  labs(x = "Pain Intensity", y = "Average Score", 
-       title = "Average Mental and Physical Health by Pain Intensity with SE", 
+      labs(x = "Pain Intensity", y = "Average Score", 
+       title = "Figure 7: Average Mental and Physical Health by Pain Intensity with SE", 
        color = "Score Type") +
-  theme_minimal()
-```
+      theme_minimal()
+    ```
 
 ## Appendix {.appendix}
 
