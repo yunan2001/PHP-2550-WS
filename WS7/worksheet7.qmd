@@ -1,0 +1,77 @@
+---
+title: "PHP 2550: Worksheet 7"
+subtitle: "Due: October 18th at 11:59pm"
+format: pdf
+editor: visual
+---
+
+## Many Analysts Recap
+
+Summarize the data and research question posed to the teams in the paper "Many Analysts, One Data Set". What do you notice about the difference in methodological approaches teams had? How different are the resulting estimated odds ratios? Overall, what do you think about this experiment? (\~2 paragraphs)
+
+## Answering Scientific Questions with Regression
+
+Answer the following questions about the difference-in-differences paper you were assigned. (\~1 paragraph per question)
+
+1.  What was the motivating research question? How was this translated to a scientific question and analytic approach?
+
+2.  What is the underlying model(s) used? Be as specific as possible and explain how you determined the model.
+
+3.  How were the results used to answer the question and what was the conclusion?
+
+4.  Overall, how do you evaluate this paper? Think about strengths and weaknesses of the approach and any remaining questions you have.
+
+## Model Evaluation Example
+
+These questions are on the paper 'Predicting lung cancer prior to surgical resection in patients with lung nodules' by Deppen et al. This paper introduces a model called TREAT that is currently used in practice to predict lung cancer.
+
+1.  Compare the Mayo model to the TREAT model in terms of the initial goals of building the model, the population the training data represented, the variables included, and the resulting model. (\~2 paragraphs)
+
+2.  What measures or visuals were used to evaluate the models? How do we interpret these? Why do you think these measures were chosen for comparison? (1 paragraph)
+
+3.  What were some limitations that the paper addressed? (1 paragraph)
+
+## Model Building Practice
+
+Read the [NEJM editorial](https://www.nejm.org/doi/full/10.1056/NEJMe2114918) to understand the background of developing the equations that are used to calculate the estimated glomerular filtration rate (eGFR). Then, load in the data `baseseg.csv` and run the pre-processing below. The data contains the following variables.
+
+1.  Base serum Creatinine (bascre)
+
+2.  Systolic blood pressure (sbase)
+
+3.  Diastolic blood pressure (dbase)
+
+4.  Urine protein (baseu)
+
+5.  Age (age)
+
+6.  Sex (Sex = 1 if male; = 0 if female)
+
+7.  Indicator if African-American (black)
+
+8.  Measured glomerular filtration rate (gfr)
+
+In this worksheet, we will build a model to calculate the eGFR and practice our model evaluation skills.
+
+1.  Conduct a brief exploratory data analysis (EDA). Check the distributions of the variables and consider whether transformations are necessary. Hints: Log transformations or polynomial transformations may be helpful.
+
+2.  Build a linear regression model with appropriate variable selection. Check the model assumptions using model diagnostics. You may also consider including interaction terms.
+
+3.  Evaluate the performance of the model using evaluation measures. Using your evaluation and your estimated model, comment on how you useful you expect the model to be in practice.
+
+4.  Evaluate the performance of the model now between race populations. In particular, compare the measured and estimated GFR using mean squared error (MSE), bias, and the percentage of estimates within 10% and 30% of the measured GFR ($P_{10}$ (%) and $P_{30}$ (%), respectively). Visualize the comparison of the measured and estimated GFR.
+
+5.  Repeat steps 1-4 but remove the race variable (black) from consideration. Interpret your results and relate them back to the discussion in the editorial.
+
+6.  Last, write a non-technical summary of one of your models and its evaluation (1 paragraph) for a clinical audience.
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+kidney_df <- read.csv("baseseg.csv")
+kidney_df <- kidney_df %>% 
+  select(c(gfr, bascre, sbase, dbase, baseu, AGE, SEX, black)) %>%
+  rename(sex = SEX, age = AGE) %>%
+  na.omit()
+kidney_df$black <- as.factor(kidney_df$black)
+kidney_df$sex <- as.factor(kidney_df$sex)
+```
