@@ -75,3 +75,12 @@ kidney_df <- kidney_df %>%
 kidney_df$black <- as.factor(kidney_df$black)
 kidney_df$sex <- as.factor(kidney_df$sex)
 ```
+
+```{r}
+hist(kidney_df$gfr)
+hist(kidney_df$bascre)
+hist(kidney_df$sbase)
+hist(kidney_df$dbase)
+hist(kidney_df$baseu)
+hist(kidney_df$age)
+```
