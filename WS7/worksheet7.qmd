@@ -9,6 +9,11 @@ editor: visual
 
 Summarize the data and research question posed to the teams in the paper "Many Analysts, One Data Set". What do you notice about the difference in methodological approaches teams had? How different are the resulting estimated odds ratios? Overall, what do you think about this experiment? (\~2 paragraphs)
 
+In the paper "Many Analysts, One Data Set", researchers applied a crowdsourcing data analysis approach to investigate the same research question: whether soccer referees are more likely to give red cards to dark-skin-toned players than to light-skin-toned players. The dataset covers 2,053 players from the top male leagues in England, Germany, France, and Spain during the 2012-2013 season, along with 3,147 referees they encountered, creating 146,028 player-referee dyads. Key variables included the players’ position, weight, height, and skin tone, and referee data such as country of origin. Additionally, each player-referee dyad provided information on how many games they interacted in, as well as the frequency of yellow and red cards issued to each player. To be noticed, the skin tone ratings, originally coded on a scale from 1 (very light) to 5 (very dark), were later standardized to a 0 to 1 scale. Additional control variables like age, club, and league which would change over players’ career are received at the time of data collection but not at the times the red cards are awarded. The same dataset was assigned to 29 independent research teams working from 13 different counties and came from various disciplinary backgrounds to investigate the same research questions. Teams are free to decide which variables they would like to include, their statistical methods to use, and their methods to handle nonindependence of players and referees. Among the 29 teams, 21 unique combinations of covariates were used, with some groups including a variety of control variables while others only used a few key variables. Additionally, statistical methods vary as well. Six teams chose to use poisson models, fifteen chose logistic models, six used linear models, and the remaining two teams used specialized methods which are classified as “miscellaneous.” Also, groups chose various methods to address the nonindependence between players and referees, including introducing fixed effects, variance components, and adding clustered standard errors.
+
+The resulting estimated odds ratio varies among teams  significantly, ranging from 0.89 to 2.93, and the median estimate is 1.31. Among the 29 teams, 20 found significant positive  relationships between players’ skin tone and red card issuance, other groups resulted in insignificance with no group resulting in significant negative relationship. Logistic and Poisson models generally produced higher odds ratios, with most teams finding significant effects (median ORs around 1.34–1.36), while linear models showed lower median ORs (1.21) and fewer significant results. Methods to handle nonindependence, such as fixed effects or clustered standard errors, also influenced outcomes, with teams using these methods reporting median ORs from 1.28 to 1.39. These significance variations imply how differences in variable selection and statistical model or approach would lead to various conclusions. This study introduces a really innovative approach for us to show how research is influenced by researchers’ decisions and subjective choices. Even with identical dataset, different researchers could report significant various conclusions due to different choices of variables and statistical methods or analytic approaches. The paper mentions that “in some cases, authors use a particular analytic strategy because it is the one they know how to use, rather than because they have a specific rationale for using it.” This sentence does inspire us about a human side of research that we have never realized before. It implies the hidden subjective choices and personal limitations that can shape the results. By employing a crowdsourced data analysis approach, this study incorporates diverse analytic strategies and perspectives from researchers worldwide, each with unique disciplinary backgrounds. This diversity encourages transparency, highlighting the flexibility in data interpretation and strengthening the robustness and reliability of their results. The collective approach in this study implies benefits of open collaboration, as it enriches our understanding of data by drawing from a wide range of analytic viewpoints. 
+
+
 ## Answering Scientific Questions with Regression
 
 Answer the following questions about the difference-in-differences paper you were assigned. (\~1 paragraph per question)
@@ -67,6 +72,8 @@ In this worksheet, we will build a model to calculate the eGFR and practice our 
 
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(moments))
+suppressPackageStartupMessages(library(stats))
 kidney_df <- read.csv("baseseg.csv")
 kidney_df <- kidney_df %>% 
   select(c(gfr, bascre, sbase, dbase, baseu, AGE, SEX, black)) %>%
@@ -75,12 +82,31 @@ kidney_df <- kidney_df %>%
 kidney_df$black <- as.factor(kidney_df$black)
 kidney_df$sex <- as.factor(kidney_df$sex)
 ```
+ 
+```{r}
+par(mfrow = c(2, 3))
+hist(kidney_df$gfr, main = "Distribution of gfr", xlab = "gfr", col = "lightblue")
+hist(kidney_df$bascre, main = "Distribution of bascre", xlab = "bascre", col = "lightblue")
+hist(kidney_df$sbase, main = "Distribution of sbase", xlab = "sbase", col = "lightblue")
+hist(kidney_df$dbase, main = "Distribution of dbase", xlab = "dbase", col = "lightblue")
+hist(kidney_df$baseu, main = "Distribution of baseu", xlab = "baseu", col = "lightblue")
+hist(kidney_df$age, main = "Distribution of age", xlab = "age", col = "lightblue")
+
+# Calculate skewness
+skewness_value <- skewness(kidney_df[, 1:6])
+skewness_value
+
+kidney_df$log_bascre <- log(kidney_df$bascre)
+kidney_df$log_baseu <- log(kidney_df$baseu)
+
+par(mfrow = c(1, 2))
+hist(kidney_df$log_bascre, main = "Distribution of log_bascre", xlab = "Log Transformed gfr", col = "lightblue")
+hist(kidney_df$log_baseu, main = "Distribution of log_baseu", xlab = "Log Transformed baseu", col = "lightblue")
+```
 
 ```{r}
-hist(kidney_df$gfr)
-hist(kidney_df$bascre)
-hist(kidney_df$sbase)
-hist(kidney_df$dbase)
-hist(kidney_df$baseu)
-hist(kidney_df$age)
+model <- lm(gfr ~ log_bascre + sbase + dbase + log_baseu + age + sex + black, data = kidney_df)
+
+summary(model)
 ```
+
