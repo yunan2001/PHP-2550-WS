@@ -1,0 +1,64 @@
+---
+title: "test"
+author: "Yunan Chen"
+date: "2024-10-17"
+output: pdf_document
+---
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(moments))
+suppressPackageStartupMessages(library(stats))
+library(dplyr)
+library(gtsummary)
+library(gt)
+library(tidyverse)
+library(corrplot)
+library(RColorBrewer)
+library(grDevices)
+library(ggcorrplot)
+# kidney_df <- read.csv("baseseg.csv")
+# kidney_df <- kidney_df %>% 
+#   select(c(gfr, bascre, sbase, dbase, baseu, AGE, SEX, black)) %>%
+#   rename(sex = SEX, age = AGE) %>%
+#   na.omit()
+# kidney_df$black <- as.factor(kidney_df$black)
+# kidney_df$sex <- as.factor(kidney_df$sex)
+```
+
+```{r}
+kidney_tbl <- kidney_df %>%
+  mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
+         sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
+  tbl_summary(by=black,
+              label = list(gfr ~ "Measured glomerular filtration rate",
+                           bascre ~ "Base serum Creatinine",
+                           sbase ~ "Systolic blood pressure",
+                           dbase ~ " Diastolic blood pressure",
+                           baseu ~ "Urine protein"
+                           ),
+              statistic = all_continuous() ~ "{mean} ({sd})") %>%
+  modify_spanning_header(update =  all_stat_cols() ~  "**Black**") %>%
+  modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
+  bold_labels()
+kidney_tbl
+```
+
+```{r}
+cor_m <-cor(kidney_df[, -c(2, 5, 7,8)])
+variable_order <- c("log_baseu", "log_bascre", "dbase", "sbase", "age", "gfr")
+r_reordered <- cor_m[variable_order, variable_order]
+
+ggcorrplot(r_reordered, 
+           hc.order = TRUE, 
+           type = "lower",
+           lab = TRUE) +
+  ggtitle("Figure 2: Correlation Matrix") +
+  theme(plot.title = element_text(hjust = 0.5, size=14),
+        axis.text.x = element_text(size = 12),             
+        axis.text.y = element_text(size = 12))
+```
+
+```{r}
+
+```
