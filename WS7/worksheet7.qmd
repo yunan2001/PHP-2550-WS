@@ -79,17 +79,24 @@ suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(gtsummary))
 suppressPackageStartupMessages(library(corrplot))
 suppressPackageStartupMessages(library(ggcorrplot))
+suppressPackageStartupMessages(library(MASS))
 
 kidney_df <- read.csv("baseseg.csv")
-kidney_df <- kidney_df %>% 
-  select(c(gfr, bascre, sbase, dbase, baseu, AGE, SEX, black)) %>%
+kidney_df <- kidney_df %>%
+  dplyr::select(gfr, bascre, sbase, dbase, baseu, AGE, SEX, black) %>%
   rename(sex = SEX, age = AGE) %>%
   na.omit()
+
 kidney_df$black <- as.factor(kidney_df$black)
 kidney_df$sex <- as.factor(kidney_df$sex)
 ```
  
 ```{r}
+ggplot(kidney_df) +
+  geom_boxplot(aes(x = sex, y = gfr, fill = sex)) +
+  ggtitle("Box Plot of gfr by Sex") + 
+  theme_minimal()
+
 par(mfrow = c(2, 3))
 hist(kidney_df$gfr, main = "Distribution of gfr", xlab = "gfr", col = "lightblue")
 hist(kidney_df$bascre, main = "Distribution of bascre", xlab = "bascre", col = "lightblue")
@@ -98,30 +105,38 @@ hist(kidney_df$dbase, main = "Distribution of dbase", xlab = "dbase", col = "lig
 hist(kidney_df$baseu, main = "Distribution of baseu", xlab = "baseu", col = "lightblue")
 hist(kidney_df$age, main = "Distribution of age", xlab = "age", col = "lightblue")
 
-# Calculate skewness
-skewness_value <- skewness(kidney_df[, 1:6])
-knitr::kable(skewness_value,
-             caption = "Variable Skewness Value",
-             col.names = c("Variable", "Skewness")) %>%
-      kable_styling(latex_options = "HOLD_position")
+# # Calculate skewness
+# skewness_value <- skewness(kidney_df[, 1:6])
+# knitr::kable(skewness_value,
+#              caption = "Variable Skewness Value",
+#              col.names = c("Variable", "Skewness")) %>%
+#       kable_styling(latex_options = "HOLD_position")
 
-kidney_df$log_bascre <- log(kidney_df$bascre)
-kidney_df$log_baseu <- ifelse(kidney_df$baseu <= 0.1, kidney_df$baseu, log(kidney_df$baseu))
-kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
-kidney_df$log_gfr <- log(kidney_df$gfr)
+# kidney_df$log_bascre <- log(kidney_df$bascre)
+# kidney_df$log_baseu <- ifelse(kidney_df$baseu <= 0.1, kidney_df$baseu, log(kidney_df$baseu))
+# kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
+# kidney_df$log_gfr <- log(kidney_df$gfr)
+
+# Conduct transformations on the variables
+kidney_df <- kidney_df %>%
+  mutate(undetectable_baseu = as.factor(if_else(baseu == 0.1, 1, 0)),  
+         log_baseu = if_else(baseu == 0.1 , 0, log(baseu)),
+         log_bascre = log(bascre)) %>%
+  filter(gfr != max(gfr, na.rm = TRUE)) %>%
+  mutate(sqrt_gfr = sqrt(gfr))
 
 par(mfrow = c(2, 2))
 hist(kidney_df$log_bascre, main = "Distribution of log_bascre", xlab = "Log Transformed gfr", col = "lightblue")
 hist(kidney_df$log_baseu, main = "Distribution of log_baseu", xlab = "Log Transformed baseu", col = "lightblue")
-hist(kidney_df$log_gfr, main = "Distribution of log_gfr", xlab = "Log Transformed gfr", col = "lightblue")
 hist(kidney_df$sqrt_gfr, main = "Distribution of sqrt_gfr", xlab = "Square Root gfr", col = "lightblue")
+# hist(kidney_df$log_gfr, main = "Distribution of log_gfr", xlab = "Log Transformed gfr", col = "lightblue")
 ```
 
 ```{r}
 kidney_tbl <- kidney_df %>%
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
          sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
-  tbl_summary(by=black,
+  tbl_summary(by = black,
               label = list(gfr ~ "Measured glomerular filtration rate",
                            bascre ~ "Base serum Creatinine",
                            sbase ~ "Systolic blood pressure",
@@ -136,8 +151,8 @@ kidney_tbl
 ```
 
 ```{r}
-cor_m <-cor(kidney_df[, -c(1, 2, 5, 7, 8)])
-variable_order <- c("log_baseu", "log_bascre", "dbase", "sbase", "age", "sqrt_gfr", "log_gfr")
+cor_m <- cor(kidney_df[, -c(1, 2, 5, 7, 8, 12)])
+variable_order <- c("log_baseu", "log_bascre", "dbase", "sbase", "age", "sqrt_gfr")
 r_reordered <- cor_m[variable_order, variable_order]
 
 ggcorrplot(r_reordered, 
@@ -149,25 +164,125 @@ ggcorrplot(r_reordered,
         axis.text.x = element_text(size = 12),             
         axis.text.y = element_text(size = 12))
 ```
+```{r}
 
+# Full model (largest model to be tested)
+full_model <- glm(sqrt_gfr ~ (poly(age, degree = 2) + sex + black +
+                         sbase + dbase + undetectable_baseu + log_baseu +
+                         log_bascre)^2,
+                       family = gaussian,
+                       data = kidney_df)
+
+summary(full_model)
+
+# Minimal model (smallest model to be tested)
+min_model <- glm(sqrt_gfr ~ poly(age, degree = 2) + sex + black + 
+                   sbase + dbase + undetectable_baseu + log_baseu + log_bascre,
+                 family = gaussian,
+                 data = kidney_df)
+
+# Scope bounds for step()
+scope_list <- list(
+  lower = formula(min_model),  # vars that must remain in the model
+  upper = formula(full_model)  # Largest model to consider
+  )
+
+# Run step() backwards
+step_model_b <- step(full_model,
+                     direction = "backward",
+                     trace = 0,
+                     scope = scope_list)  
+
+
+# Run step() forwards
+step_model_f <- step(min_model,
+                     direction = "forward",
+                     trace = 0,
+                     scope = scope_list)
+
+plot(step_model_f)
+
+# Choose best model (If forward and backward agree, done; if they disagree, 
+# use LRT to determine best model; see _helpers.R for details)
+best_model <- select_best_model(step_model_b, step_model_f)
+```
 
 ```{r}
-model_log <- lm(log_gfr ~ log_bascre + sbase + dbase + log_baseu + age + sex + black, data = kidney_df)
+kidney_df$undetectable_baseu <- ifelse(kidney_df$baseu <= 0.1, 1, 0)
+min_model <- glm(sqrt_gfr ~ sbase + dbase + poly(age, degree = 2) + sex + black + log_bascre + log_baseu + undetectable_baseu, family = gaussian, data = kidney_df)
+step(min_model, direction = "forward",
+                     trace = 0,
+                     k = log(n))
+summary(step_min_model)
+plot(step_model_b)
+```
 
-summary(model_log)
+```{r}
+min_model <- glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu, data = kidney_df)
+summary(model)
+par(mfrow = c(2, 2))
+plot(model)
 
-model_sqrt <- lm(sqrt_gfr ~ log_bascre + sbase + dbase + log_baseu + age + sex + black, data = kidney_df)
 
-summary(model_sqrt)
+kidney_df$poly_sqrt_gfr1 <- poly(kidney_df$sqrt_gfr, 2)[, 1]
+kidney_df$poly_sqrt_gfr2 <- poly(kidney_df$sqrt_gfr, 2)[, 2]
 
-# QQ plot for normality check
-qqnorm(resid(model_log), main = "QQ Plot for log(GFR)")
-qqline(resid(model_log), col = "red")
+model <- glm(poly_sqrt_gfr1 + poly_sqrt_gfr2 ~ dbase + age + sex + black + log_bascre + log_baseu +
+             dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
+             age:sex + age:black + age:log_bascre + age:log_baseu + 
+             sex:black + sex:log_bascre + sex:log_baseu + 
+             black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
+             data = kidney_df)
 
-qqnorm(resid(model_sqrt), main = "QQ Plot for sqrt(GFR)")
-qqline(resid(model_sqrt), col = "red")
+summary(model)
 
-AIC(model_log, model_sqrt)
-BIC(model_log, model_sqrt)
+step_model <- step(model, direction = "both")
+
+model <- glm(log_gfr ~ poly(dbase, 2) + poly(age, 2) + sex + black + log_bascre + log_baseu +
+             dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
+             age:sex + age:black + age:log_bascre + age:log_baseu + 
+             sex:black + sex:log_bascre + sex:log_baseu + 
+             black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
+             data = kidney_df)
+plot(model)
+
+step_model <- step(model, direction = "back")
+
+summary(step_model)
+
+plot(step_model)
+
+cooks_distances <- cooks.distance(step_model)
+plot(cooks_distances, type = "h")
+abline(h = 4 / nrow(kidney_df), col = "red")  # Add a threshold line
+
+# Identify high-leverage points
+cooks_threshold <- 4 / nrow(kidney_df)
+
+# Identify points above the threshold
+influential_points <- which(cooks_distances > cooks_threshold)
+
+# Print out the indices of influential points
+influential_points
+
+boxcox_model <- boxcox(glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu, data = kidney_df))
+# Find the best lambda (transformation parameter)
+best_lambda <- boxcox_model$x[which.max(boxcox_model$y)]
+
+# Apply the Box-Cox transformation
+kidney_df$boxcox_gfr <- (kidney_df$sqrt_gfr^best_lambda - 1) / best_lambda
+
+model <- glm(boxcox_gfr ~ dbase + age + sex + black + log_bascre + log_baseu +
+             dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
+             age:sex + age:black + age:log_bascre + age:log_baseu + 
+             sex:black + sex:log_bascre + sex:log_baseu + 
+             black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
+             data = kidney_df)
+
+step_model <- step(model, direction = "back")
+
+summary(step_model)
+
+plot(step_model)
 ```
 
