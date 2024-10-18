@@ -26,6 +26,15 @@ library(ggcorrplot)
 # kidney_df$sex <- as.factor(kidney_df$sex)
 ```
 
+
+## Answering Scientific Questions with Regression
+
+Answer the following questions about the difference-in-differences paper you were assigned. (\~1 paragraph per question)
+
+1.  What was the motivating research question? How was this translated to a scientific question and analytic approach?
+
+Previous studies have found that beverage taxes are associated with increased prices and reductions in the volume of beverages sold. However, this tax effect at small, independent stores has not been thoroughly studied. This study was conducted in the purpose to examine whether an increase in excise tax on sweetened beverages was associated with the sustained changes in beverage prices and purchases as well as calories purchased from beverages and high-sugar foods, over 2 years at independent stores in Philadelphia and Baltimore, Maryland. To approach this question, a cross-sectional study was conducted, with Baltimore as the control and Philadelphia as the treated city. A difference-in-difference approach was used to examine the difference in the pretax and posttax beverage prices, fluid ounces purchased, and total calories purchased from beverages and high-sugar foods between the two cities. 
+
 ```{r}
 kidney_tbl <- kidney_df %>%
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
@@ -101,3 +110,4 @@ ggplot(test, aes(x = gfr, y = estimated_gfr, color = black)) +
        y = "Estimated GFR") +
   theme_minimal()
 ```
+
