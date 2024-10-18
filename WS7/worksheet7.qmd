@@ -77,6 +77,7 @@ suppressPackageStartupMessages(library(stats))
 suppressPackageStartupMessages(library(kableExtra))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(gtsummary))
+suppressPackageStartupMessages(library(gt))
 suppressPackageStartupMessages(library(corrplot))
 suppressPackageStartupMessages(library(ggcorrplot))
 suppressPackageStartupMessages(library(MASS))
@@ -137,8 +138,31 @@ hist(kidney_df$sqrt_gfr, main = "Distribution of sqrt_gfr", xlab = "Square Root 
 ```
 
 ```{r}
+cols <- c("#F76D5E", "#FFFFBF")
+#, "#72D8FF"
+# Basic density plot in ggplot2
+cols <- c("Black" = "#F76D5E", "Non-Black" = "#FFFFBF", "All" = "#72D8FF")
+ggplot() +
+  geom_density(data = kidney_df, aes(x = sqrt_gfr, fill = "All"), 
+               alpha = 1, color = "#72D8FF") +  # Entire dataset
+  geom_density(data = kidney_df %>% filter(black == 1), 
+               aes(x = sqrt_gfr, fill = "Black"), 
+               alpha = 0.5, color = "#F76D5E") +  # Black group
+  geom_density(data = kidney_df %>% filter(black == 0), 
+               aes(x = sqrt_gfr, fill = "Non-Black"), 
+               alpha = 0.5, color = "#FFFFBF") +  # Non-Black group
+  scale_fill_manual(values = cols) +
+  labs(title = "Density Plot of sqrt_gfr by Race",
+       x = "sqrt_gfr",
+       y = "Density",
+       fill = "Group") +
+  theme_minimal()
+```
+
+```{r}
 # Creating first summary table (original)
 kidney_tbl <- kidney_df %>%
+  dplyr::select(black, sex, gfr, bascre, sbase, dbase, baseu) %>%
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
          sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
   tbl_summary(by = black,
@@ -155,27 +179,60 @@ kidney_tbl <- kidney_df %>%
 
 # Creating second summary table (transformed)
 kidney_tbl_transformed <- kidney_df %>%
-  dplyr::select(-c(gfr, bascre, baseu)) %>%
+  dplyr::select(black, sex, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
+  rename(gfr=sqrt_gfr, bascre=log_bascre, baseu=log_baseu) %>% 
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
          sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
   tbl_summary(by = black,
-              label = list(sqrt_gfr ~ "Measured glomerular filtration rate",
-                           log_bascre ~ "Base serum Creatinine",
+              label = list(gfr ~ "Measured glomerular filtration rate",
+                           bascre ~ "Base serum Creatinine",
                            sbase ~ "Systolic blood pressure",
                            dbase ~ " Diastolic blood pressure",
-                           log_baseu ~ "Urine protein"
+                           baseu ~ "Urine protein"
                            ),
               statistic = all_continuous() ~ "{mean} ({sd})") %>%
   modify_spanning_header(update =  all_stat_cols() ~  "**Black**") %>%
   modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
   bold_labels()
 
+
+# Creating third summary table (transformed)
+kidney_tbl_nb <- kidney_df %>%
+  dplyr::select(sex, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
+  rename(gfr=sqrt_gfr, bascre=log_bascre, baseu=log_baseu) %>% 
+  mutate(sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
+  tbl_summary(label = list(gfr ~ "Measured glomerular filtration rate",
+                           bascre ~ "Base serum Creatinine",
+                           sbase ~ "Systolic blood pressure",
+                           dbase ~ " Diastolic blood pressure",
+                           baseu ~ "Urine protein"
+                           ),
+              statistic = all_continuous() ~ "{mean} ({sd})") %>%
+  modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
+  bold_labels()
+kidney_tbl_nb
+
 tbl_combined <- tbl_merge(
-  tbls = list(kidney_tbl, kidney_tbl_transformed),
-  tab_spanner = c("**Original Variables**", "**Transformed Variables**")
-)
+  tbls = list(kidney_tbl, kidney_tbl_transformed, kidney_tbl_nb),
+  tab_spanner = c("**Original Variables**", "**Transformed Variables**", "**Race Removed**")) %>% 
+  as_gt() %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#e0ecf4")),
+    locations = cells_body(
+      rows = label == c("Measured glomerular filtration rate"))) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#e0ecf4")),
+    locations = cells_body(
+      rows = label == c("Base serum Creatinine"))) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#e0ecf4")),
+    locations = cells_body(
+      rows = label == c("Urine protein")))
+  
 tbl_combined
-kidney_tbl_transformed
 ```
 
 ```{r}
