@@ -35,6 +35,21 @@ Answer the following questions about the difference-in-differences paper you wer
 
 Previous studies have found that beverage taxes are associated with increased prices and reductions in the volume of beverages sold. However, this tax effect at small, independent stores has not been thoroughly studied. This study was conducted in the purpose to examine whether an increase in excise tax on sweetened beverages was associated with the sustained changes in beverage prices and purchases as well as calories purchased from beverages and high-sugar foods, over 2 years at independent stores in Philadelphia and Baltimore, Maryland. To approach this question, a cross-sectional study was conducted, with Baltimore as the control and Philadelphia as the treated city. A difference-in-difference approach was used to examine the difference in the pretax and posttax beverage prices, fluid ounces purchased, and total calories purchased from beverages and high-sugar foods between the two cities. 
 
+
+## Model Evaluation Example
+
+These questions are on the paper 'Predicting lung cancer prior to surgical resection in patients with lung nodules' by Deppen et al. This paper introduces a model called TREAT that is currently used in practice to predict lung cancer.
+
+1.  Compare the Mayo model to the TREAT model in terms of the initial goals of building the model, the population the training data represented, the variables included, and the resulting model. (\~2 paragraphs)
+
+The Mayo model focused on improving biopsy screening or referral in the general medical population. The model was designed to evaluate patients with nodules selected from the general population whose lesions were found on imaging. The prevalence of disease in the population considered in the training data is 23%. The model contained six variables: age, smoking history, previous cancer, lesion size, spiculated edge and location.
+
+The TREAT model was constructed based on the need to reduce unnecessary surgery for benign disease and was calibrated to be used in the preoperative evaluation of suspicious lesions in the lung. The model was designed to help surgeons obtain an accurate and well-calibrated predictive model to facilitate the diagnosis of suspected lung cancer without missing early stage disease. The model was trained on people undergoing thoracic surgical evaluation of lung nodules or masses for known or suspected non-small cell lung cancer with a prevalence of 72%. Compared with the Mayo Clinic model, the TREAT model added six variables: gender, body mass index, chronic obstructive pulmonary disease (COPD), lesion growth, FDG-PET positivity, and hemoptysis in preoperative symptoms. For variables related to smoking, The TREAT model included pack-years of smoking, which took into account both duration and intensity of smoking.
+
+
+The TREAT lung cancer model demonstrated superior performance (AUC = 0.87) compared to the Mayo Clinic model (AUC = 0.80) and was validated in a separate, higher-risk cohort (AUC = 0.89). While the Mayo Clinic model performed well in a Vanderbilt University Medical Center (VUMC) population, its accuracy decreased (AUC = 0.73) as disease prevalence increased in a Veterans Affairs cohort with 95% lung cancer prevalence. The Mayo Clinic model showed poorer calibration, underestimating cancer risk in lower-risk patients, limiting its use in surgical populations with higher cancer prevalence.
+
+
 ```{r}
 kidney_tbl <- kidney_df %>%
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
