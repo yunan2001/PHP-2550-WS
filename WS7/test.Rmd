@@ -58,7 +58,7 @@ ggcorrplot(r_reordered,
         axis.text.x = element_text(size = 12),             
         axis.text.y = element_text(size = 12))
 ```
-
+# 3
 ```{r}
 library(caret)
 set.seed(2550)
@@ -72,4 +72,32 @@ mae <- mean(abs(predictions-test$gfr))
 
 cat("The MSE is:", mse, "\n")
 cat("The MAE is:", mae, "\n")
+```
+
+# 4
+```{r}
+# Split data by race and calculate performance metrics
+test$estimated_gfr <- predict(m1, newdata = test)
+performance_by_race <- test %>%
+  group_by(black) %>%
+  summarise(MSE = mean((gfr - estimated_gfr)^2),
+            Bias = mean(estimated_gfr - gfr),
+            P10 = mean(abs(estimated_gfr - gfr) / gfr <= 0.10) * 100,
+            P30 = mean(abs(estimated_gfr - gfr) / gfr <= 0.30) * 100)
+performance_by_race %>%
+  kbl(caption = "Performance Metrics by Race") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+# Create a scatter plot to compare measured and estimated GFR
+ggplot(test, aes(x = gfr, y = estimated_gfr, color = black)) +
+  geom_point(alpha=0.8) +
+  geom_abline(intercept = 0, slope = 1, linetype = "solid", color = "black", size=1) +  # Perfect prediction line
+  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8) + 
+  scale_color_manual(values = c("0" = "red", "1" = "blue"),  # Assign colors manually
+                     labels = c("0" = "Non-black", "1" = "Black"),  # Rename legend labels
+                     name = "Race") +
+  labs(title = "Comparison of Measured and Estimated GFR by Race",
+       x = "Measured GFR",
+       y = "Estimated GFR") +
+  theme_minimal()
 ```
