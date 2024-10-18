@@ -287,6 +287,12 @@ To build a linear regression model and perform a variable selection process, we 
 &\quad + \beta_{14} \cdot \log(\text{bascre}) \times \log(\text{baseu}) + \epsilon
 \end{align*}
 
+Observing the optimal model output in Table 3, we see main effects, `dbase`, `sex`, `black`, `log_bascre`, and `log_baseu`, are significant predictors of the response variable, sqrt_gfr. Among these main effect variables, `black`, `log_bascre`, and `log_baseu` have negative coefficient estimates, implies a negative association between these variables and the response variables. 
+
+For example, black with a coefficient estimate of -0.774 indicates black people tend to have a lower outcome value by 0.77 units compared to the non-black participants. The coefficients for `log_bascre` (-1.216) and `log_baseu` (-1.025) are significant with p-values of 0.0137 and 0.0007, respectively. This indicates that increase in log-transformed base serum creatinine and urine protein values are associated with decrease in `sqrt_gfr`. The coefficient of `dbase`, 0.019, is positive and highly significant. The `sqrt_gfr` would increase by 0.019 units as `dbase` increases by one unit. Additionally, sex shows that males' `sqrt_gfr` value are approximately 1.75 units higher than females and this difference is statistically significant.
+
+Interaction terms play a significant role in our model as well which indicates the complex relationships among our key covariates. The interaction term between `dbase` and `log_bascre` has a significant negative estimate, indicating that higher blood pressure with higher creatinine would lead to decrease in the response variable, `sqrt_gfr`. The significant interaction between age and sex implies that the effect of age on our outcome would vary by sex. Since this interaction term shows a significant negative estimate, male participants experience a greater decrease (or a smaller increase) in the response variable with age compared to female participants. Similarly, the interaction between sex and race with coefficient estimate of -0.0166141, indicates that black males have a higher outcome compared to non-black males or females. Moreover, the interactions between sex and `log_bascre`, and race and `log_bascre`, suggest that both gender and race influence how creatinine affects the response variable. Finally, the interaction between `log_bascre` and `log_baseu` which exhibits a significant positive coefficient estimate showing that the combined effects of these two biomakers is greater than their individual effects.
+
 ```{r}
 full_model <- glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu +
              dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
@@ -307,36 +313,27 @@ summary_model %>%
                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 ```
 
-To check the essential assumptions of our model, we first observe the residual plot to check for linearity and homoscedasticity. Our points here on the left top plot generally has no obvious pattern and they randomly scattered around the center line of zero. Additionally, we look at the Q-Q plot on the right top to assess the normality assumption. Our points mostly fall along the diagonal line in the middle of the graph, but curve off in the extremities. This suggests that the residuals follow normal distribution but the presence of more extreme values than expected lead to the deviation 
+To check the essential assumptions of our model, we first observe the residual plot to check for linearity and homoscedasticity. Our points here on the left top plot generally has no obvious pattern and they randomly scattered around the center line of zero. Additionally, we look at the Q-Q plot on the right top to assess the normality assumption. Our points mostly fall along the diagonal line in the middle of the graph, but curve off in the extremities. This suggests that the residuals follow normal distribution but the presence of more extreme values than expected lead to the deviation on the tails. The scale-location plot on the left bottom checks for homoscedasticity. In this plot, we see the points appear mostly randomly scattered and it shows a reasonably flat blue line with no pronounce variation. This indicates that the variance of residuals remains roughly constant across predicted values. The residual vs. leverage plot on the right bottom aims to identify influential points. Here, most points clustered around zero and there are a few points which exhibit relatively high leverage but none of these points appear to have extremely large residuals.
 
-Normal QQ plots that exhibit this behavior usually mean your data have more extreme values than would be expected if they truly came from a normal distribution.
 ```{r}
 autoplot(step_model, size=0.5)
 ```
 
 ### 3.
+
+
 ```{r}
 set.seed(2550)
 index <- createDataPartition(kidney_df$gfr, p = 0.8, list = FALSE)
 train <- kidney_df[index, ]
 test <- kidney_df[-index, ]
 predictions <- predict(step_model, newdata = test)
-mse <- mean((predictions - test$sqrt_gfr)^2)
-mae <- mean(abs(predictions - test$sqrt_gfr))
+test$predictions_transformed <- predictions^2
+mse <- mean((test$predictions_transformed - test$gfr)^2)
+mae <- mean(abs(test$predictions_transformed - test$gfr))
 
 cat("The MSE is:", mse, "\n")
 cat("The MAE is:", mae, "\n")
-
-
-# Back-transform the predictions 
-test$predictions_transformed <- predictions^2
-
-
-# Compute the Mean Squared Error (MSE)
-# Note: Able to directly compare gfr to predictions^2
-MSE <- mean((test$gfr - test$predictions_transformed)^2)
-
-MSE
 ```
 
 ### 4.
