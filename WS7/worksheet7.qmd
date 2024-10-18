@@ -223,30 +223,18 @@ full_model <- glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu 
              black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
              data = kidney_df)
 
-invisible(capture.output({
-  step_model <- step(full_model, direction = "backward")
-}))
-
-# model_summary <- summary(step_model)
-# coef_df <- as.data.frame(model_summary$coefficients)
-# colnames(coef_df) <- c("Estimate", "Standard Error", "T Statistics", "P Value")
-# knitr::kable(coef_df,
-#          caption = "Summary of Best Model") %>%
-#   kable_styling(latex_options = "HOLD_position")
+step_model <- step(full_model, direction = "backward", trace = 0)
 
 autoplot(step_model, size=0.5)
-```
-```{r}
-full_model <- glm(sqrt_gfr ~ sbase + dbase + sex + black + log_bascre + log_baseu +
-             dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
-             age:sex + age:black + age:log_bascre + age:log_baseu + 
-             sex:black + sex:log_bascre + sex:log_baseu + 
-             black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
-             data = kidney_df)
 
-step_model <- step(full_model, direction = "back")
+summary_model <- as.data.frame(summary(step_model)$coefficient)
+colnames(summary_model) <- c("Estimate", "Standard Error", "T Statistics", "P Value")
 
-summary(step_model)
+summary_model %>%
+  kbl(booktabs = TRUE, caption = "Coefficient Estimate of the Best Model",
+      longtable = TRUE, linesep = "") %>%
+  kable_styling(font_size = 10,
+                latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 
 autoplot(step_model, size=0.5)
 ```
@@ -377,9 +365,16 @@ model_norace <- glm(sqrt_gfr ~ sbase + dbase + age + sex + log_bascre + log_base
                       log_bascre:log_baseu, 
              data = kidney_df)
 
-step_model_norace <- step(model_norace, direction = "back")
+step_model_norace <- step(model_norace, direction = "backward", trace = 0)
 
-summary(step_model_norace)
+summary_model_norace <- as.data.frame(summary(step_model_norace)$coefficient)
+colnames(summary_model_norace) <- c("Estimate", "Standard Error", "T Statistics", "P Value")
+
+summary_model_norace %>%
+  kbl(booktabs = TRUE, caption = "Coefficient Estimate of the Best Model without Race",
+      longtable = TRUE, linesep = "") %>%
+  kable_styling(font_size = 10,
+                latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 
 autoplot(step_model_norace, size=0.5)
 ```
