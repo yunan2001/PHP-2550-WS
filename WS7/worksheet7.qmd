@@ -94,19 +94,74 @@ hist(kidney_df$age, main = "Distribution of age", xlab = "age", col = "lightblue
 
 # Calculate skewness
 skewness_value <- skewness(kidney_df[, 1:6])
-skewness_value
+knitr::kable(skewness_value,
+             caption = "Variable Skewness Value",
+             col.names = c("Variable", "Skewness")) %>%
+      kable_styling(latex_options = "HOLD_position")
 
 kidney_df$log_bascre <- log(kidney_df$bascre)
-kidney_df$log_baseu <- log(kidney_df$baseu)
+kidney_df$log_baseu <- ifelse(kidney_df$baseu <= 0.1, kidney_df$baseu, log(kidney_df$baseu))
+kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
+kidney_df$log_gfr <- log(kidney_df$gfr)
 
-par(mfrow = c(1, 2))
+par(mfrow = c(2, 2))
 hist(kidney_df$log_bascre, main = "Distribution of log_bascre", xlab = "Log Transformed gfr", col = "lightblue")
 hist(kidney_df$log_baseu, main = "Distribution of log_baseu", xlab = "Log Transformed baseu", col = "lightblue")
+hist(kidney_df$log_gfr, main = "Distribution of log_gfr", xlab = "Log Transformed gfr", col = "lightblue")
+hist(kidney_df$sqrt_gfr, main = "Distribution of sqrt_gfr", xlab = "Square Root gfr", col = "lightblue")
 ```
 
 ```{r}
-model <- lm(gfr ~ log_bascre + sbase + dbase + log_baseu + age + sex + black, data = kidney_df)
+kidney_tbl <- kidney_df %>%
+  mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
+         sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
+  tbl_summary(by=black,
+              label = list(gfr ~ "Measured glomerular filtration rate",
+                           bascre ~ "Base serum Creatinine",
+                           sbase ~ "Systolic blood pressure",
+                           dbase ~ " Diastolic blood pressure",
+                           baseu ~ "Urine protein"
+                           ),
+              statistic = all_continuous() ~ "{mean} ({sd})") %>%
+  modify_spanning_header(update =  all_stat_cols() ~  "**Black**") %>%
+  modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
+  bold_labels()
+kidney_tbl
+```
 
-summary(model)
+```{r}
+cor_m <-cor(kidney_df[, -c(1, 2, 5, 7, 8)])
+variable_order <- c("log_baseu", "log_bascre", "dbase", "sbase", "age", "sqrt_gfr", "log_gfr")
+r_reordered <- cor_m[variable_order, variable_order]
+
+ggcorrplot(r_reordered, 
+           hc.order = TRUE, 
+           type = "lower",
+           lab = TRUE) +
+  ggtitle("Figure 2: Correlation Matrix") +
+  theme(plot.title = element_text(hjust = 0.5, size=14),
+        axis.text.x = element_text(size = 12),             
+        axis.text.y = element_text(size = 12))
+```
+
+
+```{r}
+model_log <- lm(log_gfr ~ log_bascre + sbase + dbase + log_baseu + age + sex + black, data = kidney_df)
+
+summary(model_log)
+
+model_sqrt <- lm(sqrt_gfr ~ log_bascre + sbase + dbase + log_baseu + age + sex + black, data = kidney_df)
+
+summary(model_sqrt)
+
+# QQ plot for normality check
+qqnorm(resid(model_log), main = "QQ Plot for log(GFR)")
+qqline(resid(model_log), col = "red")
+
+qqnorm(resid(model_sqrt), main = "QQ Plot for sqrt(GFR)")
+qqline(resid(model_sqrt), col = "red")
+
+AIC(model_log, model_sqrt)
+BIC(model_log, model_sqrt)
 ```
 
