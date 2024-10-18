@@ -24,6 +24,9 @@ Answer the following questions about the difference-in-differences paper you wer
 
 1.  What was the motivating research question? How was this translated to a scientific question and analytic approach?
 
+    Previous studies have found that beverage taxes are associated with increased prices and reductions in the volume of beverages sold. However, this tax effect at small, independent stores has not been thoroughly studied. This study was conducted in the purpose to examine whether an increase in excise tax on sweetened beverages was associated with the sustained changes in beverage prices and purchases as well as calories purchased from beverages and high-sugar foods, over 2 years at independent stores in Philadelphia and Baltimore, Maryland. To approach this question, a cross-sectional study was conducted, with Baltimore as the control and Philadelphia as the treated city. A difference-in-difference approach was used to examine the difference in the pretax and posttax beverage prices, fluid ounces purchased, and total calories purchased from beverages and high-sugar foods between the two cities. 
+
+
 2.  What is the underlying model(s) used? Be as specific as possible and explain how you determined the model.
     
     This paper uses a Difference-in-Difference approach combines with generalized linear mixed-effects model. This study has two time periods: pre-tax period (October to December 2016), and post-tax period (6 months, 12 months, and 24 months after the tax implementation). Data are collected at Philadelphia (intervention city where implements tax) and Baltimore (control city where doesn't implement tax) before and after the tax implementation. Our interested outcomes are change in beverage prices (cents per fluid ounce), change in fluid ounces of taxed and non-taxed beverages purchased per customer, and change in total calories purchased from sweetened beverages and high-sugar foods. In addition to the main variables of interest (time period, city location, and beverage tax status), the study also includes other covariates, like income level, customer demographics (gender, race, education level, age, and frequency of store visit), and purchasing behaviors (purchased goods and total spending), to control for potential confounding. The outcomes are analyzed using a DiD approach, which compares the difference in changes over time between the two cities, aiming to isolate the effect of the tax from other factors that might have influenced beverage prices and consumption in both cities over time. Additionally, the model used generalized linear mixed-effects model which introduces random intercepts for stores to adjust for unobserved heterogeneity among stores at baseline. 
@@ -46,9 +49,19 @@ These questions are on the paper 'Predicting lung cancer prior to surgical resec
 
 1.  Compare the Mayo model to the TREAT model in terms of the initial goals of building the model, the population the training data represented, the variables included, and the resulting model. (\~2 paragraphs)
 
+    The Mayo model focused on improving biopsy screening or referral in the general medical population. The model was designed to evaluate patients with nodules selected from the general population whose lesions were found on imaging. The prevalence of disease in the population considered in the training data is 23%. The model contained six variables: age, smoking history, previous cancer, lesion size, spiculated edge and location.
+
+    The TREAT model was constructed based on the need to reduce unnecessary surgery for benign disease and was calibrated to be used in the preoperative evaluation of suspicious lesions in the lung. The model was designed to help surgeons obtain an accurate and well-calibrated predictive model to facilitate the diagnosis of suspected lung cancer without missing early stage disease. The model was trained on people undergoing thoracic surgical evaluation of lung nodules or masses for known or suspected non-small cell lung cancer with a prevalence of 72%. Compared with the Mayo Clinic model, the TREAT model added six variables: gender, body mass index, chronic obstructive pulmonary disease (COPD), lesion growth, FDG-PET positivity, and hemoptysis in preoperative symptoms. For variables related to smoking, The TREAT model included pack-years of smoking, which took into account both duration and intensity of smoking.
+
+    The TREAT lung cancer model demonstrated superior performance (AUC = 0.87) compared to the Mayo Clinic model (AUC = 0.80) and was validated in a separate, higher-risk cohort (AUC = 0.89). While the Mayo Clinic model performed well in a Vanderbilt University Medical Center (VUMC) population, its accuracy decreased (AUC = 0.73) as disease prevalence increased in a Veterans Affairs cohort with 95% lung cancer prevalence. The Mayo Clinic model showed poorer calibration, underestimating cancer risk in lower-risk patients, limiting its use in surgical populations with higher cancer prevalence.
+
 2.  What measures or visuals were used to evaluate the models? How do we interpret these? Why do you think these measures were chosen for comparison? (1 paragraph)
 
+    The models were evaluated using three key measures: the area under the receiver-operating-characteristic curve (AUC), Brier score, and bootstrapping. AUC was used to assess the model's discrimination ability, or its capacity to differentiate between cancer and benign cases, with higher values indicating better performance. The AUC values were visualized as AUC curves. The Brier score measured model calibration by comparing predicted probabilities with actual outcomes, where lower scores reflect better alignment between predictions and reality. In the box plots that were used to visualize the Brier scores, it can be clearly seen that the TREAT model has lower Brier scores, indicating better calibration compared to the Mayo Clinic model in both cohorts. Bootstrapping was employed to estimate the standard errors of model parameters and predictions, as well as to assess the degree of optimism of the model's accuracy when predicting cancer. The estimated model coefficients were shown in a summary table, along with the odds ratios and p-values. The odds ratios for the TREAT model provided a more intuitive interpretation of the effect size. For example, an OR of 1.05 for age suggests that each additional year increases the odds of lung cancer by 5%. The p-values indicate the statistical significance of each predictor in the TREAT model. A p-value less than 0.05 suggests that the variable is a statistically significant predictor of malignancy.
+
 3.  What were some limitations that the paper addressed? (1 paragraph)
+
+    The paper addressed several limitations, including the retrospective nature of the cohort used for model development, which was drawn from a single tertiary academic medical center. The external validation cohort, which had a high prevalence of disease, may have contributed to improved discrimination but was primarily composed of male smokers from a Veteran population. While these factors did not affect the model’s AUC or Brier score, the authors note that missing data for key predictors was a limitation, and the data may not have been missing at random. To improve generalizability, future validations of the TREAT model should use cohorts with different disease prevalences and from various regions. Additionally, prospective evaluation is needed to determine risk cut points that balance the risks of missing a lung cancer with unnecessary surgeries.
 
 ## Model Building Practice
 
@@ -84,7 +97,7 @@ In this worksheet, we will build a model to calculate the eGFR and practice our 
 
 6.  Last, write a non-technical summary of one of your models and its evaluation (1 paragraph) for a clinical audience.
 
-# 1
+### 1.
 
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
@@ -112,54 +125,93 @@ kidney_df <- kidney_df %>%
 kidney_df$black <- as.factor(kidney_df$black)
 kidney_df$sex <- as.factor(kidney_df$sex)
 ```
-Performing a short exploratory data analysis, 
-```{r, out.width="80%"}
+
+In Figure 1, we first examine the distribution of the response variable, `gfr`, across sex and race groups. Observing the boxplot, we found there is an outlier in the non-black male group. The distribution does not exhibit significant differences between sex groups, except males have slightly wider range of values. In addition, males have slightly higher median value compared to females. For race, non-Black participants exhibit more variability in their `gfr` values with wider range showing on the plot. The distribution across all groups seems to be skewed to the right, especially With longer right whisker in the male and the non-black groups.
+
+```{r, out.width="80%", fig.align="center"}
+# Create the sex plot
 sex_plot <- ggplot(kidney_df) +
-  geom_boxplot(aes(x = sex, y = gfr, fill = sex)) +
-  theme_minimal()
+  geom_boxplot(aes(x = as.factor(sex), y = gfr, fill = as.factor(sex))) +
+  theme_minimal() +
+  labs(x = "Sex", y = "gfr", fill = "Sex")
 
+# Create the race plot
 race_plot <- ggplot(kidney_df) +
-  geom_boxplot(aes(x = black, y = gfr, fill = black)) +
-  theme_minimal()
+  geom_boxplot(aes(x = as.factor(black), y = gfr, fill = as.factor(black))) +
+  theme_minimal() +
+  labs(x = "Race", y = "gfr", fill = "Race")
 
-ggarrange(sex_plot, race_plot, main = "Figure 1: Boxplot of gfr by Sex and Race")
+# Set the aspect ratio
+sex_plot <- sex_plot + theme(aspect.ratio = 1)
+race_plot <- race_plot + theme(aspect.ratio = 1)
+
+# Arrange the plots and add a title
+figure <- ggarrange(sex_plot, race_plot,
+                    ncol = 2, nrow = 1,
+                    align = "hv",
+                    legend = "bottom")
+
+# Add title using annotate_figure()
+annotate_figure(figure, 
+                top = text_grob("Figure 1: Boxplot of gfr by Sex and Race", size = 13))
+
 ```
 
-```{r, out.width="80%"}
-par(mfrow = c(2, 3))
-hist(kidney_df$gfr, main = "Distribution of gfr", xlab = "gfr", col = "lightblue")
-hist(kidney_df$bascre, main = "Distribution of bascre", xlab = "bascre", col = "lightblue")
-hist(kidney_df$sbase, main = "Distribution of sbase", xlab = "sbase", col = "lightblue")
-hist(kidney_df$dbase, main = "Distribution of dbase", xlab = "dbase", col = "lightblue")
-hist(kidney_df$baseu, main = "Distribution of baseu", xlab = "baseu", col = "lightblue")
-hist(kidney_df$age, main = "Distribution of age", xlab = "age", col = "lightblue")
+Next, we plot the distribution of the response and all key continuous variables in Figure 2. Among those variables, `sbase` and `dbase` appears close to normal and symmetric. `gfr` and `age` exhibits slight skewness, with `gfr` skewed to right and `age` skewed to left. `bascre` and `baseu` appears to be highly right-skewed with most observations close to 0. Based on the distribution plot, we decide to perform transformation on `gfr`, `bascre`, and `baseu`. 
+
+```{r, out.width="90%", fig.align="center"}
+par(mfrow = c(2, 3), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 0))
+hist(kidney_df$gfr, main = "Distribution of gfr", xlab = "gfr", col = "lightblue", 
+     cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
+hist(kidney_df$bascre, main = "Distribution of bascre", xlab = "bascre", col = "lightblue", 
+     cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
+hist(kidney_df$sbase, main = "Distribution of sbase", xlab = "sbase", col = "lightblue", 
+     cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
+hist(kidney_df$dbase, main = "Distribution of dbase", xlab = "dbase", col = "lightblue", 
+     cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
+hist(kidney_df$baseu, main = "Distribution of baseu", xlab = "baseu", col = "lightblue", 
+     cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
+hist(kidney_df$age, main = "Distribution of age", xlab = "age", col = "lightblue", 
+     cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
+
+mtext("Figure 2: Distribution of Key Variables", outer = TRUE, cex = 0.8, font = 1)
 ```
 
-```{r, out.width="80%"}
+For `bascre`, we directly perform log transformation on the value to normalize its distribution. However, exploring the summary statistics of `baseu`, we found over 25% of observations have 0.1 which is near to zero. Thus, we set a threshold of 0.1 to have all observations with `baseu` less than or equal to 0.1 to remain their original value and perform log transformation on others. Additionally, we tried both log transformation and square root transformation on our response. Observing the result distribution plot, we decided to use the square root transformation since it appeared more normal compared to the log transformation.
+
+```{r, out.width="90%", fig.align="center"}
 kidney_df$log_bascre <- log(kidney_df$bascre)
 kidney_df$log_baseu <- ifelse(kidney_df$baseu <= 0.1, kidney_df$baseu, log(kidney_df$baseu))
 kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
 kidney_df$log_gfr <- log(kidney_df$gfr)
 
-par(mfrow = c(2, 2))
-hist(kidney_df$log_bascre, main = "Distribution of log_bascre", xlab = "Log Transformed gfr", col = "lightblue")
-hist(kidney_df$log_baseu, main = "Distribution of log_baseu", xlab = "Log Transformed baseu", col = "lightblue")
-hist(kidney_df$sqrt_gfr, main = "Distribution of sqrt_gfr", xlab = "Square Root gfr", col = "lightblue")
-# hist(kidney_df$log_gfr, main = "Distribution of log_gfr", xlab = "Log Transformed gfr", col = "lightblue")
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 0))
+hist(kidney_df$log_bascre, main = "Distribution of log_bascre", xlab = "Log Transformed gfr", col = "lightblue", 
+     cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
+hist(kidney_df$log_baseu, main = "Distribution of log_baseu", xlab = "Log Transformed baseu", col = "lightblue", 
+     cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
+hist(kidney_df$sqrt_gfr, main = "Distribution of sqrt_gfr", xlab = "Square Root gfr", col = "lightblue", 
+     cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
+hist(kidney_df$log_gfr, main = "Distribution of log_gfr", xlab = "Log Transformed gfr", col = "lightblue", 
+     cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
+
+mtext("Figure 3: Distribution of Transformed Variables", outer = TRUE, cex = 0.8, font = 1)
 ```
 
-```{r}
+We also generate a summary statistics table stratified by race in Table 1. From the table we see there are 1135 non-black observations and 114 black observations. Age shows similar distribution between race groups with mean age of 52 years old and stardard deviation of 13 for non-black observations and 11 for black observations. There are generally more male observations compared to female observations in both race groups that around 60% of participant are males and 40% are females in both groups. For measured glomerular filtration rate (`gfr`), the mean value for non-black observation is higher than that for black observations (43 vs. 38) with a greater standard deviation as well (29 vs. 21). This pattern remains consistent after applying the square root transformation. Black people exhibit to have higher base serum creatinine (`bascre`) value compared to non-black group, but with lower variability. For the two blood pressure variables, systolic blood pressure (`sbase`) and diastolic blood pressure (`dbase`), non-black people appear to have higher value on average with lower variability. Finally, non-black people exhibit to have higher urine protein (baseu) with greater variability compared to black observations.
+
+```{r, }
 # Creating first summary table (original)
 kidney_tbl <- kidney_df %>%
   dplyr::select(black, age, sex, gfr, bascre, sbase, dbase, baseu) %>%
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
          sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
   tbl_summary(by = black,
-              label = list(gfr ~ "Measured glomerular filtration rate",
-                           bascre ~ "Base serum Creatinine",
-                           sbase ~ "Systolic blood pressure",
-                           dbase ~ " Diastolic blood pressure",
-                           baseu ~ "Urine protein"
+              label = list(gfr ~ "Measured glomerular filtration rate(gfr)",
+                           bascre ~ "Base serum Creatinine(bascre)",
+                           sbase ~ "Systolic blood pressure(sbase)",
+                           dbase ~ "Diastolic blood pressure(dbase)",
+                           baseu ~ "Urine protein(baseu)"
                            ),
               statistic = all_continuous() ~ "{mean} ({sd})") %>%
   modify_spanning_header(update =  all_stat_cols() ~  "**Black**") %>%
@@ -173,11 +225,11 @@ kidney_tbl_transformed <- kidney_df %>%
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
          sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
   tbl_summary(by = black,
-              label = list(gfr ~ "Measured glomerular filtration rate",
-                           bascre ~ "Base serum Creatinine",
-                           sbase ~ "Systolic blood pressure",
-                           dbase ~ " Diastolic blood pressure",
-                           baseu ~ "Urine protein"
+              label = list(gfr ~ "Measured glomerular filtration rate(gfr)",
+                           bascre ~ "Base serum Creatinine(bascre)",
+                           sbase ~ "Systolic blood pressure(sbase)",
+                           dbase ~ "Diastolic blood pressure(dbase)",
+                           baseu ~ "Urine protein(baseu)"
                            ),
               statistic = all_continuous() ~ "{mean} ({sd})") %>%
   modify_spanning_header(update =  all_stat_cols() ~  "**Black**") %>%
@@ -192,9 +244,9 @@ tbl_combined1 <- tbl_merge(
 tbl_combined1 <- tbl_combined1 %>%
   as_kable_extra(booktabs = TRUE, caption = "Summary Table by Race",
                  longtable = TRUE, linesep = "") %>%
-  kableExtra::kable_styling(font_size = 10,
+  kableExtra::kable_styling(font_size = 7, position = "center",
                             latex_options = c("repeat_header", "HOLD_position", "scale_down")) %>%
-  column_spec(1, width = "3cm") %>%
+  column_spec(1, width = "5cm") %>%
   column_spec(2, width = "2cm") %>%
   column_spec(3, width = "2cm") %>%
   column_spec(4, width = "2cm") %>%
@@ -204,7 +256,9 @@ tbl_combined1 <- tbl_combined1 %>%
 tbl_combined1
 ```
 
-```{r}
+Finally, we plot the correlation value among the response and continuous key variables. The `sbase` and `dbase` have a strong positive correlation of 0.7 which makes sense since the systolic and disstolic blood pressure often vary together. In addition, our response variable `sqrt_gfr` and `log_bascre` show strong negative correlation of -0.86 which refers that higher creatinine levels might associates with lower kidney filtration rates. 
+
+```{r, out.width = "80%", fig.align='center'}
 cor_m <- cor(kidney_df[, -c(1, 2, 5, 7, 8, 12)])
 variable_order <- c("log_baseu", "log_bascre", "dbase", "sbase", "age", "sqrt_gfr")
 r_reordered <- cor_m[variable_order, variable_order]
@@ -214,10 +268,25 @@ ggcorrplot(r_reordered,
            type = "lower",
            lab = TRUE) +
   ggtitle("Figure 2: Correlation Matrix") +
-  theme(plot.title = element_text(hjust = 0.5, size=14),
-        axis.text.x = element_text(size = 12),             
-        axis.text.y = element_text(size = 12))
+  theme(plot.title = element_text(hjust = 0.5, size = 11),
+        axis.text.x = element_text(size = 9),             
+        axis.text.y = element_text(size = 9))
 ```
+### 2. 
+
+Build a linear regression model with appropriate variable selection. Check the model assumptions using model diagnostics. You may also consider including interaction terms.
+
+To build a linear regression model and perform a variable selection process, we start from a `full_model` with all main effects and all of their possible interaction terms. To be noticed, since we found `dbase` and `sbase` are highly correlated from the EDA part, we decided to include only `dbase` in our model to avoid multicollinearity. Then, using the full model, we perform a backward model selection using `step()` and get the optimal model with the following format, and the estimated coefficient of the optimal model is presented in Table 2.
+
+\begin{align*}
+\text{sqrt\_gfr} &= \beta_0 + \beta_1 \cdot \text{dbase} + \beta_2 \cdot \text{age} + \beta_3 \cdot \text{sex}_1 + \beta_4 \cdot \text{black}_1 \\
+&\quad + \beta_5 \cdot \log(\text{bascre}) + \beta_6 \cdot \log(\text{baseu}) + \beta_7 \cdot \text{dbase} \times \log(\text{bascre}) \\
+&\quad + \beta_8 \cdot \text{dbase} \times \log(\text{baseu}) + \beta_9 \cdot \text{age} \times \text{sex}_1 \\
+&\quad + \beta_{10} \cdot \text{age} \times \log(\text{baseu}) + \beta_{11} \cdot \text{sex}_1 \times \text{black}_1 \\
+&\quad + \beta_{12} \cdot \text{sex}_1 \times \log(\text{bascre}) + \beta_{13} \cdot \text{black}_1 \times \log(\text{bascre}) \\
+&\quad + \beta_{14} \cdot \log(\text{bascre}) \times \log(\text{baseu}) + \epsilon
+\end{align*}
+
 ```{r}
 full_model <- glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu +
              dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
@@ -228,8 +297,6 @@ full_model <- glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu 
 
 step_model <- step(full_model, direction = "backward", trace = 0)
 
-autoplot(step_model, size=0.5)
-
 summary_model <- as.data.frame(summary(step_model)$coefficient)
 colnames(summary_model) <- c("Estimate", "Standard Error", "T Statistics", "P Value")
 
@@ -238,11 +305,16 @@ summary_model %>%
       longtable = TRUE, linesep = "") %>%
   kable_styling(font_size = 10,
                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
+```
 
+To check the essential assumptions of our model, we first observe the residual plot to check for linearity and homoscedasticity. Our points here on the left top plot generally has no obvious pattern and they randomly scattered around the center line of zero. Additionally, we look at the Q-Q plot on the right top to assess the normality assumption. Our points mostly fall along the diagonal line in the middle of the graph, but curve off in the extremities. This suggests that the residuals follow normal distribution but the presence of more extreme values than expected lead to the deviation 
+
+Normal QQ plots that exhibit this behavior usually mean your data have more extreme values than would be expected if they truly came from a normal distribution.
+```{r}
 autoplot(step_model, size=0.5)
 ```
 
-# 3
+### 3.
 ```{r}
 set.seed(2550)
 index <- createDataPartition(kidney_df$gfr, p = 0.8, list = FALSE)
@@ -267,7 +339,7 @@ MSE <- mean((test$gfr - test$predictions_transformed)^2)
 MSE
 ```
 
-# 4
+### 4.
 ```{r}
 # Split data by race and calculate performance metrics
 test$estimated_gfr <- predict(step_model, newdata = test)
@@ -295,7 +367,7 @@ ggplot(test, aes(x = sqrt_gfr, y = estimated_gfr, color = black)) +
   theme_minimal()
 ```
 
-# 5
+### 5.
 
 ```{r}
 cols <- c("#F76D5E", "#FFFFBF")
@@ -325,11 +397,11 @@ kidney_tbl_nb <- kidney_df %>%
   dplyr::select(sex, age, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
   rename(gfr=sqrt_gfr, bascre=log_bascre, baseu=log_baseu) %>% 
   mutate(sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
-  tbl_summary(label = list(gfr ~ "Measured glomerular filtration rate",
-                           bascre ~ "Base serum Creatinine",
-                           sbase ~ "Systolic blood pressure",
-                           dbase ~ " Diastolic blood pressure",
-                           baseu ~ "Urine protein"
+  tbl_summary(label = list(gfr ~ "Measured glomerular filtration rate(gfr)",
+                           bascre ~ "Base serum Creatinine(bascre)",
+                           sbase ~ "Systolic blood pressure(sbase)",
+                           dbase ~ " Diastolic blood pressure(dbase)",
+                           baseu ~ "Urine protein(baseu)"
                            ),
               statistic = all_continuous() ~ "{mean} ({sd})") %>%
   modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
@@ -343,9 +415,9 @@ tbl_combined2 <- tbl_merge(
 tbl_combined2 <- tbl_combined2 %>%
   as_kable_extra(booktabs = TRUE, caption = "Summary Table by Race",
                  longtable = TRUE, linesep = "") %>%
-  kableExtra::kable_styling(font_size = 10,
+  kableExtra::kable_styling(font_size = 7.5, position = "center", 
                             latex_options = c("repeat_header", "HOLD_position", "scale_down")) %>%
-  column_spec(1, width = "3cm") %>%
+  column_spec(1, width = "5cm") %>%
   column_spec(2, width = "2cm") %>%
   column_spec(3, width = "2cm") %>%
   column_spec(4, width = "2cm") %>%
@@ -421,6 +493,9 @@ ggplot(test_norace, aes(x = sqrt_gfr, y = estimated_gfr, color = black)) +
        y = "Estimated GFR") +
   theme_minimal()
 ```
+
+### 6.
+
 
 ## Appendix {.appendix}
 
