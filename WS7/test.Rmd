@@ -60,5 +60,16 @@ ggcorrplot(r_reordered,
 ```
 
 ```{r}
+library(caret)
+set.seed(2550)
+index <- createDataPartition(kidney_df$gfr, p=0.8, list=FALSE)
+train <- kidney_df[index, ]
+test <- kidney_df[-index, ]
+m1 <- glm(gfr ~ age + log_bascre, family=gaussian, data=train)
+predictions <- predict(m1, newdata = test)
+mse <- mean((predictions-test$gfr)^2)
+mae <- mean(abs(predictions-test$gfr))
 
+cat("The MSE is:", mse, "\n")
+cat("The MAE is:", mae, "\n")
 ```
