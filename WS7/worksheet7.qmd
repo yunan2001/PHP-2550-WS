@@ -21,9 +21,19 @@ Answer the following questions about the difference-in-differences paper you wer
 1.  What was the motivating research question? How was this translated to a scientific question and analytic approach?
 
 2.  What is the underlying model(s) used? Be as specific as possible and explain how you determined the model.
-
+    
+    This paper uses a Difference-in-Difference approach combines with generalized linear mixed-effects model. This study has two time periods: pre-tax period (October to December 2016), and post-tax period (6 months, 12 months, and 24 months after the tax implementation). Data are collected at Philadelphia (intervention city where implements tax) and Baltimore (control city where doesn't implement tax) before and after the tax implementation. Our interested outcomes are change in beverage prices (cents per fluid ounce), change in fluid ounces of taxed and non-taxed beverages purchased per customer, and change in total calories purchased from sweetened beverages and high-sugar foods. In addition to the main variables of interest (time period, city location, and beverage tax status), the study also includes other covariates, like income level, customer demographics (gender, race, education level, age, and frequency of store visit), and purchasing behaviors (purchased goods and total spending), to control for potential confounding. The outcomes are analyzed using a DiD approach, which compares the difference in changes over time between the two cities, aiming to isolate the effect of the tax from other factors that might have influenced beverage prices and consumption in both cities over time. Additionally, the model used generalized linear mixed-effects model which introduces random intercepts for stores to adjust for unobserved heterogeneity among stores at baseline. 
+    
+    explain how you determined?
+    
 3.  How were the results used to answer the question and what was the conclusion?
 
+    - The results in the "Change in Beverage Price" can be used to answer the question of .... In the paper, the research mentions that "there was a 2.06 cents per fl oz (95% CI, 1.75 to 2.38 cents per fl oz; p <.001) increase for taxed beverages in Philadelphia compared with Baltimore, an increase of 33%, indicating a 137.3% pass-throug of tax." This implies that stores not only passed the 1.5-cent-per-ounce tax onto customers, but also charge even more than the required tax. Since Baltimore, the control city, does not show price increases and non-taxed beverages in philadelphia also does not exhibits this price increase, the price increases in Philadelphia would be the result of the tax implementation. Also, the price increases were consistent across income levels, with no significant difference between low- and high-income neighborhoods. By using DiD approach combined with generalized linear mixed-effects models, researchers are able to compare the price change on taxed and non-taxed beverages in Philadelphia and Baltimore before and after the tax was implemented. Also, the adding random intercepts across stores is able to adjust for differences in store-specific factors. From the results, we can conclude that the tax implement significantly increase the price of taxed beverage overtime, and the tax are overly passed on to the customers which indicates the direct and substantial impact of tax on beverage prices.
+    
+    - The results in the "Change in Volume of Beverage Purchased" can be used to answer the question of .... The paper mentions that "there was a 6.12–fl oz decline (95% CI, −9.88 to −2.37 fl oz; P < .001), or a 41.9% decrease, in the ounces of taxed beverages purchased per person in Philadelphia compared with Baltimore." This refers to a significant drop in the purchase of taxed beverages. This significant drop was driven mainly by a reduction in the purchase of sugar-sweetened beverages (SSBs), with a 6.17 fluid ounce per person reduction, corresponding to a 47.3% decrease. Also, the paper said there was no significant change on the volume of non-taxed beverages in Philadelphia, indicates the implementation of tax would only increase the sweet beverages. In addition, the analysis showed that the tax’s effects were more pronounced in low-income neighborhoods and lower education levels, with purchases dropped by around 40%. From their results, we can conclude that the tax implementation in Philadelphia significantly reduced the consumption amount of taxed beverages where the effect is more pronounced on vulnerable population. Form this, we can see that tax implementation is able to help reducing suger consumptions and addressing the health disparity problem caused by excessive suger consumption. 
+    
+    - The results in the "Changes in Calories and Spending on Beverages and High-Sugar Foods" can be used to answer the question of .... The paper mentions that "there was a 69-calorie decrease (95% CI, −132 to −5 calories; P = .04) in the total calories purchased from SSBs and high-sugar foods combined, a 22.6% decline." In addition, "the grams of sugar from these items declined by 19.9 g (95% CI, −31.7 to −8.2 g; P = .002), or 34.1% per person." These results indicates that the tax implementation significantly reduce calorie and suger intake. There wasn't change on people's spending with their shopping post tax, but the frequency of neighboring counties purchasing increases slightly that people chose to make purchases in other counties to avoid tax. This reduction was more noticeable among low-income neighborhoods and people with lower levels of education as well. From these, we can conclude tax significantly decrease people's calorie and suger intake from sweetened goods, especially strong for people with lower-income and lower levels of education. However, this decrease does not influence their total spendings. 
+    
 4.  Overall, how do you evaluate this paper? Think about strengths and weaknesses of the approach and any remaining questions you have.
 
 ## Model Evaluation Example
@@ -195,48 +205,16 @@ kidney_tbl_transformed <- kidney_df %>%
   modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
   bold_labels()
 
+tbl_combined1 <- tbl_merge(
+  tbls = list(kidney_tbl, kidney_tbl_transformed),
+  tab_spanner = c("**Original Variables**", "**Transformed Variables**")) %>% 
+  as_gt()
 
-# Creating third summary table (transformed)
-kidney_tbl_nb <- kidney_df %>%
-  dplyr::select(sex, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
-  rename(gfr=sqrt_gfr, bascre=log_bascre, baseu=log_baseu) %>% 
-  mutate(sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
-  tbl_summary(label = list(gfr ~ "Measured glomerular filtration rate",
-                           bascre ~ "Base serum Creatinine",
-                           sbase ~ "Systolic blood pressure",
-                           dbase ~ " Diastolic blood pressure",
-                           baseu ~ "Urine protein"
-                           ),
-              statistic = all_continuous() ~ "{mean} ({sd})") %>%
-  modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
-  bold_labels()
-kidney_tbl_nb
-
-tbl_combined <- tbl_merge(
-  tbls = list(kidney_tbl, kidney_tbl_transformed, kidney_tbl_nb),
-  tab_spanner = c("**Original Variables**", "**Transformed Variables**", "**Race Removed**")) %>% 
-  as_gt() %>%
-  tab_style(
-    style = list(
-      cell_fill(color = "#e0ecf4")),
-    locations = cells_body(
-      rows = label == c("Measured glomerular filtration rate"))) %>%
-  tab_style(
-    style = list(
-      cell_fill(color = "#e0ecf4")),
-    locations = cells_body(
-      rows = label == c("Base serum Creatinine"))) %>%
-  tab_style(
-    style = list(
-      cell_fill(color = "#e0ecf4")),
-    locations = cells_body(
-      rows = label == c("Urine protein")))
-  
-tbl_combined
+tbl_combined1
 ```
 
 ```{r}
-cor_m <- cor(kidney_df[, -c(1, 2, 5, 7, 8, 12)])
+cor_m <- cor(kidney_df[, -c(1, 2, 5, 7, 8, 9)])
 variable_order <- c("log_baseu", "log_bascre", "dbase", "sbase", "age", "sqrt_gfr")
 r_reordered <- cor_m[variable_order, variable_order]
 
@@ -268,7 +246,7 @@ autoplot(step_model, size=0.5)
 # 3
 ```{r}
 set.seed(2550)
-index <- createDataPartition(kidney_df$gfr, p=0.8, list=FALSE)
+index <- createDataPartition(kidney_df$gfr, p = 0.8, list = FALSE)
 train <- kidney_df[index, ]
 test <- kidney_df[-index, ]
 predictions <- predict(step_model, newdata = test)
@@ -307,3 +285,121 @@ ggplot(test, aes(x = sqrt_gfr, y = estimated_gfr, color = black)) +
   theme_minimal()
 ```
 
+# 5
+
+```{r}
+cols <- c("#F76D5E", "#FFFFBF")
+#, "#72D8FF"
+# Basic density plot in ggplot2
+cols <- c("Black" = "#F76D5E", "Non-Black" = "#FFFFBF", "All" = "#72D8FF")
+ggplot() +
+  geom_density(data = kidney_df, aes(x = sqrt_gfr, fill = "All"), 
+               alpha = 1, color = "#72D8FF") +  # Entire dataset
+  geom_density(data = kidney_df %>% filter(black == 1), 
+               aes(x = sqrt_gfr, fill = "Black"), 
+               alpha = 0.5, color = "#F76D5E") +  # Black group
+  geom_density(data = kidney_df %>% filter(black == 0), 
+               aes(x = sqrt_gfr, fill = "Non-Black"), 
+               alpha = 0.5, color = "#FFFFBF") +  # Non-Black group
+  scale_fill_manual(values = cols) +
+  labs(title = "Density Plot of sqrt_gfr by Race",
+       x = "sqrt_gfr",
+       y = "Density",
+       fill = "Group") +
+  theme_minimal()
+```
+
+```{r}
+# Creating third summary table (transformed)
+kidney_tbl_nb <- kidney_df %>%
+  dplyr::select(sex, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
+  rename(gfr=sqrt_gfr, bascre=log_bascre, baseu=log_baseu) %>% 
+  mutate(sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
+  tbl_summary(label = list(gfr ~ "Measured glomerular filtration rate",
+                           bascre ~ "Base serum Creatinine",
+                           sbase ~ "Systolic blood pressure",
+                           dbase ~ " Diastolic blood pressure",
+                           baseu ~ "Urine protein"
+                           ),
+              statistic = all_continuous() ~ "{mean} ({sd})") %>%
+  modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
+  bold_labels()
+kidney_tbl_nb
+
+tbl_combined2 <- tbl_merge(
+  tbls = list(kidney_tbl, kidney_tbl_transformed, kidney_tbl_nb),
+  tab_spanner = c("**Original Variables**", "**Transformed Variables**", "**Race Removed**")) %>% 
+  as_gt() %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#e0ecf4")),
+    locations = cells_body(
+      rows = label == c("Measured glomerular filtration rate"))) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#e0ecf4")),
+    locations = cells_body(
+      rows = label == c("Base serum Creatinine"))) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#e0ecf4")),
+    locations = cells_body(
+      rows = label == c("Urine protein")))
+  
+tbl_combined2
+```
+
+```{r}
+model_norace <- glm(sqrt_gfr ~ sbase + dbase + poly(age, 2) + sex + log_bascre + log_baseu +
+                      dbase:age + dbase:sex + dbase:log_bascre + dbase:log_baseu + age:sex +
+                      age:log_bascre + age:log_baseu + sex:log_bascre + sex:log_baseu + 
+                      log_bascre:log_baseu, 
+             data = kidney_df)
+
+step_model_norace <- step(model_norace, direction = "back")
+
+summary(step_model_norace)
+
+autoplot(step_model_norace, size=0.5)
+```
+
+```{r}
+set.seed(2550)
+index_norace <- createDataPartition(kidney_df$gfr, p = 0.8, list = FALSE)
+train_norace <- kidney_df[index_norace, ]
+test_norace <- kidney_df[-index_norace, ]
+
+predictions_norace <- predict(step_model_norace, newdata = test_norace)
+mse_norace <- mean((predictions_norace - test_norace$sqrt_gfr)^2)
+mae_norace <- mean(abs(predictions_norace - test_norace$sqrt_gfr))
+
+cat("The MSE is:", mse_norace, "\n")
+cat("The MAE is:", mae_norace, "\n")
+```
+
+```{r}
+# Split data by race and calculate performance metrics
+test_norace$estimated_gfr <- predict(step_model_norace, newdata = test_norace)
+performance_by_race_norace <- test_norace %>%
+  group_by(black) %>%
+  summarise(MSE = mean((estimated_gfr - sqrt_gfr)^2),
+            Bias = mean(estimated_gfr - sqrt_gfr),
+            P10 = mean(abs(estimated_gfr - sqrt_gfr) / sqrt_gfr <= 0.10) * 100,
+            P30 = mean(abs(estimated_gfr - sqrt_gfr) / sqrt_gfr <= 0.30) * 100)
+performance_by_race_norace %>%
+  kbl(caption = "Performance Metrics by Race") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+# Create a scatter plot to compare measured and estimated GFR
+ggplot(test_norace, aes(x = sqrt_gfr, y = estimated_gfr, color = black)) +
+  geom_point(alpha=0.8) +
+  geom_abline(intercept = 0, slope = 1, linetype = "solid", color = "black", size=1) +  # Perfect prediction line
+  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8) + 
+  scale_color_manual(values = c("0" = "red", "1" = "blue"),  # Assign colors manually
+                     labels = c("0" = "Non-black", "1" = "Black"),  # Rename legend labels
+                     name = "Race") +
+  labs(title = "Comparison of Measured and Estimated GFR by Race",
+       x = "Measured GFR",
+       y = "Estimated GFR") +
+  theme_minimal()
+```
