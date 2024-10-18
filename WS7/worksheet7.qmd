@@ -74,6 +74,12 @@ In this worksheet, we will build a model to calculate the eGFR and practice our 
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(moments))
 suppressPackageStartupMessages(library(stats))
+suppressPackageStartupMessages(library(kableExtra))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(gtsummary))
+suppressPackageStartupMessages(library(corrplot))
+suppressPackageStartupMessages(library(ggcorrplot))
+
 kidney_df <- read.csv("baseseg.csv")
 kidney_df <- kidney_df %>% 
   select(c(gfr, bascre, sbase, dbase, baseu, AGE, SEX, black)) %>%
