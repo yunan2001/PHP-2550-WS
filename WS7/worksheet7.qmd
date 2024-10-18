@@ -80,6 +80,10 @@ suppressPackageStartupMessages(library(gtsummary))
 suppressPackageStartupMessages(library(corrplot))
 suppressPackageStartupMessages(library(ggcorrplot))
 suppressPackageStartupMessages(library(MASS))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(ggfortify))
+suppressPackageStartupMessages(library(caret))
+
 
 kidney_df <- read.csv("baseseg.csv")
 kidney_df <- kidney_df %>%
@@ -133,6 +137,7 @@ hist(kidney_df$sqrt_gfr, main = "Distribution of sqrt_gfr", xlab = "Square Root 
 ```
 
 ```{r}
+# Creating first summary table (original)
 kidney_tbl <- kidney_df %>%
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
          sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
@@ -147,7 +152,30 @@ kidney_tbl <- kidney_df %>%
   modify_spanning_header(update =  all_stat_cols() ~  "**Black**") %>%
   modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
   bold_labels()
-kidney_tbl
+
+# Creating second summary table (transformed)
+kidney_tbl_transformed <- kidney_df %>%
+  dplyr::select(-c(gfr, bascre, baseu)) %>%
+  mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
+         sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
+  tbl_summary(by = black,
+              label = list(sqrt_gfr ~ "Measured glomerular filtration rate",
+                           log_bascre ~ "Base serum Creatinine",
+                           sbase ~ "Systolic blood pressure",
+                           dbase ~ " Diastolic blood pressure",
+                           log_baseu ~ "Urine protein"
+                           ),
+              statistic = all_continuous() ~ "{mean} ({sd})") %>%
+  modify_spanning_header(update =  all_stat_cols() ~  "**Black**") %>%
+  modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
+  bold_labels()
+
+tbl_combined <- tbl_merge(
+  tbls = list(kidney_tbl, kidney_tbl_transformed),
+  tab_spanner = c("**Original Variables**", "**Transformed Variables**")
+)
+tbl_combined
+kidney_tbl_transformed
 ```
 
 ```{r}
@@ -164,115 +192,9 @@ ggcorrplot(r_reordered,
         axis.text.x = element_text(size = 12),             
         axis.text.y = element_text(size = 12))
 ```
-```{r}
-
-# Full model (largest model to be tested)
-full_model <- glm(sqrt_gfr ~ (poly(age, degree = 2) + sex + black +
-                         sbase + dbase + undetectable_baseu + log_baseu +
-                         log_bascre)^2,
-                       family = gaussian,
-                       data = kidney_df)
-
-summary(full_model)
-
-# Minimal model (smallest model to be tested)
-min_model <- glm(sqrt_gfr ~ poly(age, degree = 2) + sex + black + 
-                   sbase + dbase + undetectable_baseu + log_baseu + log_bascre,
-                 family = gaussian,
-                 data = kidney_df)
-
-# Scope bounds for step()
-scope_list <- list(
-  lower = formula(min_model),  # vars that must remain in the model
-  upper = formula(full_model)  # Largest model to consider
-  )
-
-# Run step() backwards
-step_model_b <- step(full_model,
-                     direction = "backward",
-                     trace = 0,
-                     scope = scope_list)  
-
-
-# Run step() forwards
-step_model_f <- step(min_model,
-                     direction = "forward",
-                     trace = 0,
-                     scope = scope_list)
-
-plot(step_model_f)
-
-# Choose best model (If forward and backward agree, done; if they disagree, 
-# use LRT to determine best model; see _helpers.R for details)
-best_model <- select_best_model(step_model_b, step_model_f)
-```
 
 ```{r}
-kidney_df$undetectable_baseu <- ifelse(kidney_df$baseu <= 0.1, 1, 0)
-min_model <- glm(sqrt_gfr ~ sbase + dbase + poly(age, degree = 2) + sex + black + log_bascre + log_baseu + undetectable_baseu, family = gaussian, data = kidney_df)
-step(min_model, direction = "forward",
-                     trace = 0,
-                     k = log(n))
-summary(step_min_model)
-plot(step_model_b)
-```
-
-```{r}
-min_model <- glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu, data = kidney_df)
-summary(model)
-par(mfrow = c(2, 2))
-plot(model)
-
-
-kidney_df$poly_sqrt_gfr1 <- poly(kidney_df$sqrt_gfr, 2)[, 1]
-kidney_df$poly_sqrt_gfr2 <- poly(kidney_df$sqrt_gfr, 2)[, 2]
-
-model <- glm(poly_sqrt_gfr1 + poly_sqrt_gfr2 ~ dbase + age + sex + black + log_bascre + log_baseu +
-             dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
-             age:sex + age:black + age:log_bascre + age:log_baseu + 
-             sex:black + sex:log_bascre + sex:log_baseu + 
-             black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
-             data = kidney_df)
-
-summary(model)
-
-step_model <- step(model, direction = "both")
-
-model <- glm(log_gfr ~ poly(dbase, 2) + poly(age, 2) + sex + black + log_bascre + log_baseu +
-             dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
-             age:sex + age:black + age:log_bascre + age:log_baseu + 
-             sex:black + sex:log_bascre + sex:log_baseu + 
-             black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
-             data = kidney_df)
-plot(model)
-
-step_model <- step(model, direction = "back")
-
-summary(step_model)
-
-plot(step_model)
-
-cooks_distances <- cooks.distance(step_model)
-plot(cooks_distances, type = "h")
-abline(h = 4 / nrow(kidney_df), col = "red")  # Add a threshold line
-
-# Identify high-leverage points
-cooks_threshold <- 4 / nrow(kidney_df)
-
-# Identify points above the threshold
-influential_points <- which(cooks_distances > cooks_threshold)
-
-# Print out the indices of influential points
-influential_points
-
-boxcox_model <- boxcox(glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu, data = kidney_df))
-# Find the best lambda (transformation parameter)
-best_lambda <- boxcox_model$x[which.max(boxcox_model$y)]
-
-# Apply the Box-Cox transformation
-kidney_df$boxcox_gfr <- (kidney_df$sqrt_gfr^best_lambda - 1) / best_lambda
-
-model <- glm(boxcox_gfr ~ dbase + age + sex + black + log_bascre + log_baseu +
+model <- glm(sqrt_gfr ~ sbase + dbase + poly(age, 2) + sex + black + log_bascre + log_baseu +
              dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
              age:sex + age:black + age:log_bascre + age:log_baseu + 
              sex:black + sex:log_bascre + sex:log_baseu + 
@@ -283,6 +205,48 @@ step_model <- step(model, direction = "back")
 
 summary(step_model)
 
-plot(step_model)
+autoplot(step_model, size=0.5)
+```
+
+# 3
+```{r}
+set.seed(2550)
+index <- createDataPartition(kidney_df$gfr, p=0.8, list=FALSE)
+train <- kidney_df[index, ]
+test <- kidney_df[-index, ]
+predictions <- predict(step_model, newdata = test)
+mse <- mean((predictions - test$sqrt_gfr)^2)
+mae <- mean(abs(predictions - test$sqrt_gfr))
+
+cat("The MSE is:", mse, "\n")
+cat("The MAE is:", mae, "\n")
+```
+
+# 4
+```{r}
+# Split data by race and calculate performance metrics
+test$estimated_gfr <- predict(step_model, newdata = test)
+performance_by_race <- test %>%
+  group_by(black) %>%
+  summarise(MSE = mean((estimated_gfr - sqrt_gfr)^2),
+            Bias = mean(estimated_gfr - sqrt_gfr),
+            P10 = mean(abs(estimated_gfr - sqrt_gfr) / sqrt_gfr <= 0.10) * 100,
+            P30 = mean(abs(estimated_gfr - sqrt_gfr) / sqrt_gfr <= 0.30) * 100)
+performance_by_race %>%
+  kbl(caption = "Performance Metrics by Race") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+# Create a scatter plot to compare measured and estimated GFR
+ggplot(test, aes(x = sqrt_gfr, y = estimated_gfr, color = black)) +
+  geom_point(alpha=0.8) +
+  geom_abline(intercept = 0, slope = 1, linetype = "solid", color = "black", size=1) +  # Perfect prediction line
+  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8) + 
+  scale_color_manual(values = c("0" = "red", "1" = "blue"),  # Assign colors manually
+                     labels = c("0" = "Non-black", "1" = "Black"),  # Rename legend labels
+                     name = "Race") +
+  labs(title = "Comparison of Measured and Estimated GFR by Race",
+       x = "Measured GFR",
+       y = "Estimated GFR") +
+  theme_minimal()
 ```
 
