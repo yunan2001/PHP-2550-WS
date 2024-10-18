@@ -101,6 +101,7 @@ suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggfortify))
 suppressPackageStartupMessages(library(caret))
 suppressPackageStartupMessages(library(kableExtra))
+suppressPackageStartupMessages(library(ggpubr))
 
 kidney_df <- read.csv("baseseg.csv")
 kidney_df <- kidney_df %>%
@@ -111,13 +112,20 @@ kidney_df <- kidney_df %>%
 kidney_df$black <- as.factor(kidney_df$black)
 kidney_df$sex <- as.factor(kidney_df$sex)
 ```
- 
+Performing a short exploratory data analysis, 
 ```{r, out.width="80%"}
-ggplot(kidney_df) +
+sex_plot <- ggplot(kidney_df) +
   geom_boxplot(aes(x = sex, y = gfr, fill = sex)) +
-  ggtitle("Figure 1: Box Plot of gfr by Sex") + 
   theme_minimal()
 
+race_plot <- ggplot(kidney_df) +
+  geom_boxplot(aes(x = black, y = gfr, fill = black)) +
+  theme_minimal()
+
+ggarrange(sex_plot, race_plot, main = "Figure 1: Boxplot of gfr by Sex and Race")
+```
+
+```{r, out.width="80%"}
 par(mfrow = c(2, 3))
 hist(kidney_df$gfr, main = "Distribution of gfr", xlab = "gfr", col = "lightblue")
 hist(kidney_df$bascre, main = "Distribution of bascre", xlab = "bascre", col = "lightblue")
@@ -125,14 +133,9 @@ hist(kidney_df$sbase, main = "Distribution of sbase", xlab = "sbase", col = "lig
 hist(kidney_df$dbase, main = "Distribution of dbase", xlab = "dbase", col = "lightblue")
 hist(kidney_df$baseu, main = "Distribution of baseu", xlab = "baseu", col = "lightblue")
 hist(kidney_df$age, main = "Distribution of age", xlab = "age", col = "lightblue")
+```
 
-# # Calculate skewness
-# skewness_value <- skewness(kidney_df[, 1:6])
-# knitr::kable(skewness_value,
-#              caption = "Variable Skewness Value",
-#              col.names = c("Variable", "Skewness")) %>%
-#       kable_styling(latex_options = "HOLD_position")
-
+```{r, out.width="80%"}
 kidney_df$log_bascre <- log(kidney_df$bascre)
 kidney_df$log_baseu <- ifelse(kidney_df$baseu <= 0.1, kidney_df$baseu, log(kidney_df$baseu))
 kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
@@ -359,14 +362,13 @@ tbl_combined2
 ```
 
 ```{r}
-model_norace <- glm(sqrt_gfr ~ sbase + dbase + age + sex + log_bascre + log_baseu +
-                      dbase:age + dbase:sex + dbase:log_bascre + dbase:log_baseu + age:sex +
+model_norace <- glm(sqrt_gfr ~ dbase + age + sex + log_bascre + log_baseu + dbase:age + 
+                      dbase:sex + dbase:log_bascre + dbase:log_baseu + age:sex +
                       age:log_bascre + age:log_baseu + sex:log_bascre + sex:log_baseu + 
                       log_bascre:log_baseu, 
              data = kidney_df)
 
 step_model_norace <- step(model_norace, direction = "backward", trace = 0)
-
 summary_model_norace <- as.data.frame(summary(step_model_norace)$coefficient)
 colnames(summary_model_norace) <- c("Estimate", "Standard Error", "T Statistics", "P Value")
 
