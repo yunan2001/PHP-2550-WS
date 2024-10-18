@@ -2,6 +2,10 @@
 title: "PHP 2550: Worksheet 7"
 subtitle: "Due: October 18th at 11:59pm"
 format: pdf
+execute:
+  echo: false
+  message: false
+  warning: false
 editor: visual
 ---
 
@@ -80,6 +84,8 @@ In this worksheet, we will build a model to calculate the eGFR and practice our 
 
 6.  Last, write a non-technical summary of one of your models and its evaluation (1 paragraph) for a clinical audience.
 
+# 1
+
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(moments))
@@ -94,7 +100,7 @@ suppressPackageStartupMessages(library(MASS))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggfortify))
 suppressPackageStartupMessages(library(caret))
-
+suppressPackageStartupMessages(library(kableExtra))
 
 kidney_df <- read.csv("baseseg.csv")
 kidney_df <- kidney_df %>%
@@ -106,10 +112,10 @@ kidney_df$black <- as.factor(kidney_df$black)
 kidney_df$sex <- as.factor(kidney_df$sex)
 ```
  
-```{r}
+```{r, out.width="80%"}
 ggplot(kidney_df) +
   geom_boxplot(aes(x = sex, y = gfr, fill = sex)) +
-  ggtitle("Box Plot of gfr by Sex") + 
+  ggtitle("Figure 1: Box Plot of gfr by Sex") + 
   theme_minimal()
 
 par(mfrow = c(2, 3))
@@ -127,18 +133,10 @@ hist(kidney_df$age, main = "Distribution of age", xlab = "age", col = "lightblue
 #              col.names = c("Variable", "Skewness")) %>%
 #       kable_styling(latex_options = "HOLD_position")
 
-# kidney_df$log_bascre <- log(kidney_df$bascre)
-# kidney_df$log_baseu <- ifelse(kidney_df$baseu <= 0.1, kidney_df$baseu, log(kidney_df$baseu))
-# kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
-# kidney_df$log_gfr <- log(kidney_df$gfr)
-
-# Conduct transformations on the variables
-kidney_df <- kidney_df %>%
-  mutate(undetectable_baseu = as.factor(if_else(baseu == 0.1, 1, 0)),  
-         log_baseu = if_else(baseu == 0.1 , 0, log(baseu)),
-         log_bascre = log(bascre)) %>%
-  filter(gfr != max(gfr, na.rm = TRUE)) %>%
-  mutate(sqrt_gfr = sqrt(gfr))
+kidney_df$log_bascre <- log(kidney_df$bascre)
+kidney_df$log_baseu <- ifelse(kidney_df$baseu <= 0.1, kidney_df$baseu, log(kidney_df$baseu))
+kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
+kidney_df$log_gfr <- log(kidney_df$gfr)
 
 par(mfrow = c(2, 2))
 hist(kidney_df$log_bascre, main = "Distribution of log_bascre", xlab = "Log Transformed gfr", col = "lightblue")
@@ -148,31 +146,9 @@ hist(kidney_df$sqrt_gfr, main = "Distribution of sqrt_gfr", xlab = "Square Root 
 ```
 
 ```{r}
-cols <- c("#F76D5E", "#FFFFBF")
-#, "#72D8FF"
-# Basic density plot in ggplot2
-cols <- c("Black" = "#F76D5E", "Non-Black" = "#FFFFBF", "All" = "#72D8FF")
-ggplot() +
-  geom_density(data = kidney_df, aes(x = sqrt_gfr, fill = "All"), 
-               alpha = 1, color = "#72D8FF") +  # Entire dataset
-  geom_density(data = kidney_df %>% filter(black == 1), 
-               aes(x = sqrt_gfr, fill = "Black"), 
-               alpha = 0.5, color = "#F76D5E") +  # Black group
-  geom_density(data = kidney_df %>% filter(black == 0), 
-               aes(x = sqrt_gfr, fill = "Non-Black"), 
-               alpha = 0.5, color = "#FFFFBF") +  # Non-Black group
-  scale_fill_manual(values = cols) +
-  labs(title = "Density Plot of sqrt_gfr by Race",
-       x = "sqrt_gfr",
-       y = "Density",
-       fill = "Group") +
-  theme_minimal()
-```
-
-```{r}
 # Creating first summary table (original)
 kidney_tbl <- kidney_df %>%
-  dplyr::select(black, sex, gfr, bascre, sbase, dbase, baseu) %>%
+  dplyr::select(black, age, sex, gfr, bascre, sbase, dbase, baseu) %>%
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
          sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
   tbl_summary(by = black,
@@ -189,7 +165,7 @@ kidney_tbl <- kidney_df %>%
 
 # Creating second summary table (transformed)
 kidney_tbl_transformed <- kidney_df %>%
-  dplyr::select(black, sex, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
+  dplyr::select(black, age, sex, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
   rename(gfr=sqrt_gfr, bascre=log_bascre, baseu=log_baseu) %>% 
   mutate(black = recode(black, `0` = "Non-Black", `1` ="Black"),
          sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
@@ -207,14 +183,26 @@ kidney_tbl_transformed <- kidney_df %>%
 
 tbl_combined1 <- tbl_merge(
   tbls = list(kidney_tbl, kidney_tbl_transformed),
-  tab_spanner = c("**Original Variables**", "**Transformed Variables**")) %>% 
-  as_gt()
+  tab_spanner = c("**Original Variables**", "**Transformed Variables**")
+)
+
+tbl_combined1 <- tbl_combined1 %>%
+  as_kable_extra(booktabs = TRUE, caption = "Summary Table by Race",
+                 longtable = TRUE, linesep = "") %>%
+  kableExtra::kable_styling(font_size = 10,
+                            latex_options = c("repeat_header", "HOLD_position", "scale_down")) %>%
+  column_spec(1, width = "3cm") %>%
+  column_spec(2, width = "2cm") %>%
+  column_spec(3, width = "2cm") %>%
+  column_spec(4, width = "2cm") %>%
+  column_spec(5, width = "2cm") %>%
+  row_spec(0, bold = TRUE)
 
 tbl_combined1
 ```
 
 ```{r}
-cor_m <- cor(kidney_df[, -c(1, 2, 5, 7, 8, 9)])
+cor_m <- cor(kidney_df[, -c(1, 2, 5, 7, 8, 12)])
 variable_order <- c("log_baseu", "log_bascre", "dbase", "sbase", "age", "sqrt_gfr")
 r_reordered <- cor_m[variable_order, variable_order]
 
@@ -227,16 +215,36 @@ ggcorrplot(r_reordered,
         axis.text.x = element_text(size = 12),             
         axis.text.y = element_text(size = 12))
 ```
-
 ```{r}
-model <- glm(sqrt_gfr ~ sbase + dbase + poly(age, 2) + sex + black + log_bascre + log_baseu +
+full_model <- glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu +
              dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
              age:sex + age:black + age:log_bascre + age:log_baseu + 
              sex:black + sex:log_bascre + sex:log_baseu + 
              black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
              data = kidney_df)
 
-step_model <- step(model, direction = "back")
+invisible(capture.output({
+  step_model <- step(full_model, direction = "backward")
+}))
+
+# model_summary <- summary(step_model)
+# coef_df <- as.data.frame(model_summary$coefficients)
+# colnames(coef_df) <- c("Estimate", "Standard Error", "T Statistics", "P Value")
+# knitr::kable(coef_df,
+#          caption = "Summary of Best Model") %>%
+#   kable_styling(latex_options = "HOLD_position")
+
+autoplot(step_model, size=0.5)
+```
+```{r}
+full_model <- glm(sqrt_gfr ~ sbase + dbase + sex + black + log_bascre + log_baseu +
+             dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
+             age:sex + age:black + age:log_bascre + age:log_baseu + 
+             sex:black + sex:log_bascre + sex:log_baseu + 
+             black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
+             data = kidney_df)
+
+step_model <- step(full_model, direction = "back")
 
 summary(step_model)
 
@@ -255,6 +263,17 @@ mae <- mean(abs(predictions - test$sqrt_gfr))
 
 cat("The MSE is:", mse, "\n")
 cat("The MAE is:", mae, "\n")
+
+
+# Back-transform the predictions 
+test$predictions_transformed <- predictions^2
+
+
+# Compute the Mean Squared Error (MSE)
+# Note: Able to directly compare gfr to predictions^2
+MSE <- mean((test$gfr - test$predictions_transformed)^2)
+
+MSE
 ```
 
 # 4
@@ -312,7 +331,7 @@ ggplot() +
 ```{r}
 # Creating third summary table (transformed)
 kidney_tbl_nb <- kidney_df %>%
-  dplyr::select(sex, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
+  dplyr::select(sex, age, sqrt_gfr, log_bascre, sbase, dbase, log_baseu) %>%
   rename(gfr=sqrt_gfr, bascre=log_bascre, baseu=log_baseu) %>% 
   mutate(sex = recode(sex, `0` = "Female", `1` ="Male")) %>%
   tbl_summary(label = list(gfr ~ "Measured glomerular filtration rate",
@@ -324,33 +343,35 @@ kidney_tbl_nb <- kidney_df %>%
               statistic = all_continuous() ~ "{mean} ({sd})") %>%
   modify_footnote(update = all_stat_cols() ~ "Mean (SD) for continuous; n (%) for categorical") %>%
   bold_labels()
-kidney_tbl_nb
 
 tbl_combined2 <- tbl_merge(
   tbls = list(kidney_tbl, kidney_tbl_transformed, kidney_tbl_nb),
-  tab_spanner = c("**Original Variables**", "**Transformed Variables**", "**Race Removed**")) %>% 
-  as_gt() %>%
-  tab_style(
-    style = list(
-      cell_fill(color = "#e0ecf4")),
-    locations = cells_body(
-      rows = label == c("Measured glomerular filtration rate"))) %>%
-  tab_style(
-    style = list(
-      cell_fill(color = "#e0ecf4")),
-    locations = cells_body(
-      rows = label == c("Base serum Creatinine"))) %>%
-  tab_style(
-    style = list(
-      cell_fill(color = "#e0ecf4")),
-    locations = cells_body(
-      rows = label == c("Urine protein")))
-  
+  tab_spanner = c("**Original Variables**", "**Transformed Variables**", "**Race Removed**")
+) 
+
+tbl_combined2 <- tbl_combined2 %>%
+  as_kable_extra(booktabs = TRUE, caption = "Summary Table by Race",
+                 longtable = TRUE, linesep = "") %>%
+  kableExtra::kable_styling(font_size = 10,
+                            latex_options = c("repeat_header", "HOLD_position", "scale_down")) %>%
+  column_spec(1, width = "3cm") %>%
+  column_spec(2, width = "2cm") %>%
+  column_spec(3, width = "2cm") %>%
+  column_spec(4, width = "2cm") %>%
+  column_spec(5, width = "2cm") %>%
+  column_spec(6, width = "2cm") %>%
+  row_spec(0, bold = TRUE)
+
+tbl_combined2 <- tbl_combined2 %>%
+  row_spec(5, background = "#e0ecf4") %>%
+  row_spec(6, background = "#e0ecf4") %>%
+  row_spec(9, background = "#e0ecf4")
+
 tbl_combined2
 ```
 
 ```{r}
-model_norace <- glm(sqrt_gfr ~ sbase + dbase + poly(age, 2) + sex + log_bascre + log_baseu +
+model_norace <- glm(sqrt_gfr ~ sbase + dbase + age + sex + log_bascre + log_baseu +
                       dbase:age + dbase:sex + dbase:log_bascre + dbase:log_baseu + age:sex +
                       age:log_bascre + age:log_baseu + sex:log_bascre + sex:log_baseu + 
                       log_bascre:log_baseu, 
@@ -402,4 +423,11 @@ ggplot(test_norace, aes(x = sqrt_gfr, y = estimated_gfr, color = black)) +
        x = "Measured GFR",
        y = "Estimated GFR") +
   theme_minimal()
+```
+
+## Appendix {.appendix}
+
+```{r ref.label = knitr::all_labels()}
+#| echo: true
+#| eval: false
 ```
