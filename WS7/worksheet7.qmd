@@ -153,7 +153,7 @@ figure <- ggarrange(sex_plot, race_plot,
 
 # Add title using annotate_figure()
 annotate_figure(figure, 
-                top = text_grob("Figure 1: Boxplot of gfr by Sex and Race", size = 13))
+                top = text_grob("Figure 1: Boxplot of GFR by Sex and Race", size = 13))
 
 ```
 
@@ -161,20 +161,20 @@ Next, we plot the distribution of the response and all key continuous variables 
 
 ```{r, out.width="90%", fig.align="center"}
 par(mfrow = c(2, 3), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 0))
-hist(kidney_df$gfr, main = "Distribution of gfr", xlab = "gfr", col = "lightblue", 
+hist(kidney_df$gfr, main = "", xlab = "gfr", col = "lightblue", 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$bascre, main = "Distribution of bascre", xlab = "bascre", col = "lightblue", 
+hist(kidney_df$bascre, main = "", xlab = "bascre", col = "lightblue", 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$sbase, main = "Distribution of sbase", xlab = "sbase", col = "lightblue", 
+hist(kidney_df$sbase, main = "", xlab = "sbase", col = "lightblue", 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$dbase, main = "Distribution of dbase", xlab = "dbase", col = "lightblue", 
+hist(kidney_df$dbase, main = "", xlab = "dbase", col = "lightblue", 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$baseu, main = "Distribution of baseu", xlab = "baseu", col = "lightblue", 
+hist(kidney_df$baseu, main = "", xlab = "baseu", col = "lightblue", 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$age, main = "Distribution of age", xlab = "age", col = "lightblue", 
+hist(kidney_df$age, main = "", xlab = "age", col = "lightblue", 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
 
-mtext("Figure 2: Distribution of Key Variables", outer = TRUE, cex = 0.8, font = 1)
+mtext("Figure 2: Distribution of Key Variables (Before Transformation)", outer = TRUE, cex = 0.8, font = 1)
 ```
 
 For `bascre`, we directly perform log transformation on the value to normalize its distribution. However, exploring the summary statistics of `baseu`, we found over 25% of observations have 0.1 which is near to zero. Thus, we set a threshold of 0.1 to have all observations with `baseu` less than or equal to 0.1 to remain their original value and perform log transformation on others. Additionally, we tried both log transformation and square root transformation on our response. Observing the result distribution plot, we decided to use the square root transformation since it appeared more normal compared to the log transformation.
@@ -186,13 +186,13 @@ kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
 kidney_df$log_gfr <- log(kidney_df$gfr)
 
 par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 0))
-hist(kidney_df$log_bascre, main = "Distribution of log_bascre", xlab = "Log Transformed gfr", col = "lightblue", 
+hist(kidney_df$log_bascre, main = "", xlab = "Log Transformed bascre", col = "lightblue", 
      cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
-hist(kidney_df$log_baseu, main = "Distribution of log_baseu", xlab = "Log Transformed baseu", col = "lightblue", 
+hist(kidney_df$log_baseu, main = "", xlab = "Log Transformed baseu", col = "lightblue", 
      cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
-hist(kidney_df$sqrt_gfr, main = "Distribution of sqrt_gfr", xlab = "Square Root gfr", col = "lightblue", 
+hist(kidney_df$sqrt_gfr, main = "", xlab = "Square Root gfr", col = "lightblue", 
      cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
-hist(kidney_df$log_gfr, main = "Distribution of log_gfr", xlab = "Log Transformed gfr", col = "lightblue", 
+hist(kidney_df$log_gfr, main = "", xlab = "Log Transformed gfr", col = "lightblue", 
      cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
 
 mtext("Figure 3: Distribution of Transformed Variables", outer = TRUE, cex = 0.8, font = 1)
@@ -238,11 +238,11 @@ kidney_tbl_transformed <- kidney_df %>%
 
 tbl_combined1 <- tbl_merge(
   tbls = list(kidney_tbl, kidney_tbl_transformed),
-  tab_spanner = c("**Original Variables**", "**Transformed Variables**")
+  tab_spanner = c("**Original Scale**", "**Transformed Scale**")
 )
 
 tbl_combined1 <- tbl_combined1 %>%
-  as_kable_extra(booktabs = TRUE, caption = "Summary Table by Race",
+  as_kable_extra(booktabs = TRUE, caption = "Statistical Summary of Key Variables by Race and Transformation",
                  longtable = TRUE, linesep = "") %>%
   kableExtra::kable_styling(font_size = 7, position = "center",
                             latex_options = c("repeat_header", "HOLD_position", "scale_down")) %>%
@@ -252,6 +252,11 @@ tbl_combined1 <- tbl_combined1 %>%
   column_spec(4, width = "2cm") %>%
   column_spec(5, width = "2cm") %>%
   row_spec(0, bold = TRUE)
+
+tbl_combined1 <- tbl_combined1 %>%
+  row_spec(5, background = "#e0ecf4") %>%
+  row_spec(6, background = "#e0ecf4") %>%
+  row_spec(9, background = "#e0ecf4")
 
 tbl_combined1
 ```
@@ -267,7 +272,7 @@ ggcorrplot(r_reordered,
            hc.order = TRUE, 
            type = "lower",
            lab = TRUE) +
-  ggtitle("Figure 2: Correlation Matrix") +
+  ggtitle("Figure 4: Correlation Matrix") +
   theme(plot.title = element_text(hjust = 0.5, size = 11),
         axis.text.x = element_text(size = 9),             
         axis.text.y = element_text(size = 9))
@@ -319,7 +324,11 @@ summary_model %>%
 To check the essential assumptions of our model, we first observe the residual plot to check for linearity and homoscedasticity. Our points here on the left top plot generally has no obvious pattern and they randomly scattered around the center line of zero. Additionally, we look at the Q-Q plot on the right top to assess the normality assumption. Our points mostly fall along the diagonal line in the middle of the graph, but curve off in the extremities. This suggests that the residuals follow normal distribution but the presence of more extreme values than expected lead to the deviation on the tails. The scale-location plot on the left bottom checks for homoscedasticity. In this plot, we see the points appear mostly randomly scattered and it shows a reasonably flat blue line with no pronounce variation. This indicates that the variance of residuals remains roughly constant across predicted values. The residual vs. leverage plot on the right bottom aims to identify influential points. Here, most points clustered around zero and there are a few points which exhibit relatively high leverage but none of these points appear to have extremely large residuals.
 
 ```{r}
-autoplot(step_model, size=0.5)
+# Create the diagnostic plot
+autoplot(step_model, label.size = 3, size = 0.5) 
+# +
+#   ggtitle("Figure 5: Diagnostics Plots")
+
 ```
 
 ### 3.
@@ -364,6 +373,10 @@ range_df %>%
 
 ### 4.
 
+Table 5 shows the mean-square error between the measured and estimated values of GFR, the bias, and the percentage of the estimated values within 10% and 30% of the measured GFR. The MSE was much greater in black patients than in nonblack patients, suggesting that the model is notably less accurate in predicting GFR in black patients and that the model may not generalize well across racial groups. This might be due to an imbalance in the sample size of the data between the non-black and black groups, with black patients comprising only 10% of the data. The GFR values for non-blacks were slightly positively biased (0.12), while the model underestimated the GFR values for blacks with a negative bias of -8.55. For the percentages of the estimates, we can see that the predicted values are similar for both groups, with the predicted values for the non-black group being slightly better than the predicted values for the black group. This suggests that the model is able to predict GFR more precisely for nonblacks, but still captures the overall trend in GFR for both groups reasonably well.
+
+Figure 6 shows the relationship between measured and estimated GFR by race, with the x-axis being the measured GFR and the y-axis being the estimated GFR. The black diagonal solid line represents a perfect fit, i.e., the estimated GFR is equal to the measured GFR. As we can see from the figure, the red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This difference suggests that the accuracy of the model's predictions may differ between these racial groups, and that the model appears to better predict non-black patients.
+
 ```{r}
 # Split data by race and calculate performance metrics
 test$estimated_gfr <- predict(step_model, newdata = test)
@@ -372,10 +385,9 @@ performance_by_race <- test %>%
   summarise(MSE = mean((predictions_transformed - gfr)^2),
             Bias = mean(predictions_transformed - gfr),
             P10 = mean(abs(predictions_transformed - gfr) / gfr <= 0.10) * 100,
-            P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100,
-            P50 = mean(abs(predictions_transformed - gfr) / gfr <= 0.50) * 100)
+            P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100)
 performance_by_race %>%
-  kbl(caption = "Performance Metrics by Race") %>%
+  kbl(caption = "Evaluation Measures by Race") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 
@@ -387,7 +399,7 @@ ggplot(test, aes(x = gfr, y = predictions_transformed, color = black)) +
   scale_color_manual(values = c("0" = "red", "1" = "blue"),  # Assign colors manually
                      labels = c("0" = "Non-black", "1" = "Black"),  # Rename legend labels
                      name = "Race") +
-  labs(title = "Comparison of Measured and Estimated GFR by Race",
+  labs(title = "Figure 6: Comparison of Measured and Estimated GFR by Race",
        x = "Measured GFR",
        y = "Estimated GFR") +
   theme_minimal()
@@ -410,7 +422,7 @@ ggplot() +
                aes(x = sqrt_gfr, fill = "Non-Black"), 
                alpha = 0.5, color = "#FFFFBF") +  # Non-Black group
   scale_fill_manual(values = cols) +
-  labs(title = "Density Plot of sqrt_gfr by Race",
+  labs(title = "Figure 7: Density Plot of Square Root GFR by Race",
        x = "sqrt_gfr",
        y = "Density",
        fill = "Group") +
@@ -435,11 +447,11 @@ kidney_tbl_nb <- kidney_df %>%
 
 tbl_combined2 <- tbl_merge(
   tbls = list(kidney_tbl, kidney_tbl_transformed, kidney_tbl_nb),
-  tab_spanner = c("**Original Variables**", "**Transformed Variables**", "**Race Removed**")
+  tab_spanner = c("**Original Scale**", "**Transformed Scale**", "**Race Removed**")
 ) 
 
 tbl_combined2 <- tbl_combined2 %>%
-  as_kable_extra(booktabs = TRUE, caption = "Summary Table by Race",
+  as_kable_extra(booktabs = TRUE, caption = "Summary Table by Race and Transformation",
                  longtable = TRUE, linesep = "") %>%
   kableExtra::kable_styling(font_size = 7.5, position = "center", 
                             latex_options = c("repeat_header", "HOLD_position", "scale_down")) %>%
@@ -514,14 +526,11 @@ performance_by_race_norace %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
 # Create a scatter plot to compare measured and estimated GFR
-ggplot(test_norace, aes(x = gfr, y = predictions_transformed, color = black)) +
-  geom_point(alpha=0.8) +
-  geom_abline(intercept = 0, slope = 1, linetype = "solid", color = "black", size=1) +  # Perfect prediction line
-  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8) + 
-  scale_color_manual(values = c("0" = "red", "1" = "blue"),  # Assign colors manually
-                     labels = c("0" = "Non-black", "1" = "Black"),  # Rename legend labels
-                     name = "Race") +
-  labs(title = "Comparison of Measured and Estimated GFR by Race",
+ggplot(test_norace, aes(x = gfr, y = predictions_transformed)) +
+  geom_point(alpha=0.7, color="skyblue") +
+  geom_abline(intercept = 0, slope = 1, linetype = "solid", size=1) +  # Perfect prediction line
+  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8, color="blue") + 
+  labs(title = "Figure 6: Comparison of Measured and Estimated GFR by Race",
        x = "Measured GFR",
        y = "Estimated GFR") +
   theme_minimal()
