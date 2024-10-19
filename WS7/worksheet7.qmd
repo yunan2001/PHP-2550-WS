@@ -288,16 +288,14 @@ ggcorrplot(r_reordered,
 
 To build a linear regression model and perform a variable selection process, we start from a `full_model` with all main effects and all of their possible interaction terms. Here, We first create a cross validation train and test data with 80% and 20% of our original data, respectively. To be noticed, since we found `dbase` and `sbase` are highly correlated from the EDA part, we decided to include only `dbase` in our model to avoid multicollinearity. Then, using the full model, we perform a backward model selection using `step()` and get the optimal model with the following format, and the estimated coefficient of the optimal model is presented in `Table 2`.
 
-```{=tex}
 \begin{align*}
 \text{sqrt\_gfr} &= \beta_0 + \beta_1 \cdot \text{dbase} + \beta_2 \cdot \text{age} + \beta_3 \cdot \text{sex}_1 + \beta_4 \cdot \text{black}_1 \\
-&\quad + \beta_5 \cdot \log(\text{bascre}) + \beta_6 \cdot \log(\text{baseu}) + \beta_7 \cdot \text{dbase} \times \log(\text{bascre}) \\
-&\quad + \beta_8 \cdot \text{dbase} \times \log(\text{baseu}) + \beta_9 \cdot \text{age} \times \text{sex}_1 \\
-&\quad + \beta_{10} \cdot \text{age} \times \log(\text{baseu}) + \beta_{11} \cdot \text{sex}_1 \times \text{black}_1 \\
-&\quad + \beta_{12} \cdot \text{sex}_1 \times \log(\text{bascre}) + \beta_{13} \cdot \text{black}_1 \times \log(\text{bascre}) \\
-&\quad + \beta_{14} \cdot \log(\text{bascre}) \times \log(\text{baseu}) + \epsilon
+&\quad + \beta_5 \cdot \log(\text{bascre}) + \beta_6 \cdot \log(\text{baseu}) + \beta_7 \cdot \text{dbase:} \log(\text{bascre}) \\
+&\quad + \beta_8 \cdot \text{dbase:}  \log(\text{baseu}) + \beta_9 \cdot \text{age:}  \text{sex}_1 \\
+&\quad + \beta_{10} \cdot \text{age:}  \log(\text{baseu}) + \beta_{11} \cdot \text{sex:}_1  \text{black}_1 \\
+&\quad + \beta_{12} \cdot \text{sex:}_1  \log(\text{bascre}) + \beta_{13} \cdot \text{black:}_1  \log(\text{bascre}) \\
+&\quad + \beta_{14} \cdot \log(\text{bascre:})  \log(\text{baseu}) + \epsilon
 \end{align*}
-```
 
 Observing the optimal model output in `Table 2`, we see main effects, `dbase`, `sex`, `black`, `log_bascre`, and `log_baseu`, are significant predictors of the response variable, sqrt_gfr. Among these main effect variables, `black`, `log_bascre`, and `log_baseu` have negative coefficient estimates, which implies a negative association between these variables and the response variables.
 
@@ -387,6 +385,8 @@ Overall, while the model generally captures the variability in GFR, further inve
 
 #### 4.
 
+`Table 5` shows the mean-square error (MSE) and  the bias between the measured and estimated values of GFR, and the percentage of the estimated values within 10% and 30% of the measured GFR. The MSE was much greater in black individuals than in non-black individuals, suggesting that the model is notably less accurate in predicting GFR in black individuals and that the model may not generalize well across racial groups. This might be due to an imbalance in the sample size of the data between the non-black and black groups, with black individuals comprising only 10% of the data. The GFR values for non-blacks were slightly positively biased (0.12), while the model underestimated the GFR values for blacks with a negative bias of -8.55. For the percentages of the estimates, we can see that the predicted values are similar for both groups, with the predicted values for the non-black group being slightly better than the predicted values for the black group. This suggests that the model is able to predict GFR more precisely for non-blacks, but still captures the overall trend in GFR for both groups reasonably well. 
+
 ```{r}
 # Split data by race and calculate performance metrics
 test$estimated_gfr <- predict(step_model, newdata = test)
@@ -402,7 +402,7 @@ performance_by_race %>%
                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 ```
 
-`Table 5` shows the mean-square error between the measured and estimated values of GFR, the bias, and the percentage of the estimated values within 10% and 30% of the measured GFR. The MSE was much greater in black patients than in non-black patients, suggesting that the model is notably less accurate in predicting GFR in black patients and that the model may not generalize well across racial groups. This might be due to an imbalance in the sample size of the data between the non-black and black groups, with black patients comprising only 10% of the data. The GFR values for non-blacks were slightly positively biased (0.12), while the model underestimated the GFR values for blacks with a negative bias of -8.55. For the percentages of the estimates, we can see that the predicted values are similar for both groups, with the predicted values for the non-black group being slightly better than the predicted values for the black group. This suggests that the model is able to predict GFR more precisely for non-blacks, but still captures the overall trend in GFR for both groups reasonably well.
+`Figure 6` shows the relationship between measured and estimated GFR by race, with the x-axis being the measured GFR and the y-axis being the estimated GFR. The black diagonal solid line represents a perfect fit, i.e., the estimated GFR is equal to the measured GFR. As we can see from the figure, the red line for non-black patients with a slope of 0.81 is closer to the line of perfect fit than the blue line for black patients with a slope of 0.47. This difference suggests that the accuracy of the model's predictions may differ between these racial groups, and that the model appears to better predict the non-black group.
 
 ```{r, out.width = "80%", fig.align='center'}
 # Calculate the slope for each group
@@ -430,11 +430,11 @@ ggplot(test, aes(x = gfr, y = predictions_transformed, color = factor(black))) +
            label = slope_1, color = "blue", size = 4)
 ```
 
-`Figure 6` shows the relationship between measured and estimated GFR by race, with the x-axis being the measured GFR and the y-axis being the estimated GFR. The black diagonal solid line represents a perfect fit, i.e., the estimated GFR is equal to the measured GFR. As we can see from the figure, the red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This difference suggests that the accuracy of the model's predictions may differ between these racial groups, and that the model appears to better predict non-black patients.
+
 
 ### 5.
 
-`Figure 7` illustrates the distribution of the square root of GFR (SR_GFR) across three population groups: all individuals, black individuals, and non-black individuals. We can see that the SR_GFR distribution of the non-black group highly overlaps with the SR_GFR distribution of the overall population, whereas the SR_GFR distribution of the black group is significantly different compared to these two groups. The SR_GFR for the non-black and overall population showed a bimodal distribution, while the SR_GFR for the black group was more concentrated, with more values around 6. This coincided with the statement in the editorial that there was a difference in GFR between blacks and nonblacks when GFR was measured directly from endogenous clearance of creatinine.
+`Figure 7` illustrates the distribution of the square root of GFR (`sqrt_gfr`) across three population groups: all individuals, black individuals, and non-black individuals. We can see that the `sqrt_gfr` distribution of the non-black group highly overlaps with the `sqrt_gfr` distribution of the overall population, whereas the `sqrt_gfr` distribution of the black group is significantly different compared to these two groups. The `sqrt_gfr` for the non-black and overall population showed a bimodal distribution, while the `sqrt_gfr` for the black group was more concentrated, with more values around 6. This coincided with the statement in the editorial that there was a difference in GFR between blacks and nonblacks when GFR was measured directly from endogenous clearance of creatinine. And this 
 
 ```{r, out.width="80%", fig.align="center"}
 cols <- c("#F76D5E", "#FFFFBF")
@@ -461,7 +461,7 @@ ggplot() +
         axis.text.y = element_text(size = 8))
 ```
 
-We also generate a summary statistics table with all observations without stratification by race in `Table 6`. In the race removed column, there are totally 1249 observations with 466 females (37%) and 783 males (63%). The mean value of age is 52 with a standard deviation of 13 which matches the Non-Black group in the "Transformed Scale" column. This suggests that the overall age distribution is influenced more by the Non-Black group, likely due to its larger size. The square root `gfr` value is 6.13 on average with a standard deviation of 2.23 which falls between the non-black and black groups under the transformed scale. The remaining biomarkers, such as base serum creatinine, systolic blood pressure, diastolic blood pressure, and urine protein, exhibit values that fall between the non-Black and black groups values. However, these values are closer to the non-black group’s values due to the larger proportion of non-black observations.
+We also generate a summary statistics table with all observations without stratification by race in `Table 6`. In the race removed column, there are totally 1249 observations with 466 females (37%) and 783 males (63%). Comparing the total sample of 1249 with the total sample of 114 blacks included in the data, we find that blacks comprise only 10% of the total sample. This coincides with the point made in the editorial that the way the formula for estimating GFR was developed, initially derived from data on whites, was doomed to unfairness from the outset. The mean value of age is 52 with a standard deviation of 13 which matches the Non-Black group in the "Transformed Scale" column. This suggests that the overall age distribution is influenced more by the Non-Black group, likely due to its larger size. The square root `gfr` value is 6.13 on average with a standard deviation of 2.23 which falls between the non-black and black groups under the transformed scale. The remaining biomarkers, such as base serum creatinine, systolic blood pressure, diastolic blood pressure, and urine protein, exhibit values that fall between the non-Black and black groups values. However, these values are closer to the non-black group’s values due to the larger proportion of non-black observations.
 
 ```{r}
 # Creating third summary table (transformed)
@@ -502,19 +502,17 @@ tbl_combined2 <- tbl_combined2 %>%
 tbl_combined2
 ```
 
-To build a linear regression model and perform a variable selection process, we start from a full model with all main effects except for black and all of their possible interaction terms. As what we done previously, We again create a cross validation train and test data with 80% and 20% of our original data, respectively. Then, using the full model, we perform a backward model selection using the step() and get the optimal model with the following format, and the estimated coeﬀicient of the optimal model is presented in `Table 7`.
+To build a linear regression model and perform a variable selection process, we start from a full model with all main effects except for black and all of their possible interaction terms. As what we done previously, We again create a cross validation train and test data with 80% and 20% of our original data, respectively. Models were fitted using the train data and the performance of the models was evaluated using the test data. Then, using the full model, we perform a backward model selection using the step() and get the optimal model with the following format, and the estimated coeﬀicient of the optimal model is presented in `Table 7`.
 
-```{=tex}
 \begin{align*}
 \text{sqrt\_gfr} &= \beta_0 + \beta_1 \cdot \text{dbase} + \beta_2 \cdot \text{age} + \beta_3 \cdot \text{sex}_1 + \beta_4 \cdot \log(\text{bascre}) \\
-&\quad + \beta_5 \cdot \log(\text{baseu}) + \beta_6 \cdot \text{dbase} \times \text{sex}_1 + \beta_7 \cdot \text{dbase} \times \log(\text{bascre}) \\
-&\quad + \beta_8 \cdot \text{dbase} \times \log(\text{baseu}) + \beta_9 \cdot \text{age} \times \text{sex}_1 \\
-&\quad + \beta_{10} \cdot \text{age} \times \log(\text{baseu}) + \beta_{11} \cdot \text{sex}_1 \times \log(\text{bascre}) \\
-&\quad + \beta_{12} \cdot \log(\text{bascre}) \times \log(\text{baseu}) + \epsilon
+&\quad + \beta_5 \cdot \log(\text{baseu}) + \beta_6 \cdot \text{dbase:}  \text{sex}_1 + \beta_7 \cdot \text{dbase:}  \log(\text{bascre}) \\
+&\quad + \beta_8 \cdot \text{dbase:}  \log(\text{baseu}) + \beta_9 \cdot \text{age:}  \text{sex}_1 \\
+&\quad + \beta_{10} \cdot \text{age:}  \log(\text{baseu}) + \beta_{11} \cdot \text{sex:}_1  \log(\text{bascre}) \\
+&\quad + \beta_{12} \cdot \log(\text{bascre:}) \log(\text{baseu}) + \epsilon
 \end{align*}
-```
 
-Among the five main effects produced by the optimal model, diastolic blood pressure (`dbase`), gender, and urine protein appeared to have a significant effect on the outcome GFR, with a p-value of less than 0.05. GFR was significantly higher in males than in females, with lower urine protein associated with higher GFR, and diastolic blood pressure associated with higher GFR. The main effect of basal serum creatinine became insignificant compared with the model that included “black”. The interaction terms in the coefficient estimation tables reveal how different variables work together to influence the results. For example, the negative coefficient (-0.0261) for the interaction between diastolic blood pressure and basal serum creatinine suggests that the combined effect of `dbase` and `log_bascre` on the outcome decreases as they increase.
+Among the five main effects produced by the optimal model, diastolic blood pressure (`dbase`), gender, and urine protein appeared to have a significant effect on the outcome GFR, with a p-value of less than 0.05. GFR was significantly higher in males than in females, with lower urine protein associated with higher GFR, and diastolic blood pressure associated with higher GFR. The main effect of basal serum creatinine became insignificant compared with the model that included `black`. The interaction terms in the coefficient estimation tables reveal how different variables work together to influence the results. For example, the negative coefficient (-0.0261) for the interaction between diastolic blood pressure and basal serum creatinine suggests that the combined effect of `dbase` and `log_bascre` on the outcome decreases as they increase.
 
 ```{r}
 set.seed(2550)
@@ -606,7 +604,7 @@ combined_performance %>%
   row_spec(which(combined_performance$Model == "Without Black"), bold = TRUE)
 ```
 
-`Figure 8` shows the relationship between the measured and estimated GFR , with x-axis being the observed GFR values and the y-axis being the estimated GFR values. The black solid diagonal line represents a perfect fit which indicates perfect agreement between measured and estimated GFR. The blue dashed line represents the regression line fitted to all observations. This line captures the relationship between the observed and predicted GFR values generated by the model. The slope of the fitted line appears flatter compared to the diagonal line which indicates that our model underestimated the outcome GFR values. 
+`Figure 8` shows the relationship between the measured and estimated GFR , with x-axis being the observed GFR values and the y-axis being the estimated GFR values. The black solid diagonal line represents a perfect fit which indicates perfect agreement between measured and estimated GFR. The blue dashed line represents the regression line fitted to all observations. This line captures the relationship between the observed and predicted GFR values generated by the model. The slope of the fitted line appears flatter compared to the diagonal line which indicates that our model underestimated the outcome GFR values.
 
 ```{r, out.width="70%", fig.align="center"}
 linear_model <- lm(predictions_transformed ~ gfr, data = test_norace)
@@ -632,9 +630,11 @@ ggplot(test_norace, aes(x = gfr, y = predictions_transformed)) +
 
 In one of our optimal models for evaluating patient GFR measurements, we examined the effect of key demographic and clinical factors (e.g., age, gender, race, and baseline kidney function) on the prediction of the outcome glomerular filtration rate (GFR). The model showed that GFR was significantly higher in male patients than in females, whereas black patients had lower GFR values than non-black patients. Kidney function, as measured by creatinine and urine protien levels, was also important; higher values were associated with lower GFR values, which meant that the kidneys were not working well or the patients were more likely to have kidney disease. Importantly, the model allowed us to capture complex interactions, such as the combined effects of baseline kidney function and patient demographic characteristics. These findings suggest that patient characteristics, particularly gender and ethnicity, as well as baseline clinical metrics, can have a meaningful impact on predicted health outcomes, thereby guiding a more personalized approach to treatment.
 
-`Figure 6` shows the relationship between measured GFR and predicted GFR by race using the optimal model, with the black diagonal solid line representing a perfect fit, i.e., the estimated GFR is equal to the measured GFR. The red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This discrepancy suggests that the accuracy of the predictions of the model may differ between these racial groups and that the model appears to better predict the non-black patients. One of the limitations was the imbalance between the non-black and black subgroups of the population included in the model, which suggested that the model might be biased, preventing the predictions from generalizing to the entire population. In addition, the model appeared to correctly estimate GFR in about two-thirds of the patients, with estimates within 30% of the measured values, but with a slight tendency to underestimate, on average, by about 8 unit (`Table 5`).
+`Figure 6` shows the relationship between measured GFR and predicted GFR by race using the optimal model, with the black diagonal solid line representing a perfect fit, i.e., the estimated GFR is equal to the measured GFR. The red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This discrepancy suggests that the accuracy of the predictions of the model may differ between these racial groups and that the model appears to better predict the non-black patients. One of the limitations was the imbalance between the non-black and black subgroups of the population included in the model, which suggested that the model might be biased, preventing the predictions from generalizing to the entire population. In addition, the model appeared to correctly estimate GFR in about two-thirds of the patients, with estimates within 30% of the measured values, but with a slight tendency to underestimate, on average, by about 0.4 units for 
+overall population and 8.5 units for blacks  (`Table 5`).
 
 \newpage
+
 ## Appendix {.appendix}
 
 ```{r ref.label = knitr::all_labels()}
