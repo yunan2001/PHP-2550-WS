@@ -274,9 +274,7 @@ ggcorrplot(r_reordered,
 ```
 ### 2. 
 
-Build a linear regression model with appropriate variable selection. Check the model assumptions using model diagnostics. You may also consider including interaction terms.
-
-To build a linear regression model and perform a variable selection process, we start from a `full_model` with all main effects and all of their possible interaction terms. To be noticed, since we found `dbase` and `sbase` are highly correlated from the EDA part, we decided to include only `dbase` in our model to avoid multicollinearity. Then, using the full model, we perform a backward model selection using `step()` and get the optimal model with the following format, and the estimated coefficient of the optimal model is presented in Table 2.
+To build a linear regression model and perform a variable selection process, we start from a `full_model` with all main effects and all of their possible interaction terms. Here, We first create a cross validation train and test data with 80% and 20% of our original data, respectively. To be noticed, since we found `dbase` and `sbase` are highly correlated from the EDA part, we decided to include only `dbase` in our model to avoid multicollinearity. Then, using the full model, we perform a backward model selection using `step()` and get the optimal model with the following format, and the estimated coefficient of the optimal model is presented in Table 2.
 
 \begin{align*}
 \text{sqrt\_gfr} &= \beta_0 + \beta_1 \cdot \text{dbase} + \beta_2 \cdot \text{age} + \beta_3 \cdot \text{sex}_1 + \beta_4 \cdot \text{black}_1 \\
@@ -291,15 +289,20 @@ Observing the optimal model output in Table 3, we see main effects, `dbase`, `se
 
 For example, black with a coefficient estimate of -0.774 indicates black people tend to have a lower outcome value by 0.77 units compared to the non-black participants. The coefficients for `log_bascre` (-1.216) and `log_baseu` (-1.025) are significant with p-values of 0.0137 and 0.0007, respectively. This indicates that increase in log-transformed base serum creatinine and urine protein values are associated with decrease in `sqrt_gfr`. The coefficient of `dbase`, 0.019, is positive and highly significant. The `sqrt_gfr` would increase by 0.019 units as `dbase` increases by one unit. Additionally, sex shows that males' `sqrt_gfr` value are approximately 1.75 units higher than females and this difference is statistically significant.
 
-Interaction terms play a significant role in our model as well which indicates the complex relationships among our key covariates. The interaction term between `dbase` and `log_bascre` has a significant negative estimate, indicating that higher blood pressure with higher creatinine would lead to decrease in the response variable, `sqrt_gfr`. The significant interaction between age and sex implies that the effect of age on our outcome would vary by sex. Since this interaction term shows a significant negative estimate, male participants experience a greater decrease (or a smaller increase) in the response variable with age compared to female participants. Similarly, the interaction between sex and race with coefficient estimate of -0.0166141, indicates that black males have a higher outcome compared to non-black males or females. Moreover, the interactions between sex and `log_bascre`, and race and `log_bascre`, suggest that both gender and race influence how creatinine affects the response variable. Finally, the interaction between `log_bascre` and `log_baseu` which exhibits a significant positive coefficient estimate showing that the combined effects of these two biomakers is greater than their individual effects.
+Interaction terms play a significant role in our model as well which indicates the complex relationships among our key covariates. The interaction term between `dbase` and `log_bascre` has a significant negative estimate, indicating that higher blood pressure with higher creatinine would lead to decrease in the response variable, `sqrt_gfr`. The significant interaction between age and sex implies that the effect of age on our outcome would vary by sex. Since this interaction term shows a significant negative estimate, male participants experience a greater decrease (or a smaller increase) in the response variable with age compared to female participants. Moreover, the interactions between sex and `log_bascre`, and race and `log_bascre`, suggest that both gender and race influence how creatinine affects the response variable. Finally, the interaction between `log_bascre` and `log_baseu` which exhibits a significant positive coefficient estimate showing that the combined effects of these two biomakers is greater than their individual effects.
 
 ```{r}
+set.seed(2550)
+index <- createDataPartition(kidney_df$gfr, p = 0.8, list = FALSE)
+train <- kidney_df[index, ]
+test <- kidney_df[-index, ]
+
 full_model <- glm(sqrt_gfr ~ dbase + age + sex + black + log_bascre + log_baseu +
              dbase:age + dbase:sex + dbase:black + dbase:log_bascre + dbase:log_baseu + 
              age:sex + age:black + age:log_bascre + age:log_baseu + 
              sex:black + sex:log_bascre + sex:log_baseu + 
              black:log_bascre + black:log_baseu + log_bascre:log_baseu, 
-             data = kidney_df)
+             data = train)
 
 step_model <- step(full_model, direction = "backward", trace = 0)
 
@@ -321,37 +324,60 @@ autoplot(step_model, size=0.5)
 
 ### 3.
 
+Here, to evaluate the model performance using evaluation measure, we choose to use the Mean Square Error (MSE) and Mean Absolute Error (MAE) presented in Table 3. Using the test set, we calculated the predicted value from our optimal model and squared each predicted value to the original phase of `gfr`. Then, we calculate the model MSE and MAE using the predicted and observed `gfr` values. 
+
+In our model, the MSE is 166.76, meaning that on average, the squared difference between our predictions and the actual GFR values is around 166. In addition, the MAE is 9.41, meaning that on average, the model’s predictions are about 9 units off from the true GFR values. 
+
+Our observed GFR value ranges from 0.7 to 155.50 with a standard deviation of 28.38. Our MAE value, 9.41, is relatively small compared to the standard deviation of GFR in the data. The Root Mean Squared Error (RMSE), which is the square root of the MSE, is around 12.91. The RMSE is close to the MAE, further suggesting that our model performs reasonably well in capturing the variability of GFR. However, although the relatively smaller prediction error value suggests that our model performs reasonably well to capture the variability of GFR, it still can be clinically important. Especially for patients with lower GFR value, an 9 units error would significantly influence the medical decision. Thus, we still need further investigation on how to improve our model, especially for patients with extreme GFR values like what we mentioned in the model assumption part.
+
 
 ```{r}
-set.seed(2550)
-index <- createDataPartition(kidney_df$gfr, p = 0.8, list = FALSE)
-train <- kidney_df[index, ]
-test <- kidney_df[-index, ]
 predictions <- predict(step_model, newdata = test)
 test$predictions_transformed <- predictions^2
 mse <- mean((test$predictions_transformed - test$gfr)^2)
 mae <- mean(abs(test$predictions_transformed - test$gfr))
 
-cat("The MSE is:", mse, "\n")
-cat("The MAE is:", mae, "\n")
+evaluation_measure_df <- data.frame(Measures = c("MSE", "MAE"),
+                                    Values = c(mse, mae))
+
+evaluation_measure_df %>%
+   kbl(booktabs = TRUE, caption = "Evaluation Measures",
+      longtable = TRUE, linesep = "") %>%
+   kable_styling(font_size = 10,
+                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
+```
+```{r}
+range_df <- data.frame(Range = c("Within 10%", "Within 30%", "Within 50%"),
+                       Value = c(mean(abs(test$predictions_transformed - test$gfr) / test$gfr <= 0.10) * 100,
+                                 mean(abs(test$predictions_transformed - test$gfr) / test$gfr <= 0.30) * 100,
+                                 mean(abs(test$predictions_transformed - test$gfr) / test$gfr <= 0.50) * 100))
+
+range_df %>%
+   kbl(booktabs = TRUE, caption = "Percentage of Estimates within Various Ranges",
+      longtable = TRUE, linesep = "") %>%
+  kable_styling(font_size = 10,
+                latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 ```
 
 ### 4.
+
 ```{r}
 # Split data by race and calculate performance metrics
 test$estimated_gfr <- predict(step_model, newdata = test)
 performance_by_race <- test %>%
   group_by(black) %>%
-  summarise(MSE = mean((estimated_gfr - sqrt_gfr)^2),
-            Bias = mean(estimated_gfr - sqrt_gfr),
-            P10 = mean(abs(estimated_gfr - sqrt_gfr) / sqrt_gfr <= 0.10) * 100,
-            P30 = mean(abs(estimated_gfr - sqrt_gfr) / sqrt_gfr <= 0.30) * 100)
+  summarise(MSE = mean((predictions_transformed - gfr)^2),
+            Bias = mean(predictions_transformed - gfr),
+            P10 = mean(abs(predictions_transformed - gfr) / gfr <= 0.10) * 100,
+            P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100,
+            P50 = mean(abs(predictions_transformed - gfr) / gfr <= 0.50) * 100)
 performance_by_race %>%
   kbl(caption = "Performance Metrics by Race") %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 
 # Create a scatter plot to compare measured and estimated GFR
-ggplot(test, aes(x = sqrt_gfr, y = estimated_gfr, color = black)) +
+ggplot(test, aes(x = gfr, y = predictions_transformed, color = black)) +
   geom_point(alpha=0.8) +
   geom_abline(intercept = 0, slope = 1, linetype = "solid", color = "black", size=1) +  # Perfect prediction line
   geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8) + 
@@ -431,11 +457,16 @@ tbl_combined2
 ```
 
 ```{r}
+set.seed(2550)
+index_norace <- createDataPartition(kidney_df$gfr, p = 0.8, list = FALSE)
+train_norace <- kidney_df[index_norace, ]
+test_norace <- kidney_df[-index_norace, ]
+
 model_norace <- glm(sqrt_gfr ~ dbase + age + sex + log_bascre + log_baseu + dbase:age + 
                       dbase:sex + dbase:log_bascre + dbase:log_baseu + age:sex +
                       age:log_bascre + age:log_baseu + sex:log_bascre + sex:log_baseu + 
                       log_bascre:log_baseu, 
-             data = kidney_df)
+             data = train_norace)
 
 step_model_norace <- step(model_norace, direction = "backward", trace = 0)
 summary_model_norace <- as.data.frame(summary(step_model_norace)$coefficient)
@@ -451,17 +482,19 @@ autoplot(step_model_norace, size=0.5)
 ```
 
 ```{r}
-set.seed(2550)
-index_norace <- createDataPartition(kidney_df$gfr, p = 0.8, list = FALSE)
-train_norace <- kidney_df[index_norace, ]
-test_norace <- kidney_df[-index_norace, ]
-
 predictions_norace <- predict(step_model_norace, newdata = test_norace)
-mse_norace <- mean((predictions_norace - test_norace$sqrt_gfr)^2)
-mae_norace <- mean(abs(predictions_norace - test_norace$sqrt_gfr))
+test_norace$predictions_transformed <- predictions_norace^2
+mse_norace <- mean((test_norace$predictions_transformed - test_norace$gfr)^2)
+mae_norace <- mean(abs(test_norace$predictions_transformed - test_norace$gfr))
 
-cat("The MSE is:", mse_norace, "\n")
-cat("The MAE is:", mae_norace, "\n")
+evaluation_measure_df <- data.frame(Measures = c("MSE", "MAE"),
+                                    Values = c(mse_norace, mae_norace))
+
+evaluation_measure_df %>%
+   kbl(booktabs = TRUE, caption = "Evaluation Measures without Race",
+      longtable = TRUE, linesep = "") %>%
+   kable_styling(font_size = 10,
+                latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 ```
 
 ```{r}
@@ -469,16 +502,16 @@ cat("The MAE is:", mae_norace, "\n")
 test_norace$estimated_gfr <- predict(step_model_norace, newdata = test_norace)
 performance_by_race_norace <- test_norace %>%
   group_by(black) %>%
-  summarise(MSE = mean((estimated_gfr - sqrt_gfr)^2),
-            Bias = mean(estimated_gfr - sqrt_gfr),
-            P10 = mean(abs(estimated_gfr - sqrt_gfr) / sqrt_gfr <= 0.10) * 100,
-            P30 = mean(abs(estimated_gfr - sqrt_gfr) / sqrt_gfr <= 0.30) * 100)
+  summarise(MSE = mean((predictions_transformed - gfr)^2),
+            Bias = mean(predictions_transformed - gfr),
+            P10 = mean(abs(predictions_transformed - gfr) / gfr <= 0.10) * 100,
+            P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100)
 performance_by_race_norace %>%
   kbl(caption = "Performance Metrics by Race") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
 # Create a scatter plot to compare measured and estimated GFR
-ggplot(test_norace, aes(x = sqrt_gfr, y = estimated_gfr, color = black)) +
+ggplot(test_norace, aes(x = gfr, y = predictions_transformed, color = black)) +
   geom_point(alpha=0.8) +
   geom_abline(intercept = 0, slope = 1, linetype = "solid", color = "black", size=1) +  # Perfect prediction line
   geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8) + 
