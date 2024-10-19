@@ -292,9 +292,9 @@ To build a linear regression model and perform a variable selection process, we 
 \text{sqrt\_gfr} &= \beta_0 + \beta_1 \cdot \text{dbase} + \beta_2 \cdot \text{age} + \beta_3 \cdot \text{sex}_1 + \beta_4 \cdot \text{black}_1 \\
 &\quad + \beta_5 \cdot \log(\text{bascre}) + \beta_6 \cdot \log(\text{baseu}) + \beta_7 \cdot \text{dbase:} \log(\text{bascre}) \\
 &\quad + \beta_8 \cdot \text{dbase:}  \log(\text{baseu}) + \beta_9 \cdot \text{age:}  \text{sex}_1 \\
-&\quad + \beta_{10} \cdot \text{age:}  \log(\text{baseu}) + \beta_{11} \cdot \text{sex:}_1  \text{black}_1 \\
-&\quad + \beta_{12} \cdot \text{sex:}_1  \log(\text{bascre}) + \beta_{13} \cdot \text{black:}_1  \log(\text{bascre}) \\
-&\quad + \beta_{14} \cdot \log(\text{bascre:})  \log(\text{baseu}) + \epsilon
+&\quad + \beta_{10} \cdot \text{age:}  \log(\text{baseu}) + \beta_{11} \cdot \text{sex}_1  \text{:black}_1 \\
+&\quad + \beta_{12} \cdot \text{sex}_1 \text{:} \log(\text{bascre}) + \beta_{13} \cdot \text{black}_1 \text{:} \log(\text{bascre}) \\
+&\quad + \beta_{14} \cdot \log(\text{bascre}) \text{:} \log(\text{baseu}) + \epsilon
 \end{align*}
 
 Observing the optimal model output in `Table 2`, we see main effects, `dbase`, `sex`, `black`, `log_bascre`, and `log_baseu`, are significant predictors of the response variable, sqrt_gfr. Among these main effect variables, `black`, `log_bascre`, and `log_baseu` have negative coefficient estimates, which implies a negative association between these variables and the response variables.
@@ -423,7 +423,9 @@ ggplot(test, aes(x = gfr, y = predictions_transformed, color = factor(black))) +
   labs(title = "Figure 6: Comparison of Measured and Estimated GFR by Race",
        x = "Measured GFR",
        y = "Estimated GFR") +
-  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 10),
+        axis.text.x = element_text(size = 8),             
+        axis.text.y = element_text(size = 8)) +
   annotate("text", x = max(test$gfr) * 1, y = max(test$predictions_transformed) * 0.85, 
            label = slope_0, color = "red", size = 4) +
   annotate("text", x = max(test$gfr) * 0.9, y = max(test$predictions_transformed) * 0.53, 
@@ -508,8 +510,8 @@ To build a linear regression model and perform a variable selection process, we 
 \text{sqrt\_gfr} &= \beta_0 + \beta_1 \cdot \text{dbase} + \beta_2 \cdot \text{age} + \beta_3 \cdot \text{sex}_1 + \beta_4 \cdot \log(\text{bascre}) \\
 &\quad + \beta_5 \cdot \log(\text{baseu}) + \beta_6 \cdot \text{dbase:}  \text{sex}_1 + \beta_7 \cdot \text{dbase:}  \log(\text{bascre}) \\
 &\quad + \beta_8 \cdot \text{dbase:}  \log(\text{baseu}) + \beta_9 \cdot \text{age:}  \text{sex}_1 \\
-&\quad + \beta_{10} \cdot \text{age:}  \log(\text{baseu}) + \beta_{11} \cdot \text{sex:}_1  \log(\text{bascre}) \\
-&\quad + \beta_{12} \cdot \log(\text{bascre:}) \log(\text{baseu}) + \epsilon
+&\quad + \beta_{10} \cdot \text{age:}  \log(\text{baseu}) + \beta_{11} \cdot \text{sex}_1  \text{:} \log(\text{bascre}) \\
+&\quad + \beta_{12} \cdot \log(\text{bascre}) \text{:} \log(\text{baseu}) + \epsilon
 \end{align*}
 
 Among the five main effects produced by the optimal model, diastolic blood pressure (`dbase`), gender, and urine protein appeared to have a significant effect on the outcome GFR, with a p-value of less than 0.05. GFR was significantly higher in males than in females, with lower urine protein associated with higher GFR, and diastolic blood pressure associated with higher GFR. The main effect of basal serum creatinine became insignificant compared with the model that included `black`. The interaction terms in the coefficient estimation tables reveal how different variables work together to influence the results. For example, the negative coefficient (-0.0261) for the interaction between diastolic blood pressure and basal serum creatinine suggests that the combined effect of `dbase` and `log_bascre` on the outcome decreases as they increase.
