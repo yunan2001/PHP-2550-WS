@@ -8,15 +8,13 @@ execute:
   warning: false
 editor: visual
 ---
-
 ## Many Analysts Recap
 
 Summarize the data and research question posed to the teams in the paper "Many Analysts, One Data Set". What do you notice about the difference in methodological approaches teams had? How different are the resulting estimated odds ratios? Overall, what do you think about this experiment? (\~2 paragraphs)
 
-In the paper "Many Analysts, One Data Set", researchers applied a crowdsourcing data analysis approach to investigate the same research question: whether soccer referees are more likely to give red cards to dark-skin-toned players than to light-skin-toned players. The dataset covers 2,053 players from the top male leagues in England, Germany, France, and Spain during the 2012-2013 season, along with 3,147 referees they encountered, creating 146,028 player-referee dyads. Key variables included the players’ position, weight, height, and skin tone, and referee data such as country of origin. Additionally, each player-referee dyad provided information on how many games they interacted in, as well as the frequency of yellow and red cards issued to each player. To be noticed, the skin tone ratings, originally coded on a scale from 1 (very light) to 5 (very dark), were later standardized to a 0 to 1 scale. Additional control variables like age, club, and league which would change over players’ career are received at the time of data collection but not at the times the red cards are awarded. The same dataset was assigned to 29 independent research teams working from 13 different counties and came from various disciplinary backgrounds to investigate the same research questions. Teams are free to decide which variables they would like to include, their statistical methods to use, and their methods to handle nonindependence of players and referees. Among the 29 teams, 21 unique combinations of covariates were used, with some groups including a variety of control variables while others only used a few key variables. Additionally, statistical methods vary as well. Six teams chose to use poisson models, fifteen chose logistic models, six used linear models, and the remaining two teams used specialized methods which are classified as “miscellaneous.” Also, groups chose various methods to address the nonindependence between players and referees, including introducing fixed effects, variance components, and adding clustered standard errors.
+In the paper "Many Analysts, One Data Set", researchers applied a crowdsourcing data analysis approach to investigate the same research question: whether soccer referees are more likely to give red cards to dark-skin-toned players than to light-skin-toned players. The dataset covers 2,053 players from the top male leagues in England, Germany, France, and Spain during the 2012-2013 season, along with 3,147 referees they encountered, creating 146,028 player-referee dyads. Key variables included the players' position, weight, height, and skin tone, and referee data such as country of origin. Additionally, each player-referee dyad provided information on how many games they interacted in, as well as the frequency of yellow and red cards issued to each player. To be noticed, the skin tone ratings, originally coded on a scale from 1 (very light) to 5 (very dark), were later standardized to a 0 to 1 scale. Additional control variables like age, club, and league which would change over players' career are received at the time of data collection but not at the times the red cards are awarded. The same dataset was assigned to 29 independent research teams working from 13 different counties and came from various disciplinary backgrounds to investigate the same research questions. Teams are free to decide which variables they would like to include, their statistical methods to use, and their methods to handle nonindependence of players and referees. Among the 29 teams, 21 unique combinations of covariates were used, with some groups including a variety of control variables while others only used a few key variables. Additionally, statistical methods vary as well. Six teams chose to use poisson models, fifteen chose logistic models, six used linear models, and the remaining two teams used specialized methods which are classified as "miscellaneous." Also, groups chose various methods to address the nonindependence between players and referees, including introducing fixed effects, variance components, and adding clustered standard errors.
 
-The resulting estimated odds ratio varies among teams  significantly, ranging from 0.89 to 2.93, and the median estimate is 1.31. Among the 29 teams, 20 found significant positive  relationships between players’ skin tone and red card issuance, other groups resulted in insignificance with no group resulting in significant negative relationship. Logistic and Poisson models generally produced higher odds ratios, with most teams finding significant effects (median ORs around 1.34–1.36), while linear models showed lower median ORs (1.21) and fewer significant results. Methods to handle nonindependence, such as fixed effects or clustered standard errors, also influenced outcomes, with teams using these methods reporting median ORs from 1.28 to 1.39. These significance variations imply how differences in variable selection and statistical model or approach would lead to various conclusions. This study introduces a really innovative approach for us to show how research is influenced by researchers’ decisions and subjective choices. Even with identical dataset, different researchers could report significant various conclusions due to different choices of variables and statistical methods or analytic approaches. The paper mentions that “in some cases, authors use a particular analytic strategy because it is the one they know how to use, rather than because they have a specific rationale for using it.” This sentence does inspire us about a human side of research that we have never realized before. It implies the hidden subjective choices and personal limitations that can shape the results. By employing a crowdsourced data analysis approach, this study incorporates diverse analytic strategies and perspectives from researchers worldwide, each with unique disciplinary backgrounds. This diversity encourages transparency, highlighting the flexibility in data interpretation and strengthening the robustness and reliability of their results. The collective approach in this study implies benefits of open collaboration, as it enriches our understanding of data by drawing from a wide range of analytic viewpoints. 
-
+The resulting estimated odds ratio varies among teams significantly, ranging from 0.89 to 2.93, and the median estimate is 1.31. Among the 29 teams, 20 found significant positive relationships between players' skin tone and red card issuance, other groups resulted in insignificance with no group resulting in significant negative relationship. Logistic and Poisson models generally produced higher odds ratios, with most teams finding significant effects (median ORs around 1.34--1.36), while linear models showed lower median ORs (1.21) and fewer significant results. Methods to handle nonindependence, such as fixed effects or clustered standard errors, also influenced outcomes, with teams using these methods reporting median ORs from 1.28 to 1.39. These significance variations imply how differences in variable selection and statistical model or approach would lead to various conclusions. This study introduces a really innovative approach for us to show how research is influenced by researchers' decisions and subjective choices. Even with identical dataset, different researchers could report significant various conclusions due to different choices of variables and statistical methods or analytic approaches. The paper mentions that "in some cases, authors use a particular analytic strategy because it is the one they know how to use, rather than because they have a specific rationale for using it." This sentence does inspire us about a human side of research that we have never realized before. It implies the hidden subjective choices and personal limitations that can shape the results. By employing a crowdsourced data analysis approach, this study incorporates diverse analytic strategies and perspectives from researchers worldwide, each with unique disciplinary backgrounds. This diversity encourages transparency, highlighting the flexibility in data interpretation and strengthening the robustness and reliability of their results. The collective approach in this study implies benefits of open collaboration, as it enriches our understanding of data by drawing from a wide range of analytic viewpoints.
 
 ## Answering Scientific Questions with Regression
 
@@ -24,24 +22,31 @@ Answer the following questions about the difference-in-differences paper you wer
 
 1.  What was the motivating research question? How was this translated to a scientific question and analytic approach?
 
-    Previous studies have found that beverage taxes are associated with increased prices and reductions in the volume of beverages sold. However, this tax effect at small, independent stores has not been thoroughly studied. This study was conducted in the purpose to examine whether an increase in excise tax on sweetened beverages was associated with the sustained changes in beverage prices and purchases as well as calories purchased from beverages and high-sugar foods, over 2 years at independent stores in Philadelphia and Baltimore, Maryland. To approach this question, a cross-sectional study was conducted, with Baltimore as the control and Philadelphia as the treated city. A difference-in-difference approach was used to examine the difference in the pretax and posttax beverage prices, fluid ounces purchased, and total calories purchased from beverages and high-sugar foods between the two cities. 
-
+    Previous studies have found that beverage taxes are associated with increased prices and reductions in the volume of beverages sold. However, this tax effect at small, independent stores has not been thoroughly studied. This study was conducted in the purpose to examine whether an increase in excise tax on sweetened beverages was associated with the sustained changes in beverage prices and purchases as well as calories purchased from beverages and high-sugar foods, over 2 years at independent stores in Philadelphia and Baltimore, Maryland. To approach this question, a cross-sectional study was conducted, with Baltimore as the control and Philadelphia as the treated city. A difference-in-difference approach was used to examine the difference in the pretax and post tax beverage prices, fluid ounces purchased, and total calories purchased from beverages and high-sugar foods between the two cities.
 
 2.  What is the underlying model(s) used? Be as specific as possible and explain how you determined the model.
-    
-    This paper uses a Difference-in-Difference approach combines with generalized linear mixed-effects model. This study has two time periods: pre-tax period (October to December 2016), and post-tax period (6 months, 12 months, and 24 months after the tax implementation). Data are collected at Philadelphia (intervention city where implements tax) and Baltimore (control city where doesn't implement tax) before and after the tax implementation. Our interested outcomes are change in beverage prices (cents per fluid ounce), change in fluid ounces of taxed and non-taxed beverages purchased per customer, and change in total calories purchased from sweetened beverages and high-sugar foods. In addition to the main variables of interest (time period, city location, and beverage tax status), the study also includes other covariates, like income level, customer demographics (gender, race, education level, age, and frequency of store visit), and purchasing behaviors (purchased goods and total spending), to control for potential confounding. The outcomes are analyzed using a DiD approach, which compares the difference in changes over time between the two cities, aiming to isolate the effect of the tax from other factors that might have influenced beverage prices and consumption in both cities over time. Additionally, the model used generalized linear mixed-effects model which introduces random intercepts for stores to adjust for unobserved heterogeneity among stores at baseline. 
-    
-    explain how you determined?
-    
+
+    This paper uses a Difference-in-Difference approach combines with generalized linear mixed-effects model. This study has two time periods: pre-tax period (October to December 2016), and post-tax period (6 months, 12 months, and 24 months after the tax implementation). Data are collected at Philadelphia (intervention city where implements tax) and Baltimore (control city where doesn't implement tax) before and after the tax implementation. Our interested outcomes are change in beverage prices (cents per fluid ounce), change in fluid ounces of taxed and non-taxed beverages purchased per customer, and change in total calories purchased from sweetened beverages and high-sugar foods. In addition to the main variables of interest (time period, city location, and beverage tax status), the study also includes other covariates, like income level, customer demographics (gender, race, education level, age, and frequency of store visit), and purchasing behaviors (purchased goods and total spending), to control for potential confounding. The outcomes are analyzed using a DiD approach, which compares the difference in changes over time between the two cities, aiming to isolate the effect of the tax from other factors that might have influenced beverage prices and consumption in both cities over time. Additionally, the model used generalized linear mixed-effects model which introduces random intercepts for stores to adjust for unobserved heterogeneity among stores at baseline. The underlying model(s) used in this study is: 
+
+    $$
+    Y_{it} = \alpha + \beta_1 \text{PostTax}_t + \beta_2 \text{Treatment}_i + \beta_3 (\text{PostTax}_t \times \text{Treatment}_i) + X_{it} \gamma + \epsilon_{it}
+    $$
+
+    Here $Y_{it}$ can be our three interested outcomes including beverage price, beverage quantity purchased, and the calories purchased for store or individual i at time t. $PostTax_t$ is a binary indicator where it is 1 if the observation is post-tax and 0 if the observation is pre-tax. $Treatment_i$ is also a binary indicator where it is 1 if the observation is from the intervention city, Philadelphia, and 0 if the observation is from the control city, Baltimore. The interaction term between $PostTax_t$ and $Treatment_i$ is for the difference-in-difference approach which is used to capture the effect of the tax implementation across time and location. $X_{it}$ represents a series of demographic characteristics of the customers including income, education, race, age, and gender. We generate this model using information given in the results table output and the statistical analysis section descriptions.
+
+
 3.  How were the results used to answer the question and what was the conclusion?
 
-    - The results in the "Change in Beverage Price" can be used to answer the question of .... In the paper, the research mentions that "there was a 2.06 cents per fl oz (95% CI, 1.75 to 2.38 cents per fl oz; p <.001) increase for taxed beverages in Philadelphia compared with Baltimore, an increase of 33%, indicating a 137.3% pass-throug of tax." This implies that stores not only passed the 1.5-cent-per-ounce tax onto customers, but also charge even more than the required tax. Since Baltimore, the control city, does not show price increases and non-taxed beverages in philadelphia also does not exhibits this price increase, the price increases in Philadelphia would be the result of the tax implementation. Also, the price increases were consistent across income levels, with no significant difference between low- and high-income neighborhoods. By using DiD approach combined with generalized linear mixed-effects models, researchers are able to compare the price change on taxed and non-taxed beverages in Philadelphia and Baltimore before and after the tax was implemented. Also, the adding random intercepts across stores is able to adjust for differences in store-specific factors. From the results, we can conclude that the tax implement significantly increase the price of taxed beverage overtime, and the tax are overly passed on to the customers which indicates the direct and substantial impact of tax on beverage prices.
+    - The results in the "Change in Beverage Price" can be used to answer the question of whether an increase in excise tax on sweetened beverages was associated with the sustained changes in beverage prices of beverages and high-sugar foods. In the paper, the research mentions that "there was a 2.06 cents per fl oz (95% CI, 1.75 to 2.38 cents per fl oz; p <.001) increase for taxed beverages in Philadelphia compared with Baltimore, an increase of 33%, indicating a 137.3% pass-through of tax." This implies that stores not only passed the 1.5-cent-per-ounce tax onto customers, but also charged even more than the required tax. Since Baltimore, the control city, does not show price increases and non-taxed beverages in Philadelphia also does not exhibit this price increase, the price increases in Philadelphia would be the result of the tax implementation. Also, the price increases were consistent across income levels, with no significant difference between low- and high-income neighborhoods. By using DiD approach combined with generalized linear mixed-effects models, researchers are able to compare the price change on taxed and non-taxed beverages in Philadelphia and Baltimore before and after the tax was implemented. Also, the adding random intercepts across stores is able to adjust for differences in store-specific factors. From the results, we can conclude that the tax implement significantly increases the price of taxed beverage overtime, and the tax are overly passed on to the customers which indicates the direct and substantial impact of tax on beverage prices.
     
-    - The results in the "Change in Volume of Beverage Purchased" can be used to answer the question of .... The paper mentions that "there was a 6.12–fl oz decline (95% CI, −9.88 to −2.37 fl oz; P < .001), or a 41.9% decrease, in the ounces of taxed beverages purchased per person in Philadelphia compared with Baltimore." This refers to a significant drop in the purchase of taxed beverages. This significant drop was driven mainly by a reduction in the purchase of sugar-sweetened beverages (SSBs), with a 6.17 fluid ounce per person reduction, corresponding to a 47.3% decrease. Also, the paper said there was no significant change on the volume of non-taxed beverages in Philadelphia, indicates the implementation of tax would only increase the sweet beverages. In addition, the analysis showed that the tax’s effects were more pronounced in low-income neighborhoods and lower education levels, with purchases dropped by around 40%. From their results, we can conclude that the tax implementation in Philadelphia significantly reduced the consumption amount of taxed beverages where the effect is more pronounced on vulnerable population. Form this, we can see that tax implementation is able to help reducing suger consumptions and addressing the health disparity problem caused by excessive suger consumption. 
+    - The results in the "Change in Volume of Beverage Purchased" can be used to answer the question of whether an increase in excise tax on sweetened beverages was associated with the sustained changes in purchases from beverages and high-sugar foods. The paper mentions that "there was a 6.12–fl oz decline (95% CI, −9.88 to −2.37 fl oz; P < .001), or a 41.9% decrease, in the ounces of taxed beverages purchased per person in Philadelphia compared with Baltimore." This refers to a significant drop in the purchase of taxed beverages. This significant drop was driven mainly by a reduction in the purchase of sugar-sweetened beverages (SSBs), with a 6.17 fluid ounce per person reduction, corresponding to a 47.3% decrease. Also, the paper said there was no significant change on the volume of non-taxed beverages in Philadelphia, indicates the implementation of tax would only increase the sweet beverages. In addition, the analysis showed that the tax’s effects were more pronounced in low-income neighborhoods and lower education levels, with purchases dropped by around 40%. From their results, we can conclude that the tax implementation in Philadelphia significantly reduced the consumption amount of taxed beverages where the effect is more pronounced on vulnerable population. Form this, we can see that tax implementation is able to help reducing sugar consumptions and addressing the health disparity problem caused by excessive sugar consumption. 
     
-    - The results in the "Changes in Calories and Spending on Beverages and High-Sugar Foods" can be used to answer the question of .... The paper mentions that "there was a 69-calorie decrease (95% CI, −132 to −5 calories; P = .04) in the total calories purchased from SSBs and high-sugar foods combined, a 22.6% decline." In addition, "the grams of sugar from these items declined by 19.9 g (95% CI, −31.7 to −8.2 g; P = .002), or 34.1% per person." These results indicates that the tax implementation significantly reduce calorie and suger intake. There wasn't change on people's spending with their shopping post tax, but the frequency of neighboring counties purchasing increases slightly that people chose to make purchases in other counties to avoid tax. This reduction was more noticeable among low-income neighborhoods and people with lower levels of education as well. From these, we can conclude tax significantly decrease people's calorie and suger intake from sweetened goods, especially strong for people with lower-income and lower levels of education. However, this decrease does not influence their total spendings. 
-    
+    - The results in the "Changes in Calories and Spending on Beverages and High-Sugar Foods" can be used to answer the question of whether an increase in excise tax on sweetened beverages was associated with the sustained changes in calories purchased from beverages and high-sugar foods. The paper mentions that "there was a 69-calorie decrease (95% CI, −132 to −5 calories; P = .04) in the total calories purchased from SSBs and high-sugar foods combined, a 22.6% decline." In addition, "the grams of sugar from these items declined by 19.9 g (95% CI, −31.7 to −8.2 g; P = .002), or 34.1% per person." These results indicate that the tax implementation significantly reduces calorie and sugar intake. There wasn't a change on people's spending with their shopping post tax, but the frequency of neighboring counties purchasing increases slightly as people chose to make purchases in other countries to avoid tax. This reduction was more noticeable among low-income neighborhoods and people with lower levels of education as well. From these, we can conclude that tax significantly decreases people's calorie and sugar intake from sweetened goods, especially strong for people with lower-income and lower levels of education. However, this decrease does not influence their total spendings. 
+
+
 4.  Overall, how do you evaluate this paper? Think about strengths and weaknesses of the approach and any remaining questions you have.
+
+    This paper evaluates the impact of Philadelphia's sweetened beverage tax on beverage prices and purchases at independent stores over a two-year period. By implementing a difference-in-difference approach incorporated with mixed-effect models, the study compares Philadelphia to Baltimore, a nearby city without the tax, and finds that the tax led to significant changes. The inclusion of random intercept by the mixed effect model helps manage repeated measures and capture variability across stores and customers. Additionally, the analysis also incorporates data on prices, items purchased (price and items purchased by each customer), and cross-border shopping, providing a more comprehensive understanding of how tax implementation influences consumer behavior. However, there are also some limitations. It excludes evening and weekend purchases, which could introduce bias, and focuses only on independent stores, leaving questions about potential shifts to supermarkets. Moreover, the assumption of parallel trends between large chains and independent stores was not directly tested. Additionally, the lower response rate in Philadelphia and limited data on artificially sweetened beverages could affect the generalizability of the findings.
 
 ## Model Evaluation Example
 
@@ -61,7 +66,7 @@ These questions are on the paper 'Predicting lung cancer prior to surgical resec
 
 3.  What were some limitations that the paper addressed? (1 paragraph)
 
-    The paper addressed several limitations, including the retrospective nature of the cohort used for model development, which was drawn from a single tertiary academic medical center. The external validation cohort, which had a high prevalence of disease, may have contributed to improved discrimination but was primarily composed of male smokers from a Veteran population. While these factors did not affect the model’s AUC or Brier score, the authors note that missing data for key predictors was a limitation, and the data may not have been missing at random. To improve generalizability, future validations of the TREAT model should use cohorts with different disease prevalences and from various regions. Additionally, prospective evaluation is needed to determine risk cut points that balance the risks of missing a lung cancer with unnecessary surgeries.
+    The paper addressed several limitations, including the retrospective nature of the cohort used for model development, which was drawn from a single tertiary academic medical center. The external validation cohort, which had a high prevalence of disease, may have contributed to improved discrimination but was primarily composed of male smokers from a Veteran population. While these factors did not affect the model's AUC or Brier score, the authors note that missing data for key predictors was a limitation, and the data may not have been missing at random. To improve generalizability, future validations of the TREAT model should use cohorts with different disease prevalences and from various regions. Additionally, prospective evaluation is needed to determine risk cut points that balance the risks of missing a lung cancer with unnecessary surgeries.
 
 ## Model Building Practice
 
@@ -97,7 +102,7 @@ In this worksheet, we will build a model to calculate the eGFR and practice our 
 
 6.  Last, write a non-technical summary of one of your models and its evaluation (1 paragraph) for a clinical audience.
 
-### 1.
+
 
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
@@ -115,6 +120,10 @@ suppressPackageStartupMessages(library(ggfortify))
 suppressPackageStartupMessages(library(caret))
 suppressPackageStartupMessages(library(kableExtra))
 suppressPackageStartupMessages(library(ggpubr))
+suppressPackageStartupMessages(library(patchwork))
+suppressPackageStartupMessages(library(gridExtra))
+suppressPackageStartupMessages(library(grid))
+
 
 kidney_df <- read.csv("baseseg.csv")
 kidney_df <- kidney_df %>%
@@ -125,8 +134,8 @@ kidney_df <- kidney_df %>%
 kidney_df$black <- as.factor(kidney_df$black)
 kidney_df$sex <- as.factor(kidney_df$sex)
 ```
-
-In Figure 1, we first examine the distribution of the response variable, `gfr`, across sex and race groups. Observing the boxplot, we found there is an outlier in the non-black male group. The distribution does not exhibit significant differences between sex groups, except males have slightly wider range of values. In addition, males have slightly higher median value compared to females. For race, non-Black participants exhibit more variability in their `gfr` values with wider range showing on the plot. The distribution across all groups seems to be skewed to the right, especially With longer right whisker in the male and the non-black groups.
+#### 1.
+In Figure 1, we first examine the distribution of the response variable, `gfr`, across sex and race groups. Observing the boxplot, we found there is an outlier in the non-black male group which is later removed from our analysis. The distribution does not exhibit significant differences between sex groups, except males have a slightly wider range of values. In addition, males have slightly higher median values compared to females. For race, non-Black participants exhibit more variability in their `gfr` values with wider range showing on the plot. The distribution across all groups seems to be skewed to the right, especially With longer right whiskers in the male and the non-black groups.
 
 ```{r, out.width="80%", fig.align="center"}
 # Create the sex plot
@@ -157,48 +166,44 @@ annotate_figure(figure,
 
 ```
 
-Next, we plot the distribution of the response and all key continuous variables in Figure 2. Among those variables, `sbase` and `dbase` appears close to normal and symmetric. `gfr` and `age` exhibits slight skewness, with `gfr` skewed to right and `age` skewed to left. `bascre` and `baseu` appears to be highly right-skewed with most observations close to 0. Based on the distribution plot, we decide to perform transformation on `gfr`, `bascre`, and `baseu`. 
-
 ```{r, out.width="90%", fig.align="center"}
 par(mfrow = c(2, 3), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 0))
-hist(kidney_df$gfr, main = "", xlab = "gfr", col = "lightblue", 
+hist(kidney_df$gfr, main = "", xlab = "gfr", col = "lightblue", breaks = 15,  
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$bascre, main = "", xlab = "bascre", col = "lightblue", 
+hist(kidney_df$bascre, main = "", xlab = "bascre", col = "lightblue", breaks = 15, 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$sbase, main = "", xlab = "sbase", col = "lightblue", 
+hist(kidney_df$sbase, main = "", xlab = "sbase", col = "lightblue", breaks = 15, 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$dbase, main = "", xlab = "dbase", col = "lightblue", 
+hist(kidney_df$dbase, main = "", xlab = "dbase", col = "lightblue", breaks = 15, 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$baseu, main = "", xlab = "baseu", col = "lightblue", 
+hist(kidney_df$baseu, main = "", xlab = "baseu", col = "lightblue", breaks = 15, 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
-hist(kidney_df$age, main = "", xlab = "age", col = "lightblue", 
+hist(kidney_df$age, main = "", xlab = "age", col = "lightblue", breaks = 15, 
      cex.main = 1, cex.lab = 1, cex.axis = 0.8, font.main = 1)
 
 mtext("Figure 2: Distribution of Key Variables (Before Transformation)", outer = TRUE, cex = 0.8, font = 1)
-```
 
-For `bascre`, we directly perform log transformation on the value to normalize its distribution. However, exploring the summary statistics of `baseu`, we found over 25% of observations have 0.1 which is near to zero. Thus, we set a threshold of 0.1 to have all observations with `baseu` less than or equal to 0.1 to remain their original value and perform log transformation on others. Additionally, we tried both log transformation and square root transformation on our response. Observing the result distribution plot, we decided to use the square root transformation since it appeared more normal compared to the log transformation.
-
-```{r, out.width="90%", fig.align="center"}
 kidney_df$log_bascre <- log(kidney_df$bascre)
 kidney_df$log_baseu <- ifelse(kidney_df$baseu <= 0.1, kidney_df$baseu, log(kidney_df$baseu))
 kidney_df$sqrt_gfr <- sqrt(kidney_df$gfr)
 kidney_df$log_gfr <- log(kidney_df$gfr)
 
 par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 0))
-hist(kidney_df$log_bascre, main = "", xlab = "Log Transformed bascre", col = "lightblue", 
+hist(kidney_df$log_bascre, main = "", xlab = "Log Transformed bascre", col = "lightblue", breaks = 15, 
      cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
-hist(kidney_df$log_baseu, main = "", xlab = "Log Transformed baseu", col = "lightblue", 
+hist(kidney_df$log_baseu, main = "", xlab = "Log Transformed baseu", col = "lightblue", breaks = 15, 
      cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
-hist(kidney_df$sqrt_gfr, main = "", xlab = "Square Root gfr", col = "lightblue", 
+hist(kidney_df$sqrt_gfr, main = "", xlab = "Square Root gfr", col = "lightblue", breaks = 15, 
      cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
-hist(kidney_df$log_gfr, main = "", xlab = "Log Transformed gfr", col = "lightblue", 
+hist(kidney_df$log_gfr, main = "", xlab = "Log Transformed gfr", col = "lightblue", breaks = 15, 
      cex.main = 0.8, cex.lab = 0.8, cex.axis = 0.5, font.main = 1)
 
 mtext("Figure 3: Distribution of Transformed Variables", outer = TRUE, cex = 0.8, font = 1)
 ```
 
-We also generate a summary statistics table stratified by race in Table 1. From the table we see there are 1135 non-black observations and 114 black observations. Age shows similar distribution between race groups with mean age of 52 years old and stardard deviation of 13 for non-black observations and 11 for black observations. There are generally more male observations compared to female observations in both race groups that around 60% of participant are males and 40% are females in both groups. For measured glomerular filtration rate (`gfr`), the mean value for non-black observation is higher than that for black observations (43 vs. 38) with a greater standard deviation as well (29 vs. 21). This pattern remains consistent after applying the square root transformation. Black people exhibit to have higher base serum creatinine (`bascre`) value compared to non-black group, but with lower variability. For the two blood pressure variables, systolic blood pressure (`sbase`) and diastolic blood pressure (`dbase`), non-black people appear to have higher value on average with lower variability. Finally, non-black people exhibit to have higher urine protein (baseu) with greater variability compared to black observations.
+Next, we plot the distribution of the response and all key continuous variables in Figure 2. Among those variables, `sbase` and `dbase` appear close to normal and symmetric. `gfr` and `age` exhibit slight skewness, with `gfr` skewed to right and `age` skewed to left. `bascre` and `baseu` appear to be highly right-skewed with most observations close to 0. Based on the distribution plot, we decide to perform transformation on `gfr`, `bascre`, and `baseu`.
+
+For `bascre`, we directly perform log transformation on the value to normalize its distribution. However, exploring the summary statistics of `baseu`, we found over 25% of observations have 0.1 which is near to zero. Thus, we set a threshold of 0.1 to have all observations with `baseu` less than or equal to 0.1 to remain their original value and perform log transformation on others. Additionally, we tried both log transformation and square root transformation on our response. Observing the result distribution plot, we decided to use the square root transformation since it appeared more normal compared to the log transformation. All transformed variables' distributions are presented in Figure 3.
 
 ```{r, }
 # Creating first summary table (original)
@@ -261,7 +266,9 @@ tbl_combined1 <- tbl_combined1 %>%
 tbl_combined1
 ```
 
-Finally, we plot the correlation value among the response and continuous key variables. The `sbase` and `dbase` have a strong positive correlation of 0.7 which makes sense since the systolic and disstolic blood pressure often vary together. In addition, our response variable `sqrt_gfr` and `log_bascre` show strong negative correlation of -0.86 which refers that higher creatinine levels might associates with lower kidney filtration rates. 
+We also generate a summary statistics table stratified by race in Table 1. From the table we see there are 1135 non-black observations and 114 black observations. Age shows similar distribution between race groups with mean age of 52 years old and standard deviation of 13 for non-black observations and 11 for black observations. There are generally more male observations compared to female observations in both race groups; around 60% of participants are males and 40% are females in both groups. For measured glomerular filtration rate (`gfr`), the mean value for non-black observation is higher than that for black observations (43 vs. 38) with a greater standard deviation as well (29 vs. 21). This pattern remains consistent after applying the square root transformation. Black people exhibit a higher base serum creatinine (`bascre`) value compared to non-black groups, but with lower variability. For the two blood pressure variables, systolic blood pressure (`sbase`) and diastolic blood pressure (`dbase`), non-black people appear to have higher value on average with lower variability. Finally, non-black people exhibit higher urine protein (`baseu`) with greater variability compared to black observations.
+
+Finally, we plot the correlation value among the response and continuous key variables. The `sbase` and `dbase` have a strong positive correlation of 0.7 which makes sense since the systolic and diastolic blood pressure often vary together. In addition, our response variables `sqrt_gfr` and `log_bascre` show strong negative correlation of -0.86 which indicates that higher creatinine levels might be associated with lower kidney filtration rates.
 
 ```{r, out.width = "80%", fig.align='center'}
 cor_m <- cor(kidney_df[, -c(1, 2, 5, 7, 8, 12)])
@@ -277,10 +284,12 @@ ggcorrplot(r_reordered,
         axis.text.x = element_text(size = 9),             
         axis.text.y = element_text(size = 9))
 ```
-### 2. 
+
+#### 2. 
 
 To build a linear regression model and perform a variable selection process, we start from a `full_model` with all main effects and all of their possible interaction terms. Here, We first create a cross validation train and test data with 80% and 20% of our original data, respectively. To be noticed, since we found `dbase` and `sbase` are highly correlated from the EDA part, we decided to include only `dbase` in our model to avoid multicollinearity. Then, using the full model, we perform a backward model selection using `step()` and get the optimal model with the following format, and the estimated coefficient of the optimal model is presented in Table 2.
 
+```{=tex}
 \begin{align*}
 \text{sqrt\_gfr} &= \beta_0 + \beta_1 \cdot \text{dbase} + \beta_2 \cdot \text{age} + \beta_3 \cdot \text{sex}_1 + \beta_4 \cdot \text{black}_1 \\
 &\quad + \beta_5 \cdot \log(\text{bascre}) + \beta_6 \cdot \log(\text{baseu}) + \beta_7 \cdot \text{dbase} \times \log(\text{bascre}) \\
@@ -289,12 +298,9 @@ To build a linear regression model and perform a variable selection process, we 
 &\quad + \beta_{12} \cdot \text{sex}_1 \times \log(\text{bascre}) + \beta_{13} \cdot \text{black}_1 \times \log(\text{bascre}) \\
 &\quad + \beta_{14} \cdot \log(\text{bascre}) \times \log(\text{baseu}) + \epsilon
 \end{align*}
+```
 
-Observing the optimal model output in Table 3, we see main effects, `dbase`, `sex`, `black`, `log_bascre`, and `log_baseu`, are significant predictors of the response variable, sqrt_gfr. Among these main effect variables, `black`, `log_bascre`, and `log_baseu` have negative coefficient estimates, implies a negative association between these variables and the response variables. 
-
-For example, black with a coefficient estimate of -0.774 indicates black people tend to have a lower outcome value by 0.77 units compared to the non-black participants. The coefficients for `log_bascre` (-1.216) and `log_baseu` (-1.025) are significant with p-values of 0.0137 and 0.0007, respectively. This indicates that increase in log-transformed base serum creatinine and urine protein values are associated with decrease in `sqrt_gfr`. The coefficient of `dbase`, 0.019, is positive and highly significant. The `sqrt_gfr` would increase by 0.019 units as `dbase` increases by one unit. Additionally, sex shows that males' `sqrt_gfr` value are approximately 1.75 units higher than females and this difference is statistically significant.
-
-Interaction terms play a significant role in our model as well which indicates the complex relationships among our key covariates. The interaction term between `dbase` and `log_bascre` has a significant negative estimate, indicating that higher blood pressure with higher creatinine would lead to decrease in the response variable, `sqrt_gfr`. The significant interaction between age and sex implies that the effect of age on our outcome would vary by sex. Since this interaction term shows a significant negative estimate, male participants experience a greater decrease (or a smaller increase) in the response variable with age compared to female participants. Moreover, the interactions between sex and `log_bascre`, and race and `log_bascre`, suggest that both gender and race influence how creatinine affects the response variable. Finally, the interaction between `log_bascre` and `log_baseu` which exhibits a significant positive coefficient estimate showing that the combined effects of these two biomakers is greater than their individual effects.
+Observing the optimal model output in Table 3, we see main effects, `dbase`, `sex`, `black`, `log_bascre`, and `log_baseu`, are significant predictors of the response variable, sqrt_gfr. Among these main effect variables, `black`, `log_bascre`, and `log_baseu` have negative coefficient estimates, which implies a negative association between these variables and the response variables. 
 
 ```{r}
 set.seed(2550)
@@ -321,27 +327,29 @@ summary_model %>%
                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 ```
 
-To check the essential assumptions of our model, we first observe the residual plot to check for linearity and homoscedasticity. Our points here on the left top plot generally has no obvious pattern and they randomly scattered around the center line of zero. Additionally, we look at the Q-Q plot on the right top to assess the normality assumption. Our points mostly fall along the diagonal line in the middle of the graph, but curve off in the extremities. This suggests that the residuals follow normal distribution but the presence of more extreme values than expected lead to the deviation on the tails. The scale-location plot on the left bottom checks for homoscedasticity. In this plot, we see the points appear mostly randomly scattered and it shows a reasonably flat blue line with no pronounce variation. This indicates that the variance of residuals remains roughly constant across predicted values. The residual vs. leverage plot on the right bottom aims to identify influential points. Here, most points clustered around zero and there are a few points which exhibit relatively high leverage but none of these points appear to have extremely large residuals.
+
+For example, black with a coefficient estimate of -0.774 indicates black people tend to have a lower outcome value by 0.77 units compared to the non-black participants. The coefficients for `log_bascre` (-1.216) and `log_baseu` (-1.025) are significant with p-values of 0.0137 and 0.0007, respectively. This indicates that increase in log-transformed base serum creatinine and urine protein values are associated with decrease in `sqrt_gfr`. The coefficient of `dbase`, 0.019, is positive and highly significant. The `sqrt_gfr` would increase by 0.019 units as `dbase` increases by one unit. Additionally, sex shows that males' `sqrt_gfr` values are approximately 1.75 units higher than females and this difference is statistically significant.
+
+Interaction terms play a significant role in our model as well which indicates the complex relationships among our key covariates. The interaction term between `dbase` and `log_bascre` has a significant negative estimate, indicating that higher blood pressure with higher creatinine would lead to decrease in the response variable, `sqrt_gfr`. The significant interaction between age and sex implies that the effect of age on our outcome would vary by sex. Since this interaction term shows a significant negative estimate, male participants experience a greater decrease (or a smaller increase) in the response variable with age compared to female participants. Moreover, the interactions between sex and `log_bascre`, and race and `log_bascre`, suggest that both gender and race influence how creatinine affects the response variable. Finally, the interaction between `log_bascre` and `log_baseu` exhibits a significant positive coefficient estimate showing that the combined effects of these two biomarkers is greater than their individual effects.
 
 ```{r}
 # Create the diagnostic plot
-autoplot(step_model, label.size = 3, size = 0.5) 
-# +
-#   ggtitle("Figure 5: Diagnostics Plots")
-
+autoplot(step_model, label.size = 1, size = 0.7) +
+  ggtitle("Diagnostic Plot") +
+  theme(
+    plot.title = element_text(size = 10),
+    axis.title = element_text(size = 8), 
+    axis.text = element_text(size = 7),
+    main = "Diagnostic Plot"
+  )
 ```
 
-### 3.
+To check the essential assumptions of our model, we first observe the residual plot to check for linearity and homoscedasticity. Our points here on the left top plot generally have no obvious pattern and they randomly scattered around the center line of zero. Additionally, we look at the Q-Q plot on the right top to assess the normality assumption. Our points mostly fall along the diagonal line in the middle of the graph, but curve off in the extremities. This suggests that the residuals follow normal distribution but the presence of more extreme values than expected lead to the deviation on the tails. The scale-location plot on the left bottom checks for homoscedasticity. In this plot, we see the points appear mostly randomly scattered and it shows a reasonably flat blue line with no pronounce variation. This indicates that the variance of residuals remains roughly constant across predicted values. The residual vs. leverage plot on the right bottom aims to identify influential points. Here, most points clustered around zero and there are a few points which exhibit relatively high leverage but none of these points appear to have extremely large residuals.
 
-Here, to evaluate the model performance using evaluation measure, we choose to use the Mean Square Error (MSE) and Mean Absolute Error (MAE) presented in Table 3. Using the test set, we calculated the predicted value from our optimal model and squared each predicted value to the original phase of `gfr`. Then, we calculate the model MSE and MAE using the predicted and observed `gfr` values. 
 
-In our model, the MSE is 166.76, meaning that on average, the squared difference between our predictions and the actual GFR values is around 166. In addition, the MAE is 9.41, meaning that on average, the model’s predictions are about 9 units off from the true GFR values. 
+#### 3.
 
-Our observed GFR value ranges from 0.7 to 155.50 with a standard deviation of 28.38. Our MAE value, 9.41, is relatively small compared to the standard deviation of GFR in the data. The Root Mean Squared Error (RMSE), which is the square root of the MSE, is around 12.91. The RMSE is close to the MAE, further suggesting that our model performs reasonably well in capturing the variability of GFR. However, although the relatively smaller prediction error value suggests that our model performs reasonably well to capture the variability of GFR, it still can be clinically important. Especially for patients with lower GFR value, an 9 units error would significantly influence the medical decision. Thus, we still need further investigation on how to improve our model, especially for patients with extreme GFR values like what we mentioned in the model assumption part.
-
-In Table 4, we present the percentage of estimates within 10%, 30%, and 50% of the measured GFR ($P_{10}$ (%), $P_{30}$ (%), and $P_{50}$ (%), respectively). About 29.44% of the model predictions fall within 10% of the actual observed GFR values that one-third of our predictions are very close to the true values. About 63.31% of predicted values are within 30% of the observed values, that majority of our predictions are within a reasonable range of our observed values. Finally, around 79.44% of our predictions are within 50% of the true values. This indicates that most predictions are moderately close to the actual values, but there are still 20% of them which deviate by more than 50% from the observed value.
-
-Overall, while the model generally captures the variability in GFR, further investigation and improvements are needed to refine its accuracy, particularly for observations with extreme values.
+Here, to evaluate the model performance using evaluation measures, we choose to use the Mean Square Error (MSE) and Mean Absolute Error (MAE) presented in Table 3. Using the test set, we calculated the predicted value from our optimal model and squared each predicted value to the original phase of `gfr`. Then, we calculate the model MSE and MAE using the predicted and observed `gfr` values.
 
 ```{r}
 predictions <- predict(step_model, newdata = test)
@@ -358,6 +366,11 @@ evaluation_measure_df %>%
    kable_styling(font_size = 10,
                  latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 ```
+
+In our model, the MSE is 166.76, meaning that on average, the squared difference between our predictions and the actual GFR values is around 166. In addition, the MAE is 9.41, meaning that on average, the model's predictions are about 9 units off from the true GFR values.
+
+Our observed GFR value ranges from 0.7 to 155.50 with a standard deviation of 28.38. Our MAE value, 9.41, is relatively small compared to the standard deviation of GFR in the data. The Root Mean Squared Error (RMSE), which is the square root of the MSE, is around 12.91. The RMSE is close to the MAE, further suggesting that our model performs reasonably well in capturing the variability of GFR. However, although the relatively smaller prediction error value suggests that our model performs reasonably well to capture the variability of GFR, it still can be clinically important. Especially for patients with lower GFR value, an 9 units error would significantly influence the medical decision. Thus, we still need further investigation on how to improve our model, especially for patients with extreme GFR values like what we mentioned in the model assumption part.
+
 ```{r}
 range_df <- data.frame(Range = c("Within 10%", "Within 30%", "Within 50%"),
                        Value = c(mean(abs(test$predictions_transformed - test$gfr) / test$gfr <= 0.10) * 100,
@@ -371,11 +384,12 @@ range_df %>%
                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 ```
 
-### 4.
+In Table 4, we present the percentage of estimates within 10%, 30%, and 50% of the measured GFR ($P_{10}$ (%), $P_{30}$ (%), and $P_{50}$ (%), respectively). About 29.44% of the model predictions fall within 10% of the actual observed GFR values that one-third of our predictions are very close to the true values. About 63.31% of predicted values are within 30% of the observed values, and the majority of our predictions are within a reasonable range of our observed values. Finally, around 79.44% of our predictions are within 50% of the true values. This indicates that most predictions are moderately close to the actual values, but there are still 20% of them which deviate by more than 50% from the observed value.
 
-Table 5 shows the mean-square error between the measured and estimated values of GFR, the bias, and the percentage of the estimated values within 10% and 30% of the measured GFR. The MSE was much greater in black patients than in nonblack patients, suggesting that the model is notably less accurate in predicting GFR in black patients and that the model may not generalize well across racial groups. This might be due to an imbalance in the sample size of the data between the non-black and black groups, with black patients comprising only 10% of the data. The GFR values for non-blacks were slightly positively biased (0.12), while the model underestimated the GFR values for blacks with a negative bias of -8.55. For the percentages of the estimates, we can see that the predicted values are similar for both groups, with the predicted values for the non-black group being slightly better than the predicted values for the black group. This suggests that the model is able to predict GFR more precisely for nonblacks, but still captures the overall trend in GFR for both groups reasonably well.
+Overall, while the model generally captures the variability in GFR, further investigation and improvements are needed to refine its accuracy, particularly for observations with extreme values.
 
-Figure 6 shows the relationship between measured and estimated GFR by race, with the x-axis being the measured GFR and the y-axis being the estimated GFR. The black diagonal solid line represents a perfect fit, i.e., the estimated GFR is equal to the measured GFR. As we can see from the figure, the red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This difference suggests that the accuracy of the model's predictions may differ between these racial groups, and that the model appears to better predict non-black patients.
+
+#### 4.
 
 ```{r}
 # Split data by race and calculate performance metrics
@@ -390,24 +404,41 @@ performance_by_race %>%
   kbl(caption = "Evaluation Measures by Race") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
+```
 
-# Create a scatter plot to compare measured and estimated GFR
-ggplot(test, aes(x = gfr, y = predictions_transformed, color = black)) +
-  geom_point(alpha=0.8) +
-  geom_abline(intercept = 0, slope = 1, linetype = "solid", color = "black", size=1) +  # Perfect prediction line
-  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8) + 
-  scale_color_manual(values = c("0" = "red", "1" = "blue"),  # Assign colors manually
-                     labels = c("0" = "Non-black", "1" = "Black"),  # Rename legend labels
+Table 5 shows the mean-square error between the measured and estimated values of GFR, the bias, and the percentage of the estimated values within 10% and 30% of the measured GFR. The MSE was much greater in black patients than in non-black patients, suggesting that the model is notably less accurate in predicting GFR in black patients and that the model may not generalize well across racial groups. This might be due to an imbalance in the sample size of the data between the non-black and black groups, with black patients comprising only 10% of the data. The GFR values for non-blacks were slightly positively biased (0.12), while the model underestimated the GFR values for blacks with a negative bias of -8.55. For the percentages of the estimates, we can see that the predicted values are similar for both groups, with the predicted values for the non-black group being slightly better than the predicted values for the black group. This suggests that the model is able to predict GFR more precisely for non-blacks, but still captures the overall trend in GFR for both groups reasonably well.
+
+```{r, out.width = "80%", fig.align='center'}
+# Calculate the slope for each group
+linear_model_0 <- lm(predictions_transformed ~ gfr, data = test, subset = black == 0)
+linear_model_1 <- lm(predictions_transformed ~ gfr, data = test, subset = black == 1)
+
+slope_0 <- round(coef(linear_model_0)[2], 2)
+slope_1 <- round(coef(linear_model_1)[2], 2)
+
+# Create the plot
+ggplot(test, aes(x = gfr, y = predictions_transformed, color = factor(black))) +
+  geom_point(alpha = 0.8) +
+  geom_abline(intercept = 0, slope = 1, linetype = "solid", color = "black", size = 1) +
+  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha = 0.8) + 
+  scale_color_manual(values = c("0" = "red", "1" = "blue"), 
+                     labels = c("0" = "Non-black", "1" = "Black"),
                      name = "Race") +
   labs(title = "Figure 6: Comparison of Measured and Estimated GFR by Race",
        x = "Measured GFR",
        y = "Estimated GFR") +
-  theme_minimal()
+  theme_minimal() +
+  annotate("text", x = max(test$gfr) * 0.92, y = max(test$predictions_transformed) * 0.9, 
+           label = slope_0, color = "red", size = 4) +
+  annotate("text", x = max(test$gfr) * 0.8, y = max(test$predictions_transformed) * 0.5, 
+           label = slope_1, color = "blue", size = 4)
 ```
+
+Figure 6 shows the relationship between measured and estimated GFR by race, with the x-axis being the measured GFR and the y-axis being the estimated GFR. The black diagonal solid line represents a perfect fit, i.e., the estimated GFR is equal to the measured GFR. As we can see from the figure, the red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This difference suggests that the accuracy of the model's predictions may differ between these racial groups, and that the model appears to better predict non-black patients.
 
 ### 5.
 
-```{r}
+```{r, out.width="80%", fig.align="center"}
 cols <- c("#F76D5E", "#FFFFBF")
 #, "#72D8FF"
 # Basic density plot in ggplot2
@@ -512,12 +543,11 @@ evaluation_measure_df %>%
                 latex_options = c("repeat_header", "HOLD_position", "scale_down"))
 ```
 
-```{r}
-# Split data by race and calculate performance metrics
+```{r, out.width="80%", fig.align="center"}
 test_norace$estimated_gfr <- predict(step_model_norace, newdata = test_norace)
 performance_by_race_norace <- test_norace %>%
-  group_by(black) %>%
   summarise(MSE = mean((predictions_transformed - gfr)^2),
+            MAE = mean(abs(test_norace$predictions_transformed - test_norace$gfr)),
             Bias = mean(predictions_transformed - gfr),
             P10 = mean(abs(predictions_transformed - gfr) / gfr <= 0.10) * 100,
             P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100)
@@ -525,6 +555,23 @@ performance_by_race_norace %>%
   kbl(caption = "Performance Metrics by Race") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
+linear_model <- lm(predictions_transformed ~ gfr, data = test_norace)
+slope <- round(coef(linear_model)[2], 2)
+
+# Create a scatter plot to compare measured and estimated GFR
+ggplot(test_norace, aes(x = gfr, y = predictions_transformed)) +
+  geom_point(alpha=0.7, color="skyblue") +
+  geom_abline(intercept = 0, slope = 1, linetype = "solid", size=1) +  # Perfect prediction line
+  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8, color="blue") + 
+  labs(title = "Figure 6: Comparison of Measured and Estimated GFR by Race",
+       x = "Measured GFR",
+       y = "Estimated GFR") +
+  theme_minimal() +
+  annotate("text", x = max(test_norace$gfr) * 0.9, y = max(test_norace$predictions_transformed) * 0.75, 
+           label = slope, color = "blue", size = 4)
+```
+
+```{r}
 # Create a scatter plot to compare measured and estimated GFR
 ggplot(test_norace, aes(x = gfr, y = predictions_transformed)) +
   geom_point(alpha=0.7, color="skyblue") +
