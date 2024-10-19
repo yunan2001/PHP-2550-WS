@@ -428,15 +428,17 @@ ggplot(test, aes(x = gfr, y = predictions_transformed, color = factor(black))) +
        x = "Measured GFR",
        y = "Estimated GFR") +
   theme_minimal() +
-  annotate("text", x = max(test$gfr) * 0.92, y = max(test$predictions_transformed) * 0.9, 
+  annotate("text", x = max(test$gfr) * 1, y = max(test$predictions_transformed) * 0.85, 
            label = slope_0, color = "red", size = 4) +
-  annotate("text", x = max(test$gfr) * 0.8, y = max(test$predictions_transformed) * 0.5, 
+  annotate("text", x = max(test$gfr) * 0.9, y = max(test$predictions_transformed) * 0.53, 
            label = slope_1, color = "blue", size = 4)
 ```
 
 Figure 6 shows the relationship between measured and estimated GFR by race, with the x-axis being the measured GFR and the y-axis being the estimated GFR. The black diagonal solid line represents a perfect fit, i.e., the estimated GFR is equal to the measured GFR. As we can see from the figure, the red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This difference suggests that the accuracy of the model's predictions may differ between these racial groups, and that the model appears to better predict non-black patients.
 
 ### 5.
+
+Figure 7 illustrates the distribution of the square root of GFR (SR_GFR) across three population groups: all individuals, black individuals, and non-black individuals. We can see that the SR_GFR distribution of the non-black group highly overlaps with the SR_GFR distribution of the overall population, whereas the SR_GFR distribution of the black group is significantly different compared to these two groups. The SR_GFR for the non-black and overall population showed a bimodal distribution, while the SR_GFR for the black group was more concentrated, with more values around 6. This coincided with the statement in the editorial that there was a difference in GFR between blacks and nonblacks when GFR was measured directly from endogenous clearance of creatinine.
 
 ```{r, out.width="80%", fig.align="center"}
 cols <- c("#F76D5E", "#FFFFBF")
@@ -453,7 +455,7 @@ ggplot() +
                aes(x = sqrt_gfr, fill = "Non-Black"), 
                alpha = 0.5, color = "#FFFFBF") +  # Non-Black group
   scale_fill_manual(values = cols) +
-  labs(title = "Figure 7: Density Plot of Square Root GFR by Race",
+  labs(title = "Figure 7: Density Plot of Square Root GFR by Population Groups",
        x = "sqrt_gfr",
        y = "Density",
        fill = "Group") +
@@ -469,7 +471,7 @@ kidney_tbl_nb <- kidney_df %>%
   tbl_summary(label = list(gfr ~ "Measured glomerular filtration rate(gfr)",
                            bascre ~ "Base serum Creatinine(bascre)",
                            sbase ~ "Systolic blood pressure(sbase)",
-                           dbase ~ " Diastolic blood pressure(dbase)",
+                           dbase ~ "Diastolic blood pressure(dbase)",
                            baseu ~ "Urine protein(baseu)"
                            ),
               statistic = all_continuous() ~ "{mean} ({sd})") %>%
@@ -477,12 +479,12 @@ kidney_tbl_nb <- kidney_df %>%
   bold_labels()
 
 tbl_combined2 <- tbl_merge(
-  tbls = list(kidney_tbl, kidney_tbl_transformed, kidney_tbl_nb),
-  tab_spanner = c("**Original Scale**", "**Transformed Scale**", "**Race Removed**")
+  tbls = list(kidney_tbl_transformed, kidney_tbl_nb),
+  tab_spanner = c("**Transformed Scale**", "**Transformed Scale (Race Removed)**")
 ) 
 
 tbl_combined2 <- tbl_combined2 %>%
-  as_kable_extra(booktabs = TRUE, caption = "Summary Table by Race and Transformation",
+  as_kable_extra(booktabs = TRUE, caption = "Summary Table by Population Groups",
                  longtable = TRUE, linesep = "") %>%
   kableExtra::kable_styling(font_size = 7.5, position = "center", 
                             latex_options = c("repeat_header", "HOLD_position", "scale_down")) %>%
@@ -490,8 +492,8 @@ tbl_combined2 <- tbl_combined2 %>%
   column_spec(2, width = "2cm") %>%
   column_spec(3, width = "2cm") %>%
   column_spec(4, width = "2cm") %>%
-  column_spec(5, width = "2cm") %>%
-  column_spec(6, width = "2cm") %>%
+  # column_spec(5, width = "2cm") %>%
+  # column_spec(6, width = "2cm") %>%
   row_spec(0, bold = TRUE)
 
 tbl_combined2 <- tbl_combined2 %>%
@@ -527,34 +529,58 @@ summary_model_norace %>%
 autoplot(step_model_norace, size=0.5)
 ```
 
+`Table 7` shows the evaluation measures for models including or excluding the race variable `black`, a binary variable that indicates whether a person is Black. The mean squared error (MSE) of the model excluding `black` was 168.63, indicating a poor fit because exclusion leads to an increase in prediction error. The MSEs of both models appeared to be more closely aligned with the MSEs of non-Black individuals. The MAEs for the two models are almost identical, both indicating an average deviation of 9 units between the estimated and measured values of GFR. In addition, both models appeared to underestimate the GFR by 0.4 units. After removing Black from the model, the percentage of individuals with estimates within 10% and 30% of the measured value did not change much. In both models, around 63% of individuals had estimates within 30% of the measured value. 
+
 ```{r}
-predictions_norace <- predict(step_model_norace, newdata = test_norace)
-test_norace$predictions_transformed <- predictions_norace^2
-mse_norace <- mean((test_norace$predictions_transformed - test_norace$gfr)^2)
-mae_norace <- mean(abs(test_norace$predictions_transformed - test_norace$gfr))
+# Predictions and performance metrics by race (grouped by black)
+test$estimated_gfr <- predict(step_model, newdata = test)
+performance_by_race <- test %>%
+  group_by(black) %>%
+  summarise(MSE = mean((predictions_transformed - gfr)^2),
+            MAE = mean(abs(predictions_transformed - gfr)),
+            Bias = mean(predictions_transformed - gfr),
+            P10 = mean(abs(predictions_transformed - gfr) / gfr <= 0.10) * 100,
+            P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100) %>%
+  mutate(Model = ifelse(black == 1, "Black", "Non-black")) %>%  # Rename 'black' as 'Model'
+  dplyr::select(-black) %>% 
+  dplyr::select(Model, everything()) # Move 'Model' to the first column
 
-evaluation_measure_df <- data.frame(Measures = c("MSE", "MAE"),
-                                    Values = c(mse_norace, mae_norace))
+# Performance metrics for the model that includes the race variable
+performance_by_race2 <- test %>%
+  summarise(MSE = mean((predictions_transformed - gfr)^2),
+            MAE = mean(abs(predictions_transformed - gfr)),
+            Bias = mean(predictions_transformed - gfr),
+            P10 = mean(abs(predictions_transformed - gfr) / gfr <= 0.10) * 100,
+            P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100) %>%
+  mutate(Model = "With Black") %>% 
+  dplyr::select(Model, everything())
 
-evaluation_measure_df %>%
-   kbl(booktabs = TRUE, caption = "Evaluation Measures without Race",
-      longtable = TRUE, linesep = "") %>%
-   kable_styling(font_size = 10,
-                latex_options = c("repeat_header", "HOLD_position", "scale_down"))
-```
-
-```{r, out.width="80%", fig.align="center"}
+# Performance metrics for the model without the race variable
 test_norace$estimated_gfr <- predict(step_model_norace, newdata = test_norace)
 performance_by_race_norace <- test_norace %>%
   summarise(MSE = mean((predictions_transformed - gfr)^2),
-            MAE = mean(abs(test_norace$predictions_transformed - test_norace$gfr)),
+            MAE = mean(abs(predictions_transformed - gfr)),
             Bias = mean(predictions_transformed - gfr),
             P10 = mean(abs(predictions_transformed - gfr) / gfr <= 0.10) * 100,
-            P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100)
-performance_by_race_norace %>%
-  kbl(caption = "Performance Metrics by Race") %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+            P30 = mean(abs(predictions_transformed - gfr) / gfr <= 0.30) * 100) %>%
+  mutate(Model = "Without Black") %>% 
+  dplyr::select(Model, everything())
 
+# Combine the performance tables
+combined_performance <- rbind(performance_by_race2, performance_by_race, performance_by_race_norace)
+
+# Display the combined table
+combined_performance %>%
+  kbl(caption = "Evaluation Measures for Models With and Without Black") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                latex_options = c("repeat_header", "HOLD_position", "scale_down")) %>%
+  row_spec(which(combined_performance$Model == "With Black"), bold = TRUE) %>%
+  row_spec(which(combined_performance$Model == "Without Black"), bold = TRUE)
+
+```
+
+
+```{r}
 linear_model <- lm(predictions_transformed ~ gfr, data = test_norace)
 slope <- round(coef(linear_model)[2], 2)
 
@@ -563,31 +589,20 @@ ggplot(test_norace, aes(x = gfr, y = predictions_transformed)) +
   geom_point(alpha=0.7, color="skyblue") +
   geom_abline(intercept = 0, slope = 1, linetype = "solid", size=1) +  # Perfect prediction line
   geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8, color="blue") + 
-  labs(title = "Figure 6: Comparison of Measured and Estimated GFR by Race",
+  labs(title = "Figure 8: Comparison of Measured and Estimated GFR (Excluding Race in Model)",
        x = "Measured GFR",
        y = "Estimated GFR") +
   theme_minimal() +
-  annotate("text", x = max(test_norace$gfr) * 0.9, y = max(test_norace$predictions_transformed) * 0.75, 
+  annotate("text", x = max(test_norace$gfr) , y = max(test_norace$predictions_transformed) * 0.8, 
            label = slope, color = "blue", size = 4)
 ```
 
-```{r}
-# Create a scatter plot to compare measured and estimated GFR
-ggplot(test_norace, aes(x = gfr, y = predictions_transformed)) +
-  geom_point(alpha=0.7, color="skyblue") +
-  geom_abline(intercept = 0, slope = 1, linetype = "solid", size=1) +  # Perfect prediction line
-  geom_smooth(method = "lm", linetype = "dashed", se = FALSE, alpha=0.8, color="blue") + 
-  labs(title = "Figure 6: Comparison of Measured and Estimated GFR by Race",
-       x = "Measured GFR",
-       y = "Estimated GFR") +
-  theme_minimal()
-```
 
 ### 6.
 
-In one of our models for evaluating patient GFR measurements, we examined the effect of key demographic and clinical factors (e.g., age, gender, race, and baseline kidney function) on the prediction of the outcome glomerular filtration rate (GFR). The model showed that GFR was significantly higher in male patients than in females, whereas black patients had lower GFR values than non-black patients. Kidney function, as measured by creatinine and urine levels, was also important; higher values were associated with lower GFR values, which meant that the kidneys were not working well or the patients were more likely to have kidney disease. Importantly, the model allowed us to capture complex interactions, such as the combined effects of baseline kidney function and patient demographic characteristics. These findings suggest that patient characteristics, particularly gender and ethnicity, as well as baseline clinical metrics, can have a meaningful impact on predicted health outcomes, thereby guiding a more personalized approach to treatment.
+In one of our optimal models for evaluating patient GFR measurements, we examined the effect of key demographic and clinical factors (e.g., age, gender, race, and baseline kidney function) on the prediction of the outcome glomerular filtration rate (GFR). The model showed that GFR was significantly higher in male patients than in females, whereas black patients had lower GFR values than non-black patients. Kidney function, as measured by creatinine and urine protien levels, was also important; higher values were associated with lower GFR values, which meant that the kidneys were not working well or the patients were more likely to have kidney disease. Importantly, the model allowed us to capture complex interactions, such as the combined effects of baseline kidney function and patient demographic characteristics. These findings suggest that patient characteristics, particularly gender and ethnicity, as well as baseline clinical metrics, can have a meaningful impact on predicted health outcomes, thereby guiding a more personalized approach to treatment.
 
-Figure 1 shows the relationship between measured GFR and predicted GFR by race using the optimal model, with the black diagonal solid line representing a perfect fit, i.e., the estimated GFR is equal to the measured GFR. The red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This discrepancy suggests that the accuracy of the predictions of the model may differ between these racial groups and that the model appears to better predict the non-black patients. One of the limitations was the imbalance between the non-black and black subgroups of the population included in the model, which suggested that the model might be biased, preventing the predictions from generalizing to the entire population. In addition, the model appeared to correctly estimate GFR in about two-thirds of the patients, with estimates within 30% of the measured values, but with a slight tendency to underestimate, on average, by about 1 unit.
+`Figure 6` shows the relationship between measured GFR and predicted GFR by race using the optimal model, with the black diagonal solid line representing a perfect fit, i.e., the estimated GFR is equal to the measured GFR. The red line for non-black patients is closer to the line of perfect fit than the blue line for black patients. This discrepancy suggests that the accuracy of the predictions of the model may differ between these racial groups and that the model appears to better predict the non-black patients. One of the limitations was the imbalance between the non-black and black subgroups of the population included in the model, which suggested that the model might be biased, preventing the predictions from generalizing to the entire population. In addition, the model appeared to correctly estimate GFR in about two-thirds of the patients, with estimates within 30% of the measured values, but with a slight tendency to underestimate, on average, by about 8 unit (`Table 5`).
 
 ## Appendix {.appendix}
 
