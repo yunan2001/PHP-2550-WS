@@ -1,0 +1,86 @@
+---
+title: "PHP 2550: Worksheet 9"
+subtitle: "Due: November 1st at 11:59pm"
+format: pdf
+editor: visual
+---
+
+
+## Overfitting Exercise
+
+This exercise is about overfitting when you make too complex a model.
+
+```{r}
+p <- 3
+n <- 100
+y <- rnorm(n, 10, 4)
+X <- matrix(rnorm(n*p), nrow=n)
+```
+
+For $p = 1, 2, \ldots 100$, generate $X$ and $y$ as above 1000 times. In each iteration, regress $y$ on $X$ and find the p-values for the model coefficients. Find the number of $\beta$'s that are significant at the 0.05 level (ignoring the intercept). Plot the percentage of times at least one $\beta$ is significant for each value of $p$. Comment on the results - why do you observe what you do.
+
+## Simulation and Regularization
+
+This exercise will look at the difference between logistic, ridge, and lasso regression in a simulation setting besides the formulas. The function below provides a way to simulate a data frame with a binary outcome depending on three variables that follow a multivariate normal distribution. You can this function with different combinations of $\beta$'s and covariance matrix $\Sigma$ to simulate data under different scenarios. Fit logistic, ridge, and lasso regression on the simulated data and visualize how the coefficients extracted from ridge and lasso regression models change over different regularization coefficients, $\lambda$. Explain your findings.
+
+```{r}
+#' Simulate data in with p=3
+#' 
+#' @param n, numeric number of observations
+#' @param beta, numeric vector of true coefficients
+#' @param Sigma, numeric covariance matrix
+#' @return data frame with covariates x1,x2,x3 and outcome y
+sim_data <- function(n = 1000,
+                     beta = c(1, 2, -1),
+                     Sigma = matrix(c(1,0,0,
+                                      0,1,0,
+                                      0,0,1),
+                                    nrow = 3,
+                                    byrow = T)
+                     ){
+  
+  # Generate X from multivariate normal
+  X <- mvrnorm(n = n, mu = c(0,0,0), Sigma = Sigma)
+  
+  # Calculate the signal and add noise
+  epsilon <- rnorm(n)
+  logit_y = X %*% matrix(beta, nrow = 3, ncol = 1) + epsilon
+  
+  # Generate y from probabilities
+  prob_y <- exp(logit_y)/(1+exp(logit_y))
+  y <- rbinom(n, 1, prob_y)
+  
+  # Return data frame
+  data <- data.frame(
+    y = y,
+    x1 = X[,1],
+    x2 = X[,2],
+    x3 = X[,3]
+  )
+  return(data)
+}
+```
+
+## Paper Summary
+
+Write a 3-4 paragraph summary of the paper [Continuous Diagnostic Models for Volume Deficit in Patients with Acute Diarrhea](https://canvas.brown.edu/courses/1092384/files/69227750?wrap=1). In your summary you should include (a) information about the data collection and research question, (b) how variable selection and cross-validation were used to do model selection, (c) how the paper used external validation, and (d) a summary of the results. Give your interpretation for why the authors chose the approach used for model selection.
+
+## Paper Replication
+
+In this exercise, we will replicate part of the results from the paper "A clinical score for identifying active tuberculosis while awaiting microbiological results".
+
+1.  Describe how the goal of this paper - how do the authors anticipate the model being used in practice? how does this impact their analysis? (\~1 paragraph)
+
+2.  The paper uses an external validation data set. Explain the benefits of this validation step and comment on what the authors observed on the transportability of the model. (\~1 paragraph)
+
+3.  Replicate the analysis from the paper to build a clinical risk score model predicting whether or not a patient has TB using lasso regression and explain the steps in your approach. The data is available in the `HDSinRdata` library. Evaluate the model using measures of discrimination and calibration.
+
+    ```{r}
+    library(HDSinRdata)
+    data(tb_diagnosis)
+    ```
+
+4.  Repeat this process but use best subset selection in place of lasso regression. To do so you may either use the `bestglm` or `L0Learn` library. Comment on the differences between the two models and explain how this relates to the underlying optimization/objective function.
+
+
+
