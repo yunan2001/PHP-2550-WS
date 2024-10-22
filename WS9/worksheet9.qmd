@@ -5,7 +5,6 @@ format: pdf
 editor: visual
 ---
 
-
 ## Overfitting Exercise
 
 This exercise is about overfitting when you make too complex a model.
@@ -15,6 +14,8 @@ p <- 3
 n <- 100
 y <- rnorm(n, 10, 4)
 X <- matrix(rnorm(n*p), nrow=n)
+
+# hello yunan
 ```
 
 For $p = 1, 2, \ldots 100$, generate $X$ and $y$ as above 1000 times. In each iteration, regress $y$ on $X$ and find the p-values for the model coefficients. Find the number of $\beta$'s that are significant at the 0.05 level (ignoring the intercept). Plot the percentage of times at least one $\beta$ is significant for each value of $p$. Comment on the results - why do you observe what you do.
@@ -81,6 +82,3 @@ In this exercise, we will replicate part of the results from the paper "A clinic
     ```
 
 4.  Repeat this process but use best subset selection in place of lasso regression. To do so you may either use the `bestglm` or `L0Learn` library. Comment on the differences between the two models and explain how this relates to the underlying optimization/objective function.
-
-
-
