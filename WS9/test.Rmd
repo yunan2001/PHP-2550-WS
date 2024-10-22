@@ -5,3 +5,29 @@ date: "2024-10-22"
 output: pdf_document
 ---
 
+# Overfiting 
+```{r}
+set.seed(123) 
+
+n <- 100
+iterations <- 1000
+p_max <- 100
+significance_level <- 0.05
+
+run_simulation <- function(p) {
+  X <- matrix(rnorm(n * p), nrow = n, ncol = p)
+  y <- rnorm(n, 10, 4)
+  fit <- lm(y ~ X)
+  p_values <- summary(fit)$coefficients[-1, 4]  # Drop intercept p-value
+  return(any(p_values < significance_level, na.rm=TRUE))
+}
+
+percent_significant <- sapply(1:p_max, function(p) {
+  significant_count <- sum(replicate(iterations, run_simulation(p)), na.rm=TRUE)
+  return(list((significant_count / iterations) * 100, significant_count))
+})
+
+plot(1:p_max, percent_significant[1, ])
+
+
+```
