@@ -4,8 +4,17 @@ author: "Yunan Chen"
 date: "2024-10-22"
 output: pdf_document
 ---
+```{r}
+library(glmnet)
+library(MASS)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+```
+
 
 # Overfiting 
+denominator (uniform distribution of p-value), x/y independent,  bias variance of beta
 ```{r}
 set.seed(123) 
 
@@ -28,6 +37,97 @@ percent_significant <- sapply(1:p_max, function(p) {
 })
 
 plot(1:p_max, percent_significant[1, ])
+```
+
+```{r}
+#' Simulate data in with p=3
+#' 
+#' @param n, numeric number of observations
+#' @param beta, numeric vector of true coefficients
+#' @param Sigma, numeric covariance matrix
+#' @return data frame with covariates x1,x2,x3 and outcome y
+sim_data <- function(n = 1000,
+                     beta = c(1, 2, -1),
+                     Sigma = matrix(c(1,0,0,
+                                      0,1,0,
+                                      0,0,1),
+                                    nrow = 3,
+                                    byrow = T)
+                     ){
+  
+  # Generate X from multivariate normal
+  X <- mvrnorm(n = n, mu = c(0,0,0), Sigma = Sigma)
+  
+  # Calculate the signal and add noise
+  epsilon <- rnorm(n)
+  logit_y = X %*% matrix(beta, nrow = 3, ncol = 1) + epsilon
+  
+  # Generate y from probabilities
+  prob_y <- exp(logit_y)/(1+exp(logit_y))
+  y <- rbinom(n, 1, prob_y)
+  
+  # Return data frame
+  data <- data.frame(
+    y = y,
+    x1 = X[,1],
+    x2 = X[,2],
+    x3 = X[,3]
+  )
+  return(data)
+}
+```
+
+```{r}
+set.seed(1234)
+sim_data1 <- sim_data(n = 1000, beta = c(1, 2, -1), Sigma = matrix(c(1,0,0,0,1,0,0,0,1), nrow = 3, byrow = T))
+
+# Split data into predictors and outcome
+X <- as.matrix(sim_data1[, c("x1", "x2", "x3")])
+y <- sim_data1$y
+
+# Standardize the predictors
+X_scaled <- scale(X)
+
+# Create lambda sequence
+lambda_values <- 10^seq(4, -4, length = 100)
+
+# Fit logistic regression model over lambda sequence
+ridge_model <- glmnet(X_scaled, y, alpha = 0, lambda = lambda_values)
 
 
+# Fit ridge regression model over lambda sequence
+ridge_model <- glmnet(X_scaled, y, alpha = 0, lambda = lambda_values)
+
+# Fit lasso regression model over lambda sequence
+lasso_model <- glmnet(X_scaled, y, alpha = 1, lambda = lambda_values)
+
+# Reshape the ridge coefficient data for plotting
+plot_ridge <- as.data.frame(as.matrix(coef(ridge_model)[-1, ]))
+colnames(plot_ridge) <- lambda_values
+plot_ridge$variable <- c("x1", "x2", "x3")
+
+# Reshape the lasso coefficient data for plotting
+plot_lasso <- as.data.frame(as.matrix(coef(lasso_model)[-1, ]))
+colnames(plot_lasso) <- lambda_values
+plot_lasso$variable <- c("x1", "x2", "x3")
+
+# Reshape data using pivot_longer
+plot_lasso_long <- pivot_longer(plot_lasso, -variable, names_to = "lambda", values_to = "coefficient")
+plot_ridge_long <- pivot_longer(plot_ridge, -variable, names_to = "lambda", values_to = "coefficient")
+
+# Convert lambda to numeric
+plot_lasso_long$lambda <- as.numeric(as.character(plot_lasso_long$lambda))
+plot_ridge_long$lambda <- as.numeric(as.character(plot_ridge_long$lambda))
+
+# Plotting Lasso coefficients
+ggplot(plot_lasso_long, aes(x = lambda, y = coefficient, color = variable)) +
+  geom_line() +
+  scale_x_log10() +
+  labs(x = "Lambda (log scale)", y = "Coefficient value", title = "Lasso Regression Coefficients")
+
+# Plotting Lasso coefficients
+ggplot(plot_ridge_long, aes(x = lambda, y = coefficient, color = variable)) +
+  geom_line() +
+  scale_x_log10() +
+  labs(x = "Lambda (log scale)", y = "Coefficient value", title = "Ridge Regression Coefficients")
 ```
