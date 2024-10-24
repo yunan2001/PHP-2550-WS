@@ -14,10 +14,11 @@ p <- 3
 n <- 100
 y <- rnorm(n, 10, 4)
 X <- matrix(rnorm(n*p), nrow=n)
-
 ```
 
 For $p = 1, 2, \ldots 100$, generate $X$ and $y$ as above 1000 times. In each iteration, regress $y$ on $X$ and find the p-values for the model coefficients. Find the number of $\beta$'s that are significant at the 0.05 level (ignoring the intercept). Plot the percentage of times at least one $\beta$ is significant for each value of $p$. Comment on the results - why do you observe what you do.
+
+Note: 2 NAs for p = 99 and 100 because the number of betas are \>= number of p.
 
 ## Simulation and Regularization
 
